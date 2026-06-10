@@ -1,0 +1,79 @@
+﻿@inject Clients.Services.PermisosServicios smodulos;
+@{
+    List<DGSP.Shared.Contracts.DTOs.Modulos.ModuloDto> modulos = await smodulos.GetModulosByUsuario(@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+}
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar elevation-2" style="background-color: #ffffff;">
+    <!-- Brand Logo -->
+    <a href="/home" class="brand-link mb-2 mr-5">
+        <img src="~/img/logo_negro_2.png" alt="AdminLTE Logo" width="60">
+    </a>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false" style="font-size: 15px;">
+                <li class="nav-item has-treeview" id="li_Inicio">
+                    <a class="nav-link font-weight-bold" href="/" style="color: #24135F">
+                        <i class="fad fa-home mr-2"></i>
+                        <p>
+                            Inicio
+                        </p>
+                    </a>
+                </li>
+                @foreach (var mod in modulos)
+                {
+                    <li class="nav-item has-treeview li_sub font-weight-bold">
+                        <a href="#" class="nav-link" style="color: #24135F">
+                            @Html.Raw(@mod.Icono)
+                            <p>
+                                @mod.Nombre.Replace("_", " ")
+                                <i class="right fas fa-angle-right"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            @foreach (var sb in mod.Submodulos)
+                            {
+                                if (sb.AreaId != null)
+                                {
+                                    <li class="nav-item has-treeview li_sub font-weight-bold ml-3">
+                                        <a href="#" class="nav-link" style="color: #24135F">
+                                            @Html.Raw(@sb.Icono)
+                                            <p>
+                                                @sb.Nombre
+                                                <i class="right fas fa-angle-right"></i>
+                                            </p>
+                                        </a>
+                                        <ul class="nav nav-treeview">
+                                            @foreach (var op in sb.Opciones)
+                                            {
+                                                <li class="nav-item font-weight-bold">
+                                                    <a href="/@mod.URL/@sb.URL/@mod.Id/@sb.Id/@op.URL/@op.Id" class="nav-link ml-2 submodulo" style="color: #24135F">
+                                                        @Html.Raw(@op.Icono)
+                                                        <p>@op.Nombre</p>
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="nav-item font-weight-bold">
+                                        <a href="/@mod.URL/@sb.URL/@mod.Id/@sb.Id/index" class="nav-link ml-2 submodulo" style="color: #24135F"
+                                           data-submodulo="@sb.Nombre" data-modulo="@mod.Nombre.Replace("_", " ")">
+                                            @Html.Raw(@sb.Icono)
+                                            <p>@sb.Nombre</p>
+                                        </a>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </li>
+                }
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+</aside>

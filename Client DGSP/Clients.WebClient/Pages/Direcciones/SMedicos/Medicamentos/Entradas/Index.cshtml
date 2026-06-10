@@ -1,0 +1,68 @@
+﻿@page "/smedicos/medicamentos/{moduloId}/{submoduloId}/entradasMedicamentos/{opcionId}"
+@model Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Entradas.IndexModel
+@{
+    ViewData["Title"] = "Lotes de Medicamentos";
+    ViewData["Titulo"] = "Lotes de Medicamentos";
+    int e = 0;
+}
+
+<div class="container-fluid">
+    <div class="row col-lg-12">
+        @if (@Model.Permisos.Where(p => p.Permiso.Nombre.Equals("Crear")).Count() != 0)
+        {
+            <div class="col-lg-12">
+                <a href="/smedicos/medicamentos/@Model.Modulo.Id/@Model.Submodulo.Id/@Model.Opcion.Id/Create" class="btn btn-primary">Nuevo lote</a>
+            </div>
+        }
+        <div class="col-lg-12 table-responsive mt-3">
+            <table class="table tblMedicamentos">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Consultorio</th>
+                        <th>Medicamento</th>
+                        <th>Lote</th>
+                        <th>Presentación</th>
+                        <th>Forma Farmacéutica</th>
+                        <th>Existencia (Presentación)</th>
+                        <th>Existencia (Contenido)</th>
+                        <th>Existencia Total</th>
+                        <th>Caducidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Lotes)
+                    {
+                        e++;
+                        <tr>
+                            <td>@e</td>
+                            <td>@item.Consultorio.Nombre</td>
+                            <td>@item.Medicamento.Nombre</td>
+                            <td>@item.Lote</td>
+                            <td>@item.Medicamento.Presentacion</td>
+                            <td>@item.FormaFarmaceutica.Nombre</td>
+                            <td>@item.Cantidad</td>
+                            <td>@item.CantidadEnvase</td>
+                            <td>@item.CantidadTotal</td>
+                            <td>@item.FechaCaducidad.ToString("yyyy-MM-dd")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+    <script>
+        $(function(){
+            var table = $('.tblMedicamentos').DataTable({
+                responsive: true,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+                },
+            });
+        });
+    </script>
+}

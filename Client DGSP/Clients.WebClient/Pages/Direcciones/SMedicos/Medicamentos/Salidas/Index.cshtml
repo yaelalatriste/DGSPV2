@@ -1,0 +1,50 @@
+﻿@page "/smedicos/medicamentos/{moduloId}/{submoduloId}/salidasMedicamentos/{opcionId}"
+@model Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Salidas.IndexModel
+@{
+    ViewData["Title"] = "Salida de Medicamentos";
+    ViewData["Titulo"] = "Salida de Medicamentos";
+    int e = 0;
+}
+
+<div class="container-fluid">
+    <div class="row col-lg-12">
+        <div class="col-lg-12 table-responsive mt-3">
+            <table class="table tblMedicamentos">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Consultorio</th>
+                        <th>Fecha de Salida</th>
+                        <th>Observaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Salidas)
+                    {
+                        e++;
+                        <tr>
+                            <td>@e</td>
+                            <td>@item.Consultorio.Nombre</td>
+                            <td>@item.FechaSalida.ToString("yyyy-MM-dd")</td>
+                            <td>@item.Observaciones</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+    <script>
+        $(function(){
+            var table = $('.tblMedicamentos').DataTable({
+                responsive: true,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+                },
+            });
+        });
+    </script>
+}

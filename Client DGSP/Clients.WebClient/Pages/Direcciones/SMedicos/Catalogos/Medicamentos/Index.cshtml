@@ -1,0 +1,354 @@
+﻿@page "/smedicos/catalogos/{moduloId}/{submoduloId}/catalogoInsumos/{opcionId}"
+@model Clients.WebClient.Pages.Direcciones.SMedicos.Catalogos.Medicamentos.IndexModel
+@{
+    ViewData["Title"] = "Catálogo de Insumos";
+    ViewData["Titulo"] = "Catálogo de Insumos";
+}
+
+<div class="row col-lg-12">
+    <div class="col-lg-12">
+        @if (@Model.Permisos.Any(p => p.Permiso.Nombre == "Crear" && p.Submodulo.Id == Model.Submodulo.Id && p.OpcionId == @Model.Opcion.Id))
+        {
+            <a class="btn btn-sm btn-primary float-right" href="#" id="registrarMedicamento">
+                <i class="fal fa-plus"></i>
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-lg-12">
+        <div class="table-responsive">
+            <table class="table tblNotas">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Año de Registro</th>
+                        <th>Registró</th>
+                        <th>Fórmula</th>
+                        <th>Nombre</th>
+                        <th>Presentación</th>
+                        <th>Tipo de Insumo</th>
+                        <th>Tipo de Envase</th>
+                        <th>Creado él:</th>
+                        <th>Última Actualizacion:</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int i = 1;
+                    }
+                    @foreach (var item in Model.Medicamentos)
+                    {
+                        var usuario = item.Usuario.NombreEmp + " " + item.Usuario.PaternoEmp + " " + item.Usuario.MaternoEmp;
+                        <tr>
+                            <td>@i</td>                            
+                            <td>@item.Anio</td>                            
+                            <td>@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(usuario.ToLower())</td>                            
+                            <td>@item.Formula</td>                            
+                            <td>@item.Nombre</td>                            
+                            <td>@item.Presentacion</td>
+                            <td>@item.TipoInsumo.Nombre</td>
+                            <td>@item.TipoEnvase.Nombre</td>                            
+                            <td>@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm tt")</td>
+                            <td>@(item.FechaActualizacion.HasValue ? item.FechaActualizacion.GetValueOrDefault().ToString("dd/MM/yyyy HH:mm tt") : "-")</td>
+                            <td>
+                                <a class="editarMedicamento" href="javascript:" 
+                                data-id="@item.Id"
+                                data-insumoid="@item.TipoInsumoId"
+                                data-envaseid="@item.TipoEnvaseId"
+                                data-formula="@item.Formula"
+                                data-nombre="@item.Nombre"
+                                data-presentacion="@item.Presentacion">
+                                    <i class="fad fa-pencil text-primary"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        i++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalRegistrarMedicamento">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h4 class="modal-title text-white" id="divTituloMedicamento"></h4>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input class="form-control" type="hidden" id="inputMedicamentoId"/>
+                <div class="row col-lg-12">
+                    <h5>Datos Generales</h5>
+                </div>
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Tipo de Insumo:</label>
+                        <select class="form-control" id="inputTipoInsumo">
+                            <option value="">Seleccione una opción</option>
+                            @foreach (var ti in Model.TiposInsumos)
+                            {
+                                <option value="@ti.Id">@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(ti.Nombre.ToLower())</option>
+                            }
+                        </select>
+                        <div class="col-sm-12" id="error_inputTipoInsumo">
+                            <small id="dateHelp" class="text-danger">
+                                Seleccione el tipo de insumo
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Tipo de Envase:</label>
+                        <select class="form-control" id="inputTipoEnvase">
+                            <option value="">Seleccione una opción</option>
+                            @foreach (var te in Model.TiposEnvase)
+                            {
+                                <option value="@te.Id">@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(te.Nombre.ToLower())</option>
+                            }
+                        </select>
+                        <div class="col-sm-12" id="error_inputTipoEnvase">
+                            <small id="dateHelp" class="text-danger">
+                                Seleccione el tipo de envase
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="row col-lg-12">
+                    <h5>Datos del Medicamento</h5>
+                </div>
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Fórmula del Medicamento:</label>
+                        <input class="form-control" id="inputFormula">
+                        <div class="col-sm-12" id="error_inputFormula">
+                            <small id="dateHelp" class="text-danger">
+                                Captura la fórmula del medicamento
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Nombre:</label>
+                        <input class="form-control" id="inputNombre">
+                        <div class="col-sm-12" id="error_inputNombre">
+                            <small id="dateHelp" class="text-danger">
+                                Captura el nombre del medicamento
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Presentacion (caja, frasco, tubo, etc.):</label>
+                        <input class="form-control" id="inputPresentacion">
+                        <div class="col-sm-12" id="error_inputPresentacion">
+                            <small id="dateHelp" class="text-danger">
+                                Captura la presentación del medicamento
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-sm btn-primary float-right" href="javascript:" id="guardarMedicamento">
+                    Guardar Medicamento
+                </a>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+@*Modal para Movimientos*@
+
+@section Scripts {
+    <script>
+        $(function(){
+            var usuario = @Html.Raw(Json.Serialize(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value));
+            var modulo = @Html.Raw(Json.Serialize(Model.Modulo));
+            var submodulo = @Html.Raw(Json.Serialize(Model.Submodulo));
+            var opcion = @Html.Raw(Json.Serialize(Model.Opcion));
+
+            $("#error_inputTipoInsumo").css("display","none");
+            $("#error_inputTipoEnvase").css("display","none");
+            $("#error_inputNombre").css("display","none");
+            $("#error_inputFormula").css("display","none");
+            $("#error_inputPresentacion").css("display","none");
+
+            var table = $('.tblNotas').DataTable({
+                responsive: true,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+                },
+            });
+
+            $("#registrarMedicamento").click(function(){
+                $("#divTituloMedicamento").html("Registrar Medicamento");
+                $("#modalRegistrarMedicamento").modal("show");
+            });
+            
+            $(".editarMedicamento").click(function(){
+                $("#inputMedicamentoId").val($(this).data('id'));
+                $("#inputTipoInsumo").val($(this).data('insumoid'));
+                $("#inputTipoEnvase").val($(this).data('envaseid'));
+                $("#inputFormula").val($(this).data('formula'));
+                $("#inputNombre").val($(this).data('nombre'));
+                $("#inputPresentacion").val($(this).data('presentacion'));
+                $("#divTituloMedicamento").html("Actualizar Medicamento");
+                $("#modalRegistrarMedicamento").modal("show");
+            });
+
+            function validaDatos()
+            {
+                let tipoInsumo = $("#inputTipoInsumo").val();
+                let tipoEnvase = $("#inputTipoEnvase").val();
+                let formula = $("#inputFormula").val();
+                let nombre = $("#inputNombre").val();
+                let presentacion = $("#inputPresentacion").val();
+
+                if(tipoInsumo != 0 && tipoEnvase != 0 && formula != "" && nombre != "" && presentacion != ""){
+                    return true;
+                }
+
+                if(presentacion == ""){
+                    Swal.fire({
+                         icon: 'error',
+                         title: 'Registro de Insumo',
+                         html: "No ha registrado la <b>Presentación del Medicamento</b>."
+                     }).then(function () {
+                         $("#error_inputPresentacion").css("display","block");
+                         return false;
+                     });
+                }
+                
+                if(nombre == ""){
+                    Swal.fire({
+                         icon: 'error',
+                         title: 'Registro de Insumo',
+                         html: "No ha registrado el <b>Nombre del Medicamento</b>."
+                     }).then(function () {
+                         $("#error_inputNombre").css("display","block");
+                         return false;
+                     });
+                }
+                
+                if(formula == ""){
+                    Swal.fire({
+                         icon: 'error',
+                         title: 'Registro de Insumo',
+                         html: "No ha registrado la <b>Fórmula del Medicamento</b>."
+                     }).then(function () {
+                         $("#error_inputFormula").css("display","block");
+                         return false;
+                     });
+                }
+
+                if(tipoEnvase == "" || tipoEnvase == 0){
+                    Swal.fire({
+                         icon: 'error',
+                         title: 'Registro de Insumo',
+                         html: "No ha seleccionado el <b>Tipo de Envase</b>."
+                     }).then(function () {
+                          $("#error_inputTipoEnvase").css("display","block");
+                         return false;
+                     });
+                }
+
+                if(tipoInsumo == "" || tipoInsumo == 0)
+                {
+                    Swal.fire({
+                         icon: 'error',
+                         title: 'Registro de Insumo',
+                         html: "No ha seleccionado el <b>Tipo de Insumo</b>."
+                     }).then(function () {
+                          $("#error_inputTipoInsumo").css("display","block");
+                         return false;
+                     });
+                }
+            }
+
+            $("#guardarMedicamento").on('click',function(){
+                let id = $("#inputMedicamentoId").val();
+                let tipoInsumo = $("#inputTipoInsumo").val();
+                let tipoEnvase = $("#inputTipoEnvase").val();
+                let formula = $("#inputFormula").val();
+                let nombre = $("#inputNombre").val();
+                let presentacion = $("#inputPresentacion").val();
+
+                if(validaDatos())
+                {
+                    Swal.fire({
+                        allowOutsideClick: false,
+                        icon: "info",
+                        title: 'Registro de Insumo',
+                        html: "Registrando el insumo, espere por favor.",
+                    });
+                    Swal.showLoading();                  
+                    if(id != 0 && id != "")
+                    {
+                         axios.put('/smedicos/catalogos/'+modulo.id+'/'+submodulo.id+'/catalogoInsumos/'+opcion.id+'?handler=UpdateMedicamento', {
+                             Id: parseInt(id),
+                             TipoInsumoId: parseInt(tipoInsumo),
+                             TipoEnvaseId: parseInt(tipoEnvase),
+                             Formula: formula,
+                             Nombre: nombre,
+                             Presentacion: presentacion
+                         }).then(response => {
+                             if (response.status == 200) {
+                                 var id = response.data.id;
+                                 Swal.fire({
+                                     icon: "success",
+                                     title: 'Registro de Insumo',
+                                     html: "Se actualizó el <b>Insumo</b> dentro del catálogo correctamente.",
+                                     confirmButtonText: 'Cerrar'
+                                 }).then(function () {
+                                     Swal.fire({
+                                         allowOutsideClick: false,
+                                         icon: "info",
+                                         title: 'Registro de Insumo',
+                                         html: "Actualizando el listado de insumos, espere por favor."
+                                     });
+                                     Swal.showLoading();
+                                     window.location.reload();
+                                 });
+                             }
+                       });
+                    }
+                    else
+                    {
+                         axios.post('/smedicos/catalogos/'+modulo.id+'/'+submodulo.id+'/catalogoInsumos/'+opcion.id+'?handler=CreateMedicamento', {
+                             TipoInsumoId: parseInt(tipoInsumo),
+                             TipoEnvaseId: parseInt(tipoEnvase),
+                             Formula: formula,
+                             Nombre: formula,
+                             Presentacion: presentacion
+                         }).then(response => {
+                             if (response.status == 200) {
+                                 var id = response.data.id;
+                                 Swal.fire({
+                                     icon: "success",
+                                     title: 'Registro de Insumo',
+                                     html: "Se registró el <b>Insumo</b> dentro del catálogo correctamente.",
+                                     confirmButtonText: 'Cerrar'
+                                 }).then(function () {
+                                     Swal.fire({
+                                         allowOutsideClick: false,
+                                         icon: "info",
+                                         title: 'Registro de Insumo',
+                                         html: "Actualizando el listado de insumos, espere por favor."
+                                     });
+                                     Swal.showLoading();
+                                     window.location.reload();
+                                 });
+                             }
+                        });
+                    }
+                }
+            });
+
+        })
+    </script>
+}

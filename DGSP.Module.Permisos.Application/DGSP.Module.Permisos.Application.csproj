@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="13.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DGSP.Module.Permisos.Domain\DGSP.Module.Permisos.Domain.csproj" />
+    <ProjectReference Include="..\DGSP.Module.Permisos.Persistence\DGSP.Module.Permisos.Persistence.csproj" />
+    <ProjectReference Include="..\DGSP.Shared.Contracts\DGSP.Shared.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

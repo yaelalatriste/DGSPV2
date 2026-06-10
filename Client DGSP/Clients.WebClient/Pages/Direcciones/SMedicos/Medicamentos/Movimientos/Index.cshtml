@@ -1,0 +1,73 @@
+﻿@page "/smedicos/medicamentos/{moduloId}/{submoduloId}/movimientosInventario/{opcionId}"
+@model Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Movimientos.IndexModel
+@{
+    ViewData["Title"] = "Movimientos de Inventario";
+    ViewData["Titulo"] = "Movimientos de Inventario";
+}
+
+<div class="row mt-3">
+    <div class="col-lg-12">
+        <div class="table-responsive">
+            <table class="table tblNotas">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Elaboró</th>
+                        <th>Lote</th>
+                        <th>Tipo de Insumo</th>
+                        <th>Medicamento</th>
+                        <th>Fórmula</th>
+                        <th>Forma Farmacéutica</th>
+                        <th>Fecha de Caducidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int i = 1;
+                    }
+                    @foreach (var mv in Model.Lotes)
+                    {
+                        var usuario = mv.Usuario.NombreEmp + " " + mv.Usuario.PaternoEmp + " " + mv.Usuario.MaternoEmp;
+                        <tr>
+                            <td>@i</td>
+                            <td>@usuario</td>
+                            <td>@mv.Lote</td>
+                            <td>@mv.TipoInsumo.Nombre</td>
+                            <td>@mv.Medicamento.Nombre</td>
+                            <td>@mv.Medicamento.Formula</td>
+                            <td>@mv.FormaFarmaceutica.Nombre</td>
+                            <td>@mv.FechaCaducidad.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <a href="/smedicos/medicamentos/@Model.Modulo.Id/@Model.Submodulo.Id/movimientosInventario/@Model.Opcion.Id/detalle/@mv.Lote">
+                                    <i class="fas fa-eye text-success"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        i++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(function(){
+            var usuario = @Html.Raw(Json.Serialize(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value));
+            var modulo = @Html.Raw(Json.Serialize(Model.Modulo));
+            var submodulo = @Html.Raw(Json.Serialize(Model.Submodulo));
+            var opcion = @Html.Raw(Json.Serialize(Model.Opcion));
+            
+            var table = $('.tblNotas').DataTable({
+                responsive: true,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+                },
+            });
+            
+        })
+    </script>
+}

@@ -1,0 +1,311 @@
+﻿@page "/smedicos/catalogos/{moduloId}/{submoduloId}/catalogoConsultorios/{opcionId}"
+@model Clients.WebClient.Pages.Direcciones.SMedicos.Catalogos.Consultorios.IndexModel
+@{
+    ViewData["Title"] = "Catálogo de Consultorios";
+    ViewData["Titulo"] = "Catálogo de Consultorios";
+}
+
+<div class="row mt-3">
+    <div class="col-lg-12">
+        <div class="table-responsive">
+            <table class="table tblNotas">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Clave</th>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Población</th>
+                        <th>Extensión</th>
+                        <th>Responsable</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int i = 1;
+                    }
+                    @foreach (var item in Model.Consultorios)
+                    {
+                        var usuario = item.ServidorPublico.Nombre+ " " + item.ServidorPublico.Paterno+ " " + item.ServidorPublico.Materno;
+                        <tr>
+                            <td>@i</td>                            
+                            <td>@item.Clave</td>                            
+                            <td>@item.Nombre</td>
+                            <td>@item.Tipo</td>                            
+                            <td>@item.Poblacion</td>                            
+                            <td>@item.Extension</td>
+                            <td>@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(usuario.ToLower())</td>                            
+                            <td>
+                                <a class="actualizarConsultorio" href="javascript:" 
+                                data-id="@item.Id"
+                                data-nombre="@item.Nombre"
+                                data-tipo="@item.Tipo"
+                                data-poblacion="@item.Poblacion"
+                                data-extension="@item.Extension"
+                                data-expediente="@item.ExpedienteResponsable">
+                                    <i class="fad fa-pencil text-primary"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        i++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalActualizarConsultorio">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h4 class="modal-title text-white" id="divTituloConsultorio"></h4>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input class="form-control" type="hidden" id="inputConsultorioId"/>
+                <div class="row col-lg-12">
+                    <h5>Responsable del Consultorio</h5>
+                </div>
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Responsable:</label>
+                        <input class="form-control" id="inputExpediente" type="number">
+                        <div class="col-sm-12" id="error_inputExpediente">
+                            <small id="dateHelp" class="text-danger">
+                                Capture el Expediente
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Servidor Público:</label>
+                        <input class="form-control" id="inputNombre" readonly>
+                    </div>
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Puesto:</label>
+                        <input class="form-control" id="inputPuesto" readonly>
+                    </div>
+                </div>
+                <div class="row col-lg-12">
+                    <h5>Datos del Consultorio</h5>
+                </div>
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Tipo de Consultorio:</label>
+                        <select class="form-control" id="inputTipoCon">
+                            <option value="">Seleccione una opción</option>
+                            <option value="M">Metropolitano</option>
+                            <option value="F">Foráneo</option>
+                        </select>
+                        <div class="col-sm-12" id="error_inputTipoCon">
+                            <small id="dateHelp" class="text-danger">
+                                Seleccione el tipo de consultorio
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Población:</label>
+                        <input class="form-control" id="inputPoblacion">
+                        <div class="col-sm-12" id="error_inputPoblacion">
+                            <small id="dateHelp" class="text-danger">
+                                Captura la poblacíon del inmueble
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Extensión:</label>
+                        <input class="form-control" id="inputExtension">
+                        <div class="col-sm-12" id="error_inputExtension">
+                            <small id="dateHelp" class="text-danger">
+                                Captura la presentación del medicamento
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-sm btn-primary float-right" href="javascript:" id="guardarConsultorio">
+                    Actualizar Consultorio
+                </a>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+@*Modal para Movimientos*@
+
+@section Scripts {
+    <script>
+        $(function(){
+            var usuario = @Html.Raw(Json.Serialize(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value));
+            var modulo = @Html.Raw(Json.Serialize(Model.Modulo));
+            var submodulo = @Html.Raw(Json.Serialize(Model.Submodulo));
+            var opcion = @Html.Raw(Json.Serialize(Model.Opcion));
+
+            $("#error_inputExpediente").css("display","none");
+            $("#error_inputPoblacion").css("display","none");
+            $("#error_inputExtension").css("display","none");
+            $("#error_inputTipoCon").css("display","none");
+
+            var table = $('.tblNotas').DataTable({
+                responsive: true,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+                },
+            });
+
+            $(".actualizarConsultorio").click(function(){
+                $("#divTituloConsultorio").html("Actualizar Medicamento");
+                $("#inputConsultorioId").val($(this).data('id'));
+                $("#inputExpediente").val($(this).data('expediente'));
+                $("#inputPoblacion").val($(this).data('poblacion'));
+                $("#inputExtension").val($(this).data('extension'));
+                $("#inputTipoCon").val($(this).data('tipo'));
+                $("#modalActualizarConsultorio").modal("show");
+            });
+
+            $("#inputExpediente").change(function(){
+                axios.get('/smedicos/catalogos/'+modulo.id+'/'+submodulo.id+'/catalogoConsultorios/'+opcion.id+'?expediente='+$(this).val()+'&Handler=empleadoByExpediente').then(response => {
+                    var data = response.data;
+                    console.log(data);
+                    $("#inputPuesto").val(data.puesto);
+                    $("#inputNombre").val(data.nombre+' '+data.paterno+' '+data.materno);
+                });
+            });
+
+                   function validaDatos() {
+            let expediente = $("#inputExpediente").val();
+            let poblacion = $("#inputPoblacion").val();
+            let tipoCon = $("#inputTipoCon").val();
+            let extension = $("#inputExtension").val().trim();
+
+            let regex = /^#\d{3}\s\d{4}$/;
+
+            if (expediente == "" || expediente == 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Registro de Consultorio',
+                    html: "No ha registrado el <b>Responsable del Consultorio</b>."
+                }).then(function () {
+                    $("#error_inputExpediente").css("display", "block");
+                    $("#inputExpediente").focus();
+                });
+
+                return false;
+            }
+
+            if (tipoCon == "" || tipoCon == 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Registro de Consultorio',
+                    html: "No ha registrado el <b>Tipo de Consultorio</b>."
+                }).then(function () {
+                    $("#error_inputTipoCon").css("display", "block");
+                    $("#inputTipoCon").focus();
+                });
+
+                return false;
+            }
+
+            if (poblacion == "" || poblacion == 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Registro de Consultorio',
+                    html: "No ha registrado la <b>Población del Consultorio</b>."
+                }).then(function () {
+                    $("#error_inputPoblacion").css("display", "block");
+                    $("#inputPoblacion").focus();
+                });
+
+                return false;
+            }
+
+            if (extension == "" || extension == 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Registro de Consultorio',
+                    html: "No ha registrado la <b>Extensión del Consultorio</b>."
+                }).then(function () {
+                    $("#inputExtension").focus();
+                });
+
+                return false;
+            }
+
+            if (!regex.test(extension)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Registro de Consultorio',
+                    html:
+                        '<div style="text-align: justify;">' +
+                            '<p>La extensión capturada no cumple con la nomenclatura requerida.</p>' +
+                            '<p><strong>Ejemplo correcto:</strong></p>' +
+                            '<p style="text-align:center; font-size:16px; color:#0d6efd;"><strong>#318 2047</strong></p>' +
+                            '<p>Por favor, verifique la información e intente nuevamente.</p>' +
+                        '</div>',
+                    confirmButtonText: 'Entendido'
+                }).then(function () {
+                    $("#inputExtension").focus();
+                });
+
+                return false;
+            }
+
+            return true;
+        }
+
+            $("#guardarConsultorio").on('click',function(){
+                let id = $("#inputConsultorioId").val();
+                let tipoCon= $("#inputTipoCon").val();
+                let poblacion = $("#inputPoblacion").val();
+                let expediente = $("#inputExpediente").val();
+                let extension = $("#inputExtension").val();
+
+                if(validaDatos())
+                {
+                    Swal.fire({
+                        allowOutsideClick: false,
+                        icon: "info",
+                        title: 'Registro de Consultorio',
+                        html: "Actualizando el consultorio, espere por favor.",
+                    });
+                    Swal.showLoading();                  
+                    if(id != 0 && id != "")
+                    {
+                       axios.put('/smedicos/catalogos/'+modulo.id+'/'+submodulo.id+'/catalogoConsultorios/'+opcion.id+'?handler=UpdateConsultorio', {
+                             Id: parseInt(id),
+                             Tipo: tipoCon,
+                             ExpedienteResponsable: parseInt(expediente),
+                             Poblacion: parseInt(poblacion),
+                             Extension: extension,
+                         }).then(response => {
+                             if (response.status == 200) {
+                                 var id = response.data.id;
+                                 Swal.fire({
+                                     icon: "success",
+                                     title: 'Registro de Consultorio',
+                                     html: "Se actualizó el <b>Consultorio</b> correctamente.",
+                                     confirmButtonText: 'Cerrar'
+                                 }).then(function () {
+                                     Swal.fire({
+                                         allowOutsideClick: false,
+                                         icon: "info",
+                                         title: 'Registro de Consultorio',
+                                         html: "Actualizando el listado de consultorios, espere por favor."
+                                     });
+                                     Swal.showLoading();
+                                     window.location.reload();
+                                 });
+                             }
+                       });
+                    }
+                }
+            });
+
+        })
+    </script>
+}

@@ -1,0 +1,251 @@
+﻿@page "/smedicos/medicamentos/{moduloId}/{submoduloId}/notasTraspaso/{opcionId}"
+@model Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.NotasTraspaso.SalidaModel
+@{
+    ViewData["Title"] = "Traspaso de Medicamentos";
+    ViewData["Titulo"] = "Traspaso de Medicamentos";
+}
+
+<div class="row col-lg-12">
+    <div class="col-lg-12">
+        @if (@Model.Permisos.Any(p => p.Permiso.Nombre == "Crear" && p.Submodulo.Id == Model.Submodulo.Id && p.OpcionId == @Model.Opcion.Id))
+        {
+            <a class="btn btn-sm btn-primary float-right" href="#" id="registrarNota">
+                <i class="fal fa-plus"></i>
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-lg-12">
+        <div class="table-responsive">
+            <table class="table tblNotas">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Elaboró</th>
+                        <th>Estatus</th>
+                        <th>Origen</th>
+                        <th>Destino</th>
+                        <th>Número Traspaso</th>
+                        <th>Entregable</th>
+                        <th>Fecha de Registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int i = 1;
+                    }
+                    @foreach (var item in Model.NotasTraspaso)
+                    {
+                        var usuario = item.Usuario.NombreEmp + " " + item.Usuario.PaternoEmp + " " + item.Usuario.MaternoEmp;
+                        <tr>
+                            <td>@i</td>
+                            <td>@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(usuario.ToLower())</td>
+                            <td>@item.Estatus.Nombre</td>
+                            <td>@item.ConsultorioOrigen.Nombre</td>
+                            <td>@item.ConsultorioDestino.Nombre</td>
+                            <td>@item.NumeroTraspaso</td>
+                            <td>@item.Entregable</td>
+                            <td>@item.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                @if (@Model.Permisos.Any(p => p.Permiso.Nombre == "Ver" && p.Submodulo.Id == Model.Submodulo.Id && p.OpcionId == @Model.Opcion.Id))
+                                {
+                                    <a href="/smedicos/medicamentos/@Model.Modulo.Id/@Model.Submodulo.Id/notasTraspaso/@Model.Opcion.Id/detalle/@item.Id"><i class="fas fa-eye text-success"></i></a>
+                                }
+                            </td>
+                        </tr>
+                        i++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalRegistrarNota">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h4 class="modal-title text-white">Registrar Nota de Traspaso</h4>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Origen:</label>
+                        <select class="form-control select2bs4" id="inputOrigenId">
+                            <option value="">Seleccione el Origen</option>
+                            @foreach (var c in Model.Consultorios)
+                            {
+                                <option value="@c.Id">@c.Nombre</option>
+                            }
+                        </select>
+                        <div class="col-sm-12" id="error_inputOrigenId">
+                            <small id="dateHelp" class="text-danger">
+                                Capture el origen del medicamento
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Destino:</label>
+                        <select class="form-control select2bs4" id="inputDestinoId">
+                            <option value="">Seleccione el Origen</option>
+                            @foreach (var c in Model.Consultorios)
+                            {
+                                <option value="@c.Id">@c.Nombre</option>
+                            }
+                        </select>
+                        <div class="col-sm-12" id="error_inputDestinoId">
+                            <small id="dateHelp" class="text-danger">
+                                Capture el destino del medicamento
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Número de Traspaso:</label>
+                        <input type="number" id="inputNumeroTraspaso" class="form-control" />
+                        <div class="col-sm-12" id="error_inputNumeroTraspaso">
+                            <small id="dateHelp" class="text-danger">
+                                Capture el número de traspaso
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-sm btn-primary float-right" href="javascript:" id="guardarNota">
+                    Guardar Nota
+                </a>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+@*Modal para Movimientos*@
+
+@section Scripts {
+    <script>
+        $(function(){
+            var usuario = @Html.Raw(Json.Serialize(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value));
+            var modulo = @Html.Raw(Json.Serialize(Model.Modulo));
+            var submodulo = @Html.Raw(Json.Serialize(Model.Submodulo));
+            var opcion = @Html.Raw(Json.Serialize(Model.Opcion));
+
+            $("#error_inputOrigenId").css("display","none");
+            $("#error_inputDestinoId").css("display","none");
+            $("#error_inputNumeroTraspaso").css("display","none");
+            
+            $('.select2').select2();
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            });
+
+
+            var table = $('.tblNotas').DataTable({
+                responsive: true,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+                },
+            });
+
+            document.getElementById("inputNumeroTraspaso").addEventListener("input", function (e) {
+                this.value = this.value.replace(/[^0-9/]/g, '');
+            });
+
+            $("#registrarNota").click(function(){
+                $("#modalRegistrarNota").modal("show");
+            });
+
+            function validaDatos()
+            {
+                let origenId = $("#inputOrigenId").val();
+                let destinoId = $("#inputDestinoId").val();
+                let numeroTraspaso = $("#inputNumeroTraspaso").val();
+
+                if(origenId != 0 && destinoId != 0 && numeroTraspaso != 0){
+                    return true;
+                }
+
+                if(origenId == 0){
+                    Swal.fire({
+                         icon: 'error',
+                         title: 'Notas de Traspaso',
+                         html: "No ha seleccionado el <b>Origen del Medicamento</b>."
+                     }).then(function () {
+                         $("#error_inputOrigenId").css("display","block");
+                         return false;
+                     });
+                }
+
+                if(destinoId == 0){
+                    Swal.fire({
+                         icon: 'error',
+                         title: 'Notas de Traspaso',
+                         html: "No ha seleccionado el <b>Destino del Medicamento</b>."
+                     }).then(function () {
+                          $("#error_inputDestinoId").css("display","block");
+                         return false;
+                     });
+                }
+
+                if(numeroTraspaso == ""){
+                    Swal.fire({
+                         icon: 'error',
+                         title: 'Notas de Traspaso',
+                         html: "No ha capturado el <b>Numero del Traspaso</b>."
+                     }).then(function () {
+                          $("#error_inputNumeroTraspaso").css("display","block");
+                         return false;
+                     });
+                }
+            }
+
+            $("#guardarNota").on('click',function(){
+                let origenId = $("#inputOrigenId").val();
+                let destinoId = $("#inputDestinoId").val();
+                let numeroTraspaso = $("#inputNumeroTraspaso").val();
+
+                if(validaDatos())
+                {
+                    Swal.fire({
+                        allowOutsideClick: false,
+                        icon: "info",
+                        title: 'Notas de Traspaso',
+                        html: "Registrando la nota de traspaso de medicamentos",
+                    });
+                    Swal.showLoading();
+                    axios.post('/smedicos/medicamentos/'+modulo.id+'/'+submodulo.id+'/notasTraspaso/'+opcion.id+'?handler=CreateNotaTraspaso', {
+                        ConsultorioId: parseInt(origenId),
+                        ConsultorioDestinoId: parseInt(destinoId),
+                        NumeroTraspaso: numeroTraspaso
+                    }).then(response => {
+                        if (response.status == 200) {
+                            var id = response.data.id;
+                            Swal.fire({
+                                icon: "success",
+                                title: 'Notas de Traspaso',
+                                html: "Se registró la <b>Nota de Traspaso</b> correctamente.",
+                                confirmButtonText: 'Cerrar'
+                            }).then(function () {
+                                Swal.fire({
+                                    allowOutsideClick: false,
+                                    icon: "info",
+                                    title: 'Notas de Traspaso',
+                                    html: "Redireccionando, espere por favor."
+                                });
+                                Swal.showLoading();
+                                window.location.href = '/smedicos/medicamentos/'+modulo.id+'/'+submodulo.id+'/notasTraspaso/'+opcion.id+'/detalle/'+id;
+                            });
+                        }
+                    });
+                }
+            });
+
+        })
+    </script>
+}

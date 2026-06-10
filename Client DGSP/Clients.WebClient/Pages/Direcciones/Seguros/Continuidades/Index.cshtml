@@ -1,0 +1,251 @@
+﻿@page "/seguros/siniestros/{moduloId}/{submoduloId}/continuidades/{opcionId}"
+@model Clients.WebClient.Pages.Direcciones.Seguros.Continuidades.IndexModel
+@{
+    ViewData["Title"] = "Listado de Continuidades";
+    ViewData["Titulo"] = "Listado de Continuidades";
+    int c = 0;
+}
+<div class="row">
+    <div class="col-lg-12">
+        @if(Model.continuidades.Where(c => c.EstatusId == 2).Count() != 0)
+        {
+            <a class="btn btn-sm btn-secondary float-right enviarCorreoMovimientos ml-2" href="#">
+                <i class="fal fa-envelope"></i>
+            </a>
+        }        
+        <a class="btn btn-sm btn-danger ml-2 float-right buscarContinuidad" href="#" id="buscarContinuidad">
+            <i class="fal fa-search"></i>
+        </a>
+        <a class="btn btn-sm btn-primary float-right" href="#" id="registrarContinuidad">
+            <i class="fal fa-plus"></i>
+        </a>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row mt-2">
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>@Model.continuidades.Count()</h3>
+                        <p>Total de Continuidades</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                </div>
+            </div>
+            @foreach (var kp in Model.continuidades.GroupBy(e => new { e.EstatusId }).Select(e => new { EstatusId = e.Key.EstatusId, Total = e.Count() }).OrderBy(e => e.EstatusId).ToList())
+            {
+                <div class="col-lg-3 col-6">
+                    <div class="small-box @Model.Estatus.First(c => c.Id == @kp.EstatusId).Fondo">
+                        <div class="inner">
+                            <h3>@kp.Total</h3>
+                            <p>@(Model.Estatus.First(c => c.Id == @kp.EstatusId).Nombre)</p>
+                        </div>
+                        <div class="icon">
+                            @Html.Raw(Model.Estatus.First(c => c.Id == @kp.EstatusId).Icono)
+                        </div>
+                        <a href="/seguros/siniestros/@Model.Modulo.Id/@Model.Submodulo.Id/continuidades/@Model.Opcion.Id?EstatusId=@kp.EstatusId" 
+                        class="small-box-footer verContinuidades">Ver Continuidades<i class="fas fa-arrow-circle-right ml-2"></i></a>
+                    </div>
+                </div>
+            }
+        </div>
+
+
+        <div class="row">
+            <section class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Detalle de Continuidades</h3>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table tblContinuidades">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Usuario</th>
+                                    <th>Expediente</th>
+                                    <th>Servidor Público</th>
+                                    <th>Estatus</th>
+                                    <th>Importe</th>
+                                    <th>Fecha de Creación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Continuidades)
+                                {
+                                    c++;
+                                    var usuario = item.Usuario.NombreEmp + " " + item.Usuario.PaternoEmp + " " + item.Usuario.MaternoEmp;
+                                    var servidorP = item.ServidorPublico.Nombre + " " + item.ServidorPublico.Paterno + " " + item.ServidorPublico.Materno;
+                                    <tr>
+                                        <td>@c</td>
+                                        <td>@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(usuario.ToLower())</td>
+                                        <td>@item.Expediente</td>
+                                        <td>@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(servidorP.ToLower())</td>
+                                        <td>@item.Estatus.Nombre</td>
+                                        <td>@String.Format(System.Globalization.CultureInfo.CurrentCulture, "{0:C}", @item.Importe)</td>
+                                        <td>@item.FechaCreacion.GetValueOrDefault().ToString("dd/MM/yyyy HH:mm tt")</td>
+                                        <td>
+                                            <a href="/seguros/siniestros/@Model.Modulo.Id/@Model.Submodulo.Id/continuidades/@Model.Opcion.Id/detalle/@item.Id">
+                                                <i class="fas fa-eye text-success"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(function(){
+            var usuario = @Html.Raw(Json.Serialize(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value));
+            var modulo = @Html.Raw(Json.Serialize(Model.Modulo));
+            var submodulo = @Html.Raw(Json.Serialize(Model.Submodulo));
+            var opcion = @Html.Raw(Json.Serialize(Model.Opcion));
+
+            var table = $('.tblContinuidades').DataTable({
+                responsive: true,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+                },
+            });
+
+            $(".verContinuidades").click(function(){
+                Swal.fire({
+                    allowOutsideClick: false,
+                    icon: "info",
+                    title: 'Continuidades SGMM',
+                    html: "Cargando continuidades, espere por favor.",
+                    confirmButtonText: 'Cerrar'
+                });
+                Swal.showLoading();
+            });
+            
+            $(".buscarContinuidad").click(function(){
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Detalle de la Continuidad',
+                    html: '<p style="text-align: justify">Por favor capture el expdiente del servidor público a buscar:' +
+                    '</p>'+'<br>'+
+                    '<input type="number" id="buscarExpediente" class="swal2-select" style="width: 80%; padding: 0.5em; border-radius: 5px;">',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: 'Buscar',
+                }).then(buscar => {
+                    var buscarExpediente= $("#buscarExpediente").val();
+                    if(buscarExpediente != "" && buscarExpediente != 0)
+                    {
+                          Swal.fire({
+                              allowOutsideClick: false,
+                              icon: "info",
+                              title: 'Continuidades SGMM',
+                              html: "Buscando continuidad, espere por favor.",
+                              confirmButtonText: 'Cerrar'
+                          });
+                          Swal.showLoading();
+                        window.location.href="/seguros/siniestros/@Model.Modulo.Id/@Model.Submodulo.Id/continuidades/@Model.Opcion.Id?Expediente="+buscarExpediente;
+                    }
+                });
+            });
+
+            $(".enviarCorreoMovimientos").click(function(){
+                Swal.fire
+                ({
+                    allowOutsideClick: false,
+                    icon: "info",
+                    title: 'Detalle de la Continuidad',
+                    showConfirmButton: false,
+                    html: "Enviando correo, espere por favor."
+                });
+
+                axios.post('/seguros/siniestros/'+modulo.id+'/'+submodulo.id+'/continuidades/'+opcion.id+'?handler=SendEmailMovimientos').then(response => {
+                    if(response.data.success == true){
+                        Swal.fire
+                        ({
+                            icon: 'success',
+                            title: 'Detalle de la Continuidad',
+                            html: 'Se envió correctamente el correo a <b>Movimientos</b> con las continuidades a gestionar.',
+                            confirmButtonText: 'Cerrar'
+                        }).then(function () {
+                            window.location.reload();
+                        });
+                     }
+                     else
+                     {
+                         Swal.fire({
+                             icon: 'error',
+                             title: 'Detalle de la Continuidad',
+                             text: 'Hubo un error al envíar el correo, favor de contactar al administrador del sistema.',
+                             confirmButtonText: 'Cerrar'
+                        });
+                     }
+                 });
+             });
+
+             $("#registrarContinuidad").on('click',function(){
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Continuidades',
+                    html: '<p style="text-align: justify">Por favor capture el expediente del servidor público.' +
+                    '</p>'+'<br>'+
+                    '<input type="numer" id="expediente" class="swal2-select" style="width: 80%; padding: 0.5em; border-radius: 5px;">',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: 'Registrar',
+                }).then(coments => {
+                    var expediente = $("#expediente").val();
+                    if(expediente != "" && expediente != 0)
+                    {
+                        Swal.fire({
+                            allowOutsideClick: false,
+                            icon: "info",
+                            title: 'Continuidades',
+                            html: "Registrando Continuidad",
+
+                        });
+                        Swal.showLoading();
+                        axios.post('/seguros/siniestros/'+modulo.id+'/'+submodulo.id+'/continuidades/'+opcion.id+'?handler=CreateContinuidad', {
+                            UsuarioId: usuario,
+                            Expediente: parseInt(expediente)
+                        }).then(response => {
+                            console.log(response);
+                            if (response.status == 200) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: 'Continuidades',
+                                    html: "Se registró la continuidad del servidor público correctamente.",
+                                    confirmButtonText: 'Cerrar'
+                                }).then(function () {
+                                    Swal.fire({
+                                        allowOutsideClick: false,
+                                        icon: "info",
+                                        title: 'Continuidades',
+                                        html: "Actualizando, espere por favor."
+                                    });
+                                    Swal.showLoading();
+                                    window.location.href = '/seguros/siniestros/'+modulo.id+'/'+submodulo.id+'/continuidades/'+opcion.id+'/detalle/'+response.data.id;
+
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,652 @@
+﻿@page "/smedicos/reportes/{moduloId}/{submoduloId}/area/{area}/index"
+@using DGSP.Shared.Contracts.DTOs.SMedicos.Siacom.Dashboards
+@model Clients.WebClient.Pages.Direcciones.SMedicos.Reportes.Consultorios.IndexModel
+@{
+    ViewData["Title"] = "Reportes";
+    ViewData["Titulo"] = Model.Area.Nombre + " - Reporte de Consultas";
+    int c = 0;
+}
+
+<div class="row">
+    <div class="col-lg-6" id="titleConsulta">
+    </div>
+    <div class="col-lg-6">
+        <a class="btn btn-md btn-primary mb-2 float-right filtrarInformacion" href="#">
+            <i class="fal fa-filter-list"></i>
+        </a>
+        @if (Model.FAnios != 0 && Model.FMeses.Count() != 0)
+        {
+            <a class="btn btn-md btn-danger mb-2 mr-2 float-right" href="#" id="btnExportPDF">
+                <i class="fal fa-file-pdf"></i>
+            </a>
+        }
+    </div>
+</div>
+
+@if (Model.FAnios != 0 && Model.FMeses.Count() != 0)
+{
+    <div class="container-fluid mt-4">
+        <div id="dashboardContainer">
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="card shadow-sm h-100 kpi-card kpi-primary">
+                        <div class="card-body">
+                            <h6 class="text-muted mb-2">Total consultas</h6>
+                            <h3 class="mb-0">@Model.Dashboard.Kpis.TotalConsultas.ToString("N0")</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="card shadow-sm h-100 kpi-card kpi-success">
+                        <div class="card-body">
+                            <h6 class="text-muted">Tipo más frecuente</h6>
+                            <h5 id="kpiTipoFrecuente">@Model.Dashboard.Kpis.TipoConsultaMasFrecuente</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="card shadow-sm h-100 kpi-card kpi-warning">
+                        <div class="card-body">
+                            <h6 class="text-muted">Mes con mayor demanda</h6>
+                            <h5 id="kpiMesMayorDemanda">@Model.Dashboard.Kpis.MesMayorDemanda</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="card shadow-sm h-100 kpi-card kpi-danger">
+                        <div class="card-body">
+                            <h6 class="text-muted">Variación %</h6>
+                            <h3 id="kpiVariacion"
+                                class="@(Model.Dashboard.Kpis.VariacionPorcentual > 0 ? "text-success" :
+                                                                Model.Dashboard.Kpis.VariacionPorcentual < 0 ? "text-danger" : "text-dark")">
+                            @Model.Dashboard.Kpis.VariacionPorcentual.ToString("N2")%
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            <div class="row mb-4">
+                <div class="col-md-8 mb-3">
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            Comparativa por tipo de consulta
+                        </div>
+                        <div class="card-body">
+                            <div style="height: 400px;">
+                                <canvas id="barChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            Distribución por tipo
+                        </div>
+                        <div class="card-body">
+                            <div style="height: 400px;">
+                                <canvas id="doughnutChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-12 mb-3">
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            Tendencia mensual
+                        </div>
+                        <div class="card-body">
+                            <div style="height: 350px;">
+                                <canvas id="lineChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            @foreach (var mes in Model.FMeses)
+            {
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        Detalle de consultas - @Model.Meses.First(m => m.Id == mes).Nombre
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-striped table-hover tblDetalle">
+                            <thead>
+                                <tr>
+                                    <th>Tipo de consulta</th>
+                                    <th>Año</th>
+                                    <th>Mes</th>
+                                    <th>Cantidad</th>
+                                    <th>Porcentaje</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Dashboard?.Detalle != null && Model.Dashboard.Detalle.Any())
+                                {
+                                    foreach (var item in Model.Dashboard.Detalle.OrderByDescending(c => c.Cantidad))
+                                    {
+                                        @if (item.Mes == mes)
+                                        {
+                                            <tr>
+                                                <td>@item.TipoConsulta</td>
+                                                <td>@item.Anio</td>
+                                                <td>@(Model.Meses.FirstOrDefault(x => x.Id == item.Mes)?.Nombre ?? item.Mes.ToString())</td>
+                                                <td>@item.Cantidad.ToString("N0")</td>
+                                                <td>@item.Porcentaje.ToString("N2")%</td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3"><b>Total</b></td>
+                                    <td>@Model.Dashboard.Detalle.Where(m => m.Mes == mes).Select(c => c.Cantidad).Sum().ToString("N0")</td>
+                                    <td>@Model.Dashboard.Detalle.Where(m => m.Mes == mes).Select(c => c.Porcentaje).Sum().ToString("N2")%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            }            
+        </div>
+    </div>
+}
+
+@*Modal para Filtrar la Información*@
+<div class="modal fade" id="modalFiltrado">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h4 class="modal-title text-white">Filtrar Información</h4>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="get" id="getAnio" asp-page-handler="GetAnio">
+                <div class="modal-body">
+                    <div class="row col-lg-12">
+                        <h5 class="label">Consultar Información de:</h5>
+                    </div>
+                    <div class="row col-lg-12">
+                        <div class="col-lg-6">
+                            <select class="form-control" asp-for="FAnios">
+                                <option value="">Seleccione el año</option>
+                                @foreach (var a in Model.Anios)
+                                {
+                                    <option value="@a">@a</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <select class="select2bs4" multiple="multiple" data-placeholder="Select a State" style="width: 100%;" asp-for="FMeses">
+                                <option value="">Seleccione el Mes</option>
+                                @foreach (var m in Model.Meses)
+                                {
+                                    <option value="@m.Id">@m.Nombre</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-end">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+@*Modal para Filtrar la Información*@
+
+<style>
+    .kpi-card {
+        border: none;
+        border-radius: 12px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,.10);
+        }
+
+    .kpi-primary {
+        border-top: 4px solid #2563eb;
+    }
+
+    .kpi-success {
+        border-top: 4px solid #16a34a;
+    }
+
+    .kpi-warning {
+        border-top: 4px solid #d97706;
+    }
+
+    .kpi-danger {
+        border-top: 4px solid #dc2626;
+    }
+
+    .card-header {
+        font-weight: 600;
+        color: #1f2937;
+        background-color: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .table thead th {
+        background-color: #f8fafc;
+        color: #374151;
+        font-weight: 600;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f9fafb;
+    }
+</style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        $(function () {
+             //Initialize Select2 Elements
+            $('.select2').select2();
+
+            //Initialize Select2 Elements
+            $('.select2bs4').select2({
+                theme: 'bootstrap4',
+                closeOnSelect: false // 👈 evita que se cierre el listado al seleccionar
+            });
+
+            $(".filtrarInformacion").on('click', function (e) {
+                e.preventDefault();
+                $("#modalFiltrado").modal('show');
+            });
+
+            $(".btn-consultas").click(function () {
+                $("#titleConsulta").html("<h4>Reporte - " + $(this).data("consulta") + "</h4>");
+            });
+
+            const comparativaTipos = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Dashboard?.ComparativaTipos ?? new List<ComparativaTipoConsultaDto>()));
+            const distribucion = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Dashboard?.Distribucion ?? new List<DistribucionTipoConsultaDto>()));
+            const tendenciaMensual = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Dashboard?.TendenciaMensual ?? new List<TendenciaMensualDto>()));
+
+            const colores = {
+                azul: "#2563eb",
+                azulClaro: "#60a5fa",
+                verde: "#16a34a",
+                amarillo: "#d97706",
+                rojo: "#dc2626",
+                morado: "#7c3aed",
+                cyan: "#0891b2",
+                gris: "#6b7280",
+                grisClaro: "#e5e7eb",
+                fondo: "#f8fafc"
+            };
+
+             $('.tblDetalle').DataTable({
+                lengthMenu: [[15, 25, 50, -1], [15, 25, 50, "Todos"]],
+                responsive: true,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+                },
+            });
+
+            if (comparativaTipos.length > 0) {
+                renderBarChart(comparativaTipos);
+            }
+
+            if (distribucion.length > 0) {
+                renderDoughnutChart(distribucion);
+            }
+
+            if (tendenciaMensual.length > 0) {
+                renderLineChart(tendenciaMensual);
+            }
+
+                    function renderBarChart(comparativaTipos) {
+            const ctx = document.getElementById("barChart");
+            if (!ctx) return;
+
+            const tipos = [...new Set(comparativaTipos.map(x => x.TipoConsulta))];
+            const periodos = [];
+
+            comparativaTipos.forEach(item => {
+                const llave = `${item.Anio}-${item.Mes}`;
+                if (!periodos.some(p => p.llave === llave)) {
+                    periodos.push({
+                        llave: llave,
+                        anio: item.Anio,
+                        mes: item.Mes
+                    });
+                }
+            });
+
+            periodos.sort((a, b) => {
+                if (a.anio !== b.anio) return a.anio - b.anio;
+                return a.mes - b.mes;
+            });
+
+            const coloresBarras = [
+                "#2563eb",
+                "#16a34a",
+                "#d97706",
+                "#7c3aed",
+                "#0891b2",
+                "#dc2626"
+            ];
+
+            const datasets = periodos.map((periodo, index) => {
+                const data = tipos.map(tipo => {
+                    const encontrado = comparativaTipos.find(x =>
+                        x.TipoConsulta === tipo &&
+                        x.Anio === periodo.anio &&
+                        x.Mes === periodo.mes
+                    );
+
+                    return encontrado ? encontrado.Cantidad : 0;
+                });
+
+                return {
+                    label: `${obtenerNombreMes(periodo.mes)} ${periodo.anio}`,
+                    data: data,
+                    backgroundColor: coloresBarras[index % coloresBarras.length],
+                    borderColor: coloresBarras[index % coloresBarras.length],
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    maxBarThickness: 48
+                };
+            });
+
+            new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: tipos,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 25
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: "top",
+                            labels: {
+                                boxWidth: 14,
+                                color: "#374151",
+                                font: {
+                                    size: 12,
+                                    weight: "600"
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return `${context.dataset.label}: ${formatearNumero(context.raw)}`;
+                                }
+                            }
+                        },
+                        datalabels: {
+                            anchor: "end",
+                            align: "end",
+                            offset: 2,
+                            color: "#111827",
+                            font: {
+                                weight: "bold",
+                                size: 11
+                            },
+                            formatter: function (value) {
+                                return value > 0 ? formatearNumero(value) : "";
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: "#374151",
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: "#374151",
+                                callback: function (value) {
+                                    return formatearNumero(value);
+                                }
+                            },
+                            grid: {
+                                color: "#e5e7eb"
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+
+                    function renderDoughnutChart(distribucion) {
+            const ctx = document.getElementById("doughnutChart");
+            if (!ctx) return;
+
+            const labels = distribucion.map(x => x.TipoConsulta);
+            const data = distribucion.map(x => x.Cantidad);
+
+            const backgroundColors = [
+                "#2563eb",
+                "#16a34a",
+                "#d97706",
+                "#7c3aed",
+                "#0891b2",
+                "#dc2626",
+                "#f59e0b",
+                "#10b981"
+            ];
+
+            new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Distribución",
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: "#ffffff",
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: "58%",
+                    plugins: {
+                        legend: {
+                            position: "right",
+                            labels: {
+                                color: "#374151",
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const value = context.raw;
+                                    const porcentaje = total > 0 ? ((value * 100) / total).toFixed(2) : 0;
+                                    return `${context.label}: ${formatearNumero(value)} (${porcentaje}%)`;
+                                }
+                            }
+                        },
+                        datalabels: {
+                            color: "#ffffff",
+                            font: {
+                                weight: "bold",
+                                size: 11
+                            },
+                            formatter: function (value, context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const porcentaje = total > 0 ? ((value * 100) / total) : 0;
+                                return porcentaje >= 5 ? `${porcentaje.toFixed(1)}%` : "";
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+
+                            function renderLineChart(tendenciaMensual) {
+            const ctx = document.getElementById("lineChart");
+            if (!ctx) return;
+
+            const ordenados = [...tendenciaMensual].sort((a, b) => {
+                if (a.Anio !== b.Anio) return a.Anio - b.Anio;
+                return a.Mes - b.Mes;
+            });
+
+            const labels = ordenados.map(x => `${obtenerNombreMes(x.Mes)} ${x.Anio}`);
+            const data = ordenados.map(x => x.TotalConsultas);
+
+            new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Total de consultas",
+                        data: data,
+                        fill: true,
+                        tension: 0.35,
+                        borderColor: "#2563eb",
+                        backgroundColor: "rgba(37, 99, 235, 0.10)",
+                        pointBackgroundColor: "#2563eb",
+                        pointBorderColor: "#ffffff",
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 20
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: "top",
+                            labels: {
+                                color: "#374151",
+                                font: {
+                                    size: 12,
+                                    weight: "600"
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return `${context.dataset.label}: ${formatearNumero(context.raw)}`;
+                                }
+                            }
+                        },
+                        datalabels: {
+                            align: "top",
+                            anchor: "end",
+                            color: "#1f2937",
+                            font: {
+                                weight: "bold",
+                                size: 11
+                            },
+                            formatter: function (value) {
+                                return formatearNumero(value);
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: "#374151"
+                            },
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: "#374151",
+                                callback: function (value) {
+                                    return formatearNumero(value);
+                                }
+                            },
+                            grid: {
+                                color: "#e5e7eb"
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+
+            function obtenerNombreMes(mes) {
+                const meses = {
+                    1: "Enero",
+                    2: "Febrero",
+                    3: "Marzo",
+                    4: "Abril",
+                    5: "Mayo",
+                    6: "Junio",
+                    7: "Julio",
+                    8: "Agosto",
+                    9: "Septiembre",
+                    10: "Octubre",
+                    11: "Noviembre",
+                    12: "Diciembre"
+                };
+
+                return meses[mes] || "";
+            }
+
+                    function formatearNumero(valor) {
+            return new Intl.NumberFormat('es-MX').format(valor ?? 0);
+        }
+
+        function formatearDecimal(valor) {
+            return new Intl.NumberFormat('es-MX', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(valor ?? 0);
+        }
+        });
+    </script>
+}

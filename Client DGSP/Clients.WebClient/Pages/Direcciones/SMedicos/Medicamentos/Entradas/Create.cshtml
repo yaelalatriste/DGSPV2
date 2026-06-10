@@ -1,0 +1,210 @@
+﻿@page "/smedicos/medicamentos/{moduloId}/{submoduloId}/{opcionId}/create"
+@model Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Entradas.CreateModel
+@{
+    ViewData["Title"] = "Registro de Medicamentos";
+    ViewData["Titulo"] = "Registro de Medicamentos";
+}
+@if (!string.IsNullOrWhiteSpace(Model.Error))
+{
+    <div class="alert alert-danger">@Model.Error</div>
+}
+@if (!string.IsNullOrWhiteSpace(Model.Ok))
+{
+    <div class="alert alert-success">@Model.Ok</div>
+}
+
+<div class="container-fluid">
+    <div class="row col-lg-12">
+        <div class="col-lg-12">
+            <a href="/smedicos/medicamentos/@Model.Modulo.Id/@Model.Submodulo.Id/@Model.Opcion.URL/@Model.Opcion.Id" class="btn-sm btn-warning float-right">
+                <i class="fal fa-arrow-left"></i>
+            </a>
+        </div>
+        <div class="col-lg-12 mt-3">
+            <div class="card">
+                <form method="post">
+                    <div class="card-header bg-secondary">
+                        <h5>Registro de Medicamento</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row col-lg-12">
+                            <h5>Datos Generales</h5>
+                        </div>
+                        <div class="row col-lg-12">
+                            <div class="col-12 col-md-2">
+                                <label class="form-label">Consultorio</label>
+                                <select class="form-control select2bs4" asp-for="Form.ConsultorioId">
+                                    <option value="0">Seleccione una opción</option>
+                                    @foreach (var c in Model.Consultorios)
+                                    {
+                                        <option value="@c.Id">@c.Nombre</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label">Tipo de Ingreso</label>
+                                <select class="form-control" asp-for="Form.TipoMovimientoId">
+                                    <option value="0">Seleccione una opción</option>
+                                    @foreach (var m in Model.TiposMovimiento)
+                                    {
+                                        <option value="@m.Id">@m.Nombre</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row col-lg-12 mt-3">
+                            <h5>Datos del Medicamento</h5>
+                        </div>
+                        <div class="row col-lg-12 mt-3">
+                            <div class="col-12 col-md-3">
+                                <label class="form-label">Medicamento</label>
+                                <select class="form-control select2bs4" asp-for="Form.MedicamentoId" id="inputMedicamento">
+                                    <option value="0">Seleccione una opción</option>
+                                    @foreach (var m in Model.Medicamentos)
+                                    {
+                                        <option value="@m.Id">@m.Nombre</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label">Presentación</label>
+                                <input type="text" class="form-control" id="inputPresentacion" readonly/>
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label">Tipo de Insumo</label>
+                                <select class="form-control" asp-for="Form.TipoInsumoId" id="inputTipoInsumo" readonly>
+                                    <option value="0">Seleccione una opción</option>
+                                    @foreach (var m in Model.TiposInsumos)
+                                    {
+                                        <option value="@m.Id">@m.Nombre</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label">Tipo de Envase</label>
+                                <select class="form-control select2bs4" asp-for="Form.TipoEnvaseId" id="inputTipoEnvase" readonly>
+                                    <option value="0">Seleccione una opción</option>
+                                    @foreach (var te in Model.TiposEnvase)
+                                    {
+                                        <option value="@te.Id">@te.Abreviacion</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label">Forma Farmacéutica</label>
+                                <select class="form-control select2bs4" asp-for="Form.FormaFarmaceuticaId">
+                                    <option value="0">Seleccione una opción</option>
+                                    @foreach (var ff in Model.FormasFarmaceuticas)
+                                    {
+                                        <option value="@ff.Id">@ff.Abreviacion</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row col-lg-12 mt-3">
+                            <h5>Datos del Lote</h5>
+                        </div>
+                        <div class="row col-lf-12 mt-3">
+                            <div class="col-12 col-md-2">
+                                <label class="form-label"># de Lote</label>
+                                <input type="text" class="form-control" asp-for="Form.Lote" />
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label">Fecha de Caducidad</label>
+                                <input type="date" class="form-control" asp-for="Form.FechaCaducidad" />
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label">Cantidad (Unidades)</label>
+                                <input type="number" step="0" class="form-control" asp-for="Form.Cantidad" />
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label">Cantidad por Unidad (contenido)</label>
+                                <input type="number" step="0" class="form-control" asp-for="Form.CantidadEnvase" />
+                            </div>
+                            <div class="col-12 col-md-1">
+                                <label class="form-label">Total</label>
+                                <input type="number" step="0" class="form-control" asp-for="Form.CantidadTotal" readonly />
+                            </div>
+                            <div class="col-12 col-md-1">
+                                <label class="form-label">Concentración</label>
+                                <input type="text" class="form-control" asp-for="Form.Concentracion" id="concentracionId" />
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label">Unidad Contenido</label>
+                                <select class="form-control select2bs4" asp-for="Form.UnidadContenidoId">
+                                    <option value="0">Seleccione una opción</option>
+                                    @foreach (var uc in Model.UnidadesContenido)
+                                    {
+                                        <option value="@uc.Id">@uc.Abreviacion</option>
+                                    }                                    
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row g mt-3">
+                            <div class="col-12">
+                                <label class="form-label">Observaciones</label>
+                                <textarea class="form-control" asp-for="Form.Observaciones" placeholder="Ej. Entrada anual 2026 / folio" style="resize:none;"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    @if (@Model.Permisos.Where(p => p.Permiso.Nombre.Equals("Crear")).Count() != 0)
+                    {
+                        <div class="card-footer">
+                            <a href="/smedicos/inventarios/@Model.Modulo.Id/@Model.Submodulo.Id/@Model.Opcion.Nombre/@Model.Opcion.Id" class="btn btn-danger float-right ml-2">
+                                Cancelar Entrada
+                            </a>
+                            <button class="btn btn-primary float-right" type="submit">Guardar Entrada</button>
+                        </div>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            $('.select2').select2();
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            });
+
+            var modulo = @Html.Raw(Json.Serialize(Model.Modulo));
+            var submodulo = @Html.Raw(Json.Serialize(Model.Submodulo));
+            var opcion = @Html.Raw(Json.Serialize(Model.Opcion));
+
+            function calcularTotal() {
+                let cantidad = parseFloat($("#Form_Cantidad").val()) || 0;
+                let envase = parseFloat($("#Form_CantidadEnvase").val()) || 0;
+
+                let total = cantidad * envase;
+
+                $("#Form_CantidadTotal").val(total);
+            }
+            
+            document.getElementById("concentracionId").addEventListener("input", function (e) {
+                this.value = this.value.replace(/[^0-9/]/g, '');
+            });
+
+            $("#Form_Cantidad, #Form_CantidadEnvase").on("input", calcularTotal);
+            
+            $("#inputMedicamento").on('change',function(){
+                axios.get('/smedicos/medicamentos/' + modulo.id+'/' + submodulo.id+'/'+opcion.id+'/create?id='+$(this).val() +'&handler=DatosMedicamento').then(response => {
+                    if (response.status == 200 && response.data.id != 0) {
+                        let datos = response.data;
+                        $("#inputTipoInsumo").val(datos.tipoInsumoId).change();
+                        $("#inputTipoEnvase").val(datos.tipoEnvaseId).change();
+                        $("#inputPresentacion").val(datos.presentacion).change();
+                    }
+                });
+            });
+
+                    calcularTotal();
+
+        if ($("#inputMedicamento").val() && $("#inputMedicamento").val() !== "0") {
+            $("#inputMedicamento").trigger("change");
+        }
+        });
+    </script>
+}

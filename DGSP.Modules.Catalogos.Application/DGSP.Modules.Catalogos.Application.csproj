@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Commands\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DGSP.Components.Common\DGSP.Components.Common.csproj" />
+    <ProjectReference Include="..\DGSP.Module.Catalogos.Contract\DGSP.Modules.Catalogos.Contract.csproj" />
+    <ProjectReference Include="..\DGSP.Shared.Abstractions\DGSP.Shared.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Api.Gateway.WebClient.Proxy\DGSP.Gateway.Proxy.csproj" />
+    <ProjectReference Include="..\DGSP.Shared.Contracts\DGSP.Shared.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

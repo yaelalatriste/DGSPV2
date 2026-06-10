@@ -1,0 +1,1143 @@
+﻿@page "/smedicos/medicamentos/{moduloId}/{submoduloId}/notasTraspaso/{opcionId}/detalle/{notaId}"
+@model Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.NotasTraspaso.DetalleNotaModel
+@{
+    ViewData["Title"] = "Detalle de Traspaso";
+    ViewData["Titulo"] = "Detalle de Traspaso";
+    int c = 0;
+    int m = 0;
+    int h = 0;
+}
+
+<div class="row col-lg-12">
+    <div class="col-lg-12">
+        <a href="/smedicos/medicamentos/@Model.Modulo.Id/@Model.Submodulo.Id/notasTraspaso/@Model.Opcion.Id" class="btn-sm btn-warning float-right ml-2">
+            <i class="fal fa-arrow-left"></i>
+        </a>
+        @if (Model.NotaTraspaso.Estatus.MemorandumPdf)
+        { 
+            <a class="btn btn-sm btn-outline-danger float-right ml-2 verEntregable" href="javascript:" data-archivo="@Model.NotaTraspaso.Entregable">
+                <i class="fal fa-file-pdf text-danger"></i>
+            </a>
+        }
+        @if (@Model.Permisos.Any(p => p.Permiso.Nombre == "Crear" && p.Submodulo.Id == Model.Submodulo.Id && p.OpcionId == @Model.Opcion.Id)
+                && Model.NotaTraspaso.Estatus.Editar == true)
+        {
+            <a class="btn btn-sm btn-primary float-right ml-2" href="#" id="registrarDetalle">
+                <i class="fal fa-plus"></i>
+            </a>
+        }
+
+        @if (@Model.Permisos.Any(p => p.Permiso.Nombre == "Crear" && p.Submodulo.Id == Model.Submodulo.Id && p.OpcionId == @Model.Opcion.Id))
+        {
+            @if (Model.NotaTraspaso.Estatus.MemorandumWord)
+            {
+                <a class="btn btn-sm btn-info float-right generaMemo" href="#">
+                    <i class="fal fa-file-word"></i>
+                </a>
+            }
+        }
+    </div>
+</div>
+
+<div class="row col-lg-12">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header cabeceraInformacionG">
+                <i class="fa-sharp fa-light fa-list-check mr-2"></i> Nota de Traspaso
+            </div>
+            <div class="card-body" id="cuerpoInformacionG" style="display: block">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <ul class="mb-0 fa-ul">
+                            <li class="small mt-3"><span class="fa-li"><i class="fas fa-lg fa-house-medical"></i></span> <b>Consultorio Origen: </b>: @Model.NotaTraspaso.ConsultorioOrigen.Nombre</li>
+                            <li class="small mt-3"><span class="fa-li"><i class="fa-regular fa-house-medical-circle-check"></i></i></span> <b>Consultorio Destino: </b>: @Model.NotaTraspaso.ConsultorioDestino.Nombre</li>
+                            <li class="small mt-3"><span class="fa-li"><i class="fas fa-lg fa-hashtag"></i></span> <b>Número de Traspaso: </b> @Model.NotaTraspaso.NumeroTraspaso</li>
+                            <li class="small mt-3"><span class="fa-li"><i class="fas fa-lg fa-user"></i></span> <b>Estatus: @Model.NotaTraspaso.Estatus.Nombre</b></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home">
+                    Detalle de Medicamentos
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="seguimiento-tab" data-toggle="tab" href="#seguimiento">
+                    Historial de Actualizaciones
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                <div class="row col-lg-12 mt-4">
+                    <div class="col-lg-12 h3">
+                        Detalle de la nota de traspaso
+                    </div>
+                    <div class="row col-lg-12">
+                        <div class="col-lg-12 mt-2">
+                            <div class="card">
+                                <div class="card-header">Detalle de Medicamentos</div>
+                                <div class="card-body">
+                                    <div class="row mt-3">
+                                        <div class="col-lg-12">
+                                            <div class="table-responsive">
+                                                <table class="table tblDetalle" width="=100%">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Tipo de Movimiento</th>
+                                                            <th>Lote</th>
+                                                            <th>Medicamento</th>
+                                                            <th>Presentacion</th>
+                                                            <th>Forma Farmaceutica</th>
+                                                            <th>Tipo Envase</th>
+                                                            <th>Almacén</th>
+                                                            <th>Cantidad</th>
+                                                            <th>Restante</th>
+                                                            @if (Model.NotaTraspaso.Estatus.Editar == true)
+                                                            {
+                                                                <th>Acciones</th>
+                                                            }
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var dt in Model.DetalleNota)
+                                                        {
+                                                            m++;
+                                                            <tr>
+                                                                <td>@m</td>
+                                                                <td>@dt.TipoMovimiento.Nombre</td>
+                                                                <td>@dt.Lote.Lote</td>
+                                                                <td>@dt.Lote.Medicamento.Nombre</td>
+                                                                <td>@dt.Lote.Medicamento.Presentacion</td>
+                                                                <td>@dt.Lote.FormaFarmaceutica.Nombre</td>
+                                                                <td>@dt.Lote.TipoEnvase.Nombre</td>
+                                                                <td>@dt.Almacen</td>
+                                                                <td>@dt.Cantidad</td>
+                                                                <td>@dt.Restante</td>
+                                                                @if (Model.NotaTraspaso.Estatus.Editar == true)
+                                                                {
+                                                                    <td class="text-center">
+                                                                        @if (@Model.Permisos.Any(p => p.Permiso.Nombre == "Editar" && p.Submodulo.Id == Model.Submodulo.Id && p.OpcionId == @Model.Opcion.Id))
+                                                                        {
+                                                                            <a href="#" class="actualizarDetalle mr-2 text-center"
+                                                                               data-id="@dt.Id"
+                                                                               data-movimientoid="@dt.TipoMovimientoId"
+                                                                               data-loteid="@dt.LoteId"
+                                                                               data-almacen="@dt.Almacen"
+                                                                               data-cantidad="@dt.Cantidad"
+                                                                               data-restante="@dt.Restante">
+                                                                                <i class="fas fa-pencil text-primary"></i>
+                                                                            </a>
+                                                                        }
+                                                                        <a href="#" class="eliminarDetalle text-center" data-id="@dt.Id">
+                                                                            <i class="fas fa-times text-danger"></i>
+                                                                        </a>
+                                                                    </td>
+                                                                }
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    @foreach (var f in Model.Flujo)
+                                    {
+                                        if (Model.Permisos.Any(p => p.PermisoId == f.PermisoId && p.SubmoduloId == Model.Submodulo.Id))
+                                        {
+                                            @Html.Raw(f.Boton);
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade mt-2 ml-3" id="seguimiento" role="tabpanel" aria-labelledby="seguimiento-tab">
+                <div class="row col-lg-12 mt-4">
+                    <div class="col-lg-12 h3">
+                        Historial de actualizaciones
+                    </div>
+                    <div class="row col-lg-12">
+                        <div class="col-lg-12 mt-2">
+                            <div class="card">
+                                <div class="card-header">Historial</div>
+                                <div class="card-body">
+                                    <div class="row mt-3">
+                                        <div class="col-lg-12">
+                                            <div class="table-responsive">
+                                                <table class="table tblHistorial" style="width:100%">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Usuario</th>
+                                                            <th>Estatus</th>
+                                                            <th>Observaciones</th>                                                            
+                                                            <th>Fecha de Actualización</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var l in Model.Logs)
+                                                        {
+                                                            h++;
+                                                            var usuario = l.Usuario.NombreEmp + " " + l.Usuario.PaternoEmp + " " + l.Usuario.MaternoEmp;
+                                                            <tr>
+                                                                <td>@h</td>
+                                                                <td>@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(usuario.ToLower())</td>
+                                                                <td>@l.Estatus.Nombre</td>
+                                                                <td>@l.Observaciones</td>
+                                                                <td>@l.FechaCreacion.ToString("dd/MM/yyyy HH:mm tt")</td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalRegistrarDetalleNota">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h4 class="modal-title text-white">Agregar Medicamento/Insumo</h4>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row col-lg-12">
+                    <h5>Datos Generales</h5>
+                    <div class="row col-lg-12">
+                        <input type="hidden" id="inputDetalleNotaId" />
+                        <div class="form-group col-lg-4">
+                            <label for="tipoIncidencia">Tipo de Movimiento:</label>
+                            <select class="form-control" id="inputTipoMovimiento">
+                                <option value="">Seleccione una opción</option>
+                                @foreach (var ti in Model.TiposMovimientos)
+                                {
+                                    <option value="@ti.Id">@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(ti.Nombre.ToLower())</option>
+                                }
+                            </select>
+                            <div class="col-sm-12" id="error_inputTipoMovimiento">
+                                <small id="dateHelp" class="text-danger">
+                                    Seleccione el tipo de movimiento
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row col-lg-12">
+                    <h5>Datos del Medicamento</h5>
+                    <div class="row col-lg-12">
+                        <div class="form-group col-lg-2">
+                            <label for="tipoIncidencia">Lote:</label>
+                            <input class="form-control" id="inputLoteId" type="hidden" />
+                            <input class="form-control" id="inputLoteMedicamento" />
+                            <div class="col-sm-12" id="error_inputLoteMedicamento">
+                                <small id="dateHelp" class="text-danger">
+                                    Capture el lote del medicamento
+                                </small>
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-5">
+                            <input type="hidden" id="inputMedicamentoId" />
+                            <label for="tipoIncidencia">Medicamento:</label>
+                            <input class="form-control" id="inputMedicamento" readonly />
+                        </div>
+                        <div class="form-group col-lg-5">
+                            <label for="tipoIncidencia">Presentacion:</label>
+                            <input class="form-control" id="inputPresentacionMedicamento" readonly />
+                        </div>
+                    </div>
+                </div>
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Forma Farmaceutica:</label>
+                        <input class="form-control" id="inputFormaFarmaceutica" readonly />
+                    </div>
+                    <div class="form-group col-lg-4">
+                        <label for="tipoIncidencia">Tipo Envase:</label>
+                        <input class="form-control" id="inputTipoEnvase" readonly />
+                    </div>
+                </div>
+                <div class="row col-lg-12" id="divTraspasoAlmacen">
+                    <h5>Datos del Traspaso (Almacén)</h5>
+                    <div class="row col-lg-12">
+                        <div class="col-lg-4">
+                            <div class="form-group" id="divCantidadPresentacion">
+                            </div>
+                            <div class="form-group" id="divCantidadContenido">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label for="tipoIncidencia">Cantidad a traspasar (presentación):</label>
+                                <input class="form-control" id="inputCantidadPresentacion" type="hidden" />
+                                <input class="form-control" id="inputCantidadEnvase" type="hidden" />
+                                <input class="form-control" id="inputCantidad" />
+                                <div class="col-sm-12" id="error_inputCantidad">
+                                    <small id="dateHelp" class="text-danger">
+                                        Capture la cantidad que se traspasara
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <input class="form-control" id="inputRestanteEnvase" type="hidden" />
+                            <input class="form-control" id="inputRestante" type="hidden" />
+                            <div class="form-group" id="divRestantePresentacion">
+                            </div>
+                            <div class="form-group" id="divRestanteContenido">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row col-lg-12">
+                        <p><b>NOTA: </b> Las cantidades reales en el almacén no se verán afectadas hasta que no se <b>concluya</b> con la nota de traspaso de medicamentos.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-sm btn-primary float-right" href="javascript:" id="guardarDetalleNota">
+                    Guardar Nota
+                </a>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+@*Modal para Medicamentos*@
+
+@* Modal secundario para seleccionar el medicamento*@
+<div class="modal fade" id="modalSeleccionMedicamento">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
+                <h4 class="modal-title text-white">
+                    Seleccionar Medicamento
+                </h4>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    Se encontraron varios medicamentos para el lote capturado.
+                    Seleccione el medicamento que desea utilizar.
+                </div>       
+                <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
+                    <table class="table mb-0">
+                        <thead class="thead-dark" style="position: sticky; top: 0; z-index: 2;">
+                            <tr>
+                                <th>Medicamento</th>
+                                <th>Presentación</th>
+                                <th>Forma Farmacéutica</th>
+                                <th>Tipo de Envase</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblMedicamentosLote">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@* Fin a modal secundario para seleccionar el medicamento*@
+
+@*Modal para Concluir la Nota*@
+<div class="modal fade" id="modalConcluirNota">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h4 class="modal-title text-white">Concluir la Nota de Traspaso</h4>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5>Adjuntar Memorandum</h5>
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-6">
+                        <input type="hidden" id="inputEstatusId"/>
+                        <label for="elegirArchivo">Seleccionar Archivo: </label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="customFile" accept=".pdf,.PDF">
+                            <label class="custom-file-label" for="customFile">Seleccionar Archivo</label>
+                        </div>
+                        <div class="col-sm-12" id="error_comprobantePDF">
+                            <small id="dateHelp" class="text-danger">
+                                Por favor seleccione él archivo correspondiente
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-sm btn-primary float-right" href="javascript:" id="guardarConclusion">
+                    Concluir Nota
+                </a>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+@*Modal para concluir la Nota*@
+
+@*Modal para ver los Entregables*@
+<div class="modal fade" id="modalVerEntregables">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 98%; height: 95vh;">
+        <div class="modal-content" style="height: 100%;">
+
+            <div class="modal-header bg-joke">
+                <h4 class="modal-title text-white" id="titleVerEntregables"></h4>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body p-0" style="height: 100%;">
+                <div id="objectPdf" style="height: 100%;"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@*Fin Modal para ver los Entregables*@
+
+@section Scripts {
+    <script>
+        $(function(){
+            var usuario = @Html.Raw(Json.Serialize(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value));
+            var modulo = @Html.Raw(Json.Serialize(Model.Modulo));
+            var submodulo = @Html.Raw(Json.Serialize(Model.Submodulo));
+            var opcion = @Html.Raw(Json.Serialize(Model.Opcion));
+            var notaTraspaso = @Html.Raw(Json.Serialize(Model.NotaTraspaso));
+            var detallesNota = @Html.Raw(Json.Serialize(Model.DetalleNota));
+
+            $("#error_inputTipoMovimiento").css("display","none");
+            $("#error_inputLoteMedicamento").css("display","none");
+            $("#error_inputCantidad").css("display","none");
+            $("#divTraspasoAlmacen").css("display","none");
+            $("#error_comprobantePDF").css("display","none");
+
+            var medicamentosEncontrados = [];
+
+            var table = $('.tblDetalle').DataTable({
+                responsive: true,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+                },
+            });
+
+            var table = $('.tblHistorial').DataTable({
+                responsive: true,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+                },
+            });
+            
+                $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                    tablaDetalle.columns.adjust().responsive.recalc();
+                    tablaHistorial.columns.adjust().responsive.recalc();
+                });
+
+
+            $("#registrarDetalle").click(function(){
+                $("#inputLoteId").val("");
+                $("#inputLoteMedicamento").val("");
+                $("#inputLoteMedicamento").prop("disabled",false);
+                $("#inputFormaFarmaceutica").val("");
+                $("#inputTipoEnvase").val("");
+                $("#inputTipoMovimiento").val("");
+                $("#inputAlmacen").val("");
+                $("#inputCantidad").val("");
+                $("#inputCantidadPresentacion").val("");
+                $("#inputCantidadEnvase").val("");
+                $("#inputRestante").val("");
+                $("#inputMedicamento").val("");
+                $("#inputPresentacionMedicamento").val("");
+                $("#divTraspasoAlmacen").css("display","none");
+                $("#modalRegistrarDetalleNota").modal("show");
+            });
+
+            $(".actualizarDetalle").click(function(){
+                let id = $(this).data('id');
+                let movimientoid = $(this).data('movimientoid');
+                let loteid = $(this).data('loteid');
+                let almacen = $(this).data('almacen');
+                let cantidad = $(this).data('cantidad');
+                let restante = $(this).data('restante');
+                $("#inputDetalleNotaId").val(id);
+                axios.get('/smedicos/medicamentos/' + modulo.id+'/' + submodulo.id+'/notasTraspaso/'+opcion.id+'/detalle/' + notaTraspaso.id+'?detalleId='+id+'&handler=DetalleById').then(response => {
+                    $("#inputTipoMovimiento").val(response.data.tipoMovimientoId);
+                    $("#inputCantidad").val(response.data.cantidad);
+                    axios.get('/smedicos/medicamentos/' + modulo.id+'/' + submodulo.id+'/notasTraspaso/'+opcion.id+'/detalle/' + notaTraspaso.id+'?notaId='+notaTraspaso.id+ '&loteId='+loteid+'&handler=LoteById').then(res => {
+                        if (res.data != 0)
+                        {
+                            var loteId = res.data;
+                            axios.get('/smedicos/medicamentos/' + modulo.id+'/' + submodulo.id+'/notasTraspaso/'+opcion.id+'/detalle/' + notaTraspaso.id+'?lote='+loteId.lote+ '&consultorio='+notaTraspaso.consultorioId+'&handler=DatosLote').then(response => {
+                                if (response.status == 200 && response.data.id != 0) 
+                                {
+                                    Swal.close()
+                                    let datos = response.data;
+                                    let medicamentoId = datos.medicamentoId;
+                                    let cantidadP = (datos.cantidadTotal/datos.cantidadEnvase);
+                                    let cantidadE = datos.cantidadTotal;
+                                    $("#inputLoteId").val(datos.id)
+                                    $("#inputLoteMedicamento").val(loteId.lote);
+                                    $("#inputLoteMedicamento").prop("disabled",true);
+                                    $("#inputFormaFarmaceutica").val(datos.formaFarmaceutica.nombre)
+                                    $("#inputTipoEnvase").val(datos.tipoEnvase.nombre)
+                                    $("#divCantidadPresentacion").html("<p style='text-align: justify;'><b>Cantidad en presentación:</b> "+cantidadP+" "+(cantidadP == 1 ? datos.tipoEnvase.singular:datos.tipoEnvase.plural)+"</p>");
+                                    $("#divCantidadContenido").html("<p style='text-align: justify;'><b>Cantidad en contenido: </b> "+cantidadE+" "+(cantidadE == 1 ? datos.formaFarmaceutica.singular:datos.formaFarmaceutica.plural)+"</b></p>");
+                                    $("#inputCantidadPresentacion").val(cantidadP);
+                                    $("#inputCantidadEnvase").val(datos.cantidadEnvase);
+                                    axios.get('/smedicos/medicamentos/' + modulo.id+'/' + submodulo.id+'/notasTraspaso/'+opcion.id+'/detalle/' + notaTraspaso.id+'?id='+medicamentoId + ' &handler=DatosMedicamento').then(res => {
+                                        if (res.status == 200) {
+                                            Swal.close()
+                                            var datosM = res.data;
+                                            $("#inputMedicamento").val(datosM.nombre);
+                                            $("#inputPresentacionMedicamento").val(datosM.presentacion);
+                                            $("#divTraspasoAlmacen").css("display","block");
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                 });
+                $("#modalRegistrarDetalleNota").modal("show");
+            });
+
+            async function buscarLoteDetalle(lote)
+            {
+                // Validación de lote vacío
+                if (!lote || lote.trim() === "")
+                {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Detalle del Traspaso",
+                        html: "Por favor capture un <b>Lote</b> para continuar."
+                    });
+                    return false;
+                }
+
+                let continuar = false;
+                Swal.fire({
+                    allowOutsideClick: false,
+                    icon: "info",
+                    title: 'Detalle del Traspaso',
+                    html: "Verificando que no exista un registro previo en la nota de traspaso, espere por favor."
+                });
+                Swal.showLoading();
+                let response = await axios.get('/smedicos/medicamentos/' + modulo.id+'/' + submodulo.id+'/notasTraspaso/'+opcion.id+'/detalle/' + notaTraspaso.id+'?lote='+lote+ '&consultorio='+notaTraspaso.consultorioId+'&handler=DatosLoteMedicamento');
+                if (response.status == 200 && response.data.id != 0) {
+                    let loteId = response.data.id;
+                    let res = await axios.get('/smedicos/medicamentos/' + modulo.id+'/' + submodulo.id+'/notasTraspaso/'+opcion.id+'/detalle/' + notaTraspaso.id+'?notaId='+notaTraspaso.id+ '&loteId='+loteId+'&handler=LoteDetalleNota');
+                    if (res.data == 0)
+                    {
+                        continuar = true;
+                    }
+                }
+                return continuar;
+            }
+
+            /*Nueva funcionalidad para registrar lote de medicamentos*/
+
+            function cargarDatosMedicamento(datos)
+            {
+                let medicamentoId = datos.medicamentoId;
+                let cantidadP = (datos.cantidadTotal / datos.cantidadEnvase);
+                let cantidadE = datos.cantidadTotal;
+                $("#inputLoteId").val(datos.id);
+                $("#inputFormaFarmaceutica").val(datos.formaFarmaceutica.nombre);
+                $("#inputTipoEnvase").val(datos.tipoEnvase.nombre);
+                $("#divCantidadPresentacion").html(
+                    "<p><b>Cantidad en presentación:</b> " +
+                    cantidadP + "</p>"
+                );
+                
+                $("#divCantidadContenido").html(
+                    "<p><b>Cantidad en contenido:</b> " +
+                    cantidadE + "</p>"
+                );
+                $("#inputCantidadPresentacion").val(cantidadP);
+                $("#inputCantidadEnvase").val(datos.cantidadEnvase);
+                axios.get('/smedicos/medicamentos/' +modulo.id +'/' +submodulo.id +'/notasTraspaso/' +opcion.id +'/detalle/' +notaTraspaso.id +'?id=' +medicamentoId +'&handler=DatosMedicamento')
+                .then(res => {
+                    if(res.status == 200)
+                    {
+                        $("#inputMedicamento").val(res.data.nombre);
+                        $("#inputPresentacionMedicamento").val(res.data.presentacion);
+                        $("#divTraspasoAlmacen").show();
+                    }
+                });
+            }
+
+            $("#inputLoteMedicamento").on('change',async function(){
+                $("#divTraspasoAlmacen").css("display","none");
+                $("#inputLoteId").val("");
+                $("#inputFormaFarmaceutica").val("");
+                $("#inputTipoEnvase").val("");
+                $("#inputAlmacen").val("");
+                $("#inputCantidad").val("");
+                $("#inputCantidadPresentacion").val("");
+                $("#inputCantidadEnvase").val("");
+                $("#inputRestante").val("");
+                $("#inputMedicamento").val("");
+                $("#inputPresentacionMedicamento").val("");                
+                let pasa = await buscarLoteDetalle($(this).val());
+                if(pasa == true)
+                {
+                    Swal.fire({
+                        allowOutsideClick: false,
+                        icon: "info",
+                        title: 'Detalle del Traspaso',
+                        html: "Buscando lote de medicamento, espere por favor."
+                    });
+                    Swal.showLoading();
+                    axios.get('/smedicos/medicamentos/' + modulo.id+'/' + submodulo.id+'/notasTraspaso/'+opcion.id+'/detalle/' + notaTraspaso.id+'?lote='+$(this).val() + '&consultorio='+notaTraspaso.consultorioId+'&handler=MedicamentosPorLote').then(response => {
+                        if (response.status == 200 && response.data.id != 0) {
+                               let medicamentos = response.data;
+                               if(medicamentos.length == 1)
+                               {
+                                   cargarDatosMedicamento(medicamentos[0]);
+                                   Swal.close();
+                                   return;
+                               }
+                               console.log(medicamentos);
+                               if(medicamentos.length > 1)
+                               {
+                                   Swal.close();
+                                   medicamentosEncontrados = medicamentos;
+                                   let html = "";
+                                   medicamentos.forEach(m => {
+                                       html += `<tr>
+                                            <td>${m.medicamento.nombre}</td>
+                                            <td>${m.medicamento.presentacion}</td>
+                                            <td>${m.formaFarmaceutica.nombre}</td>
+                                            <td>${m.tipoEnvase.nombre}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary seleccionarMedicamento" data-id="${m.id}">
+                                                Seleccionar
+                                                </button>
+                                            </td>
+                                        </tr>`;
+                                    });
+                                    $("#tblMedicamentosLote").html(html);
+                                    $("#modalSeleccionMedicamento").modal("show");
+                                }
+                         }
+                    });
+                 }
+                 else
+                 {
+                      Swal.fire({
+                          allowOutsideClick: false,
+                          icon: "info",
+                          title: 'Detalle del Traspaso',
+                          html: "<p style='text-align: justify'>Verifique que el <b>Lote exista en el consultorio origen</b> o bien, <b>ya existe un registro del medicamento</b> con ese lote dentro de la <b>Nota de Traspaso</b>, si deseas modificarlo has clic en el icono <i class='fas fa-pencil text-primary'></i> para actualizarlo.</p>"
+                      }).then(function(){
+                          $("#inputLoteMedicamento").val("");
+                          return false;
+                      });
+                 }
+            });
+            
+            $(document).on("click",".seleccionarMedicamento",function () {
+                let id = $(this).data("id");
+                let medicamento = medicamentosEncontrados.find(x => x.id == id);
+                if(medicamento)
+                {
+                    cargarDatosMedicamento(medicamento);
+                    $("#modalSeleccionMedicamento").modal("hide");
+                }
+            });
+
+            $("#inputCantidad").change(function(){
+                let cantidadP = $("#inputCantidadPresentacion").val();
+                let cantidadE = $("#inputCantidadEnvase").val();
+                let cantidadT = $(this).val();
+                let formaFarmaceutica = $("#inputFormaFarmaceutica").val();
+                let tipoEnvase = $("#inputTipoEnvase").val();
+                let restante = cantidadP-cantidadT;
+                let restanteEnvase = restante*cantidadE;
+                if(restante < 0)
+                {
+                    Swal.fire({
+                        icon: "error",
+                        title: 'Detalle del Traspaso',
+                        html: "No hay suficiente medicamento para traspasar, favor de revisar."
+                    });
+                }
+                $("#inputRestanteEnvase").val(restanteEnvase);
+                $("#inputRestante").val(restante);
+                $("#divRestantePresentacion").html("<p style='text-align: justify;'><b>Restante en presentación:</b> "+restante+" "+(restante == 1 ? tipoEnvase:tipoEnvase+"s")+"</p>");
+                $("#divRestanteContenido").html("<p style='text-align: justify;'><b>Restante en contenido: </b> "+restanteEnvase+" "+(restanteEnvase== 1 ? formaFarmaceutica.slice(0,-1): formaFarmaceutica)+"</b></p>");
+            });
+
+
+             function validaDatos()
+            {
+                let tipoMovimientoId = $("#inputTipoMovimiento").val();
+                let loteId = $("#inputLoteId").val();
+                let cantidad = $("#inputCantidad").val();
+                let restante = $("#inputRestante").val();
+
+                if(loteId != 0 && cantidad != 0){
+                    return true;
+                }
+
+                if(restante < 0){
+                    Swal.fire({
+                         icon: 'error',
+                         title: 'Detalle de la Nota de Traspaso',
+                         html: "No se puede agregar el medicamento a la nota, ya que <b>No hay suficiente en almacén</b>."
+                     }).then(function () {
+                         return false;
+                     });
+                }
+
+                if(cantidad == 0 || cantidad == ""){
+                    Swal.fire({
+                         icon: 'error',
+                         title: 'Detalle de la Nota de Traspaso',
+                         html: "No ha capturado la <b>Cantidad a destinar</b>."
+                     }).then(function () {
+                          $("#error_inputDestinoId").css("display","block");
+                         return false;
+                     });
+                }
+
+                if(loteId == 0 || loteId == ""){
+                    Swal.fire({
+                         icon: 'error',
+                         title: 'Detalle de la Nota de Traspaso',
+                         html: "No ha capturado el <b>Lote del Medicamento</b>."
+                     }).then(function () {
+                         $("#error_inputLoteMedicamento").css("display","block");
+                         return false;
+                     });
+                }
+
+                if(tipoMovimientoId == 0 || tipoMovimientoId == ""){
+                    Swal.fire({
+                         icon: 'error',
+                         title: 'Detalle de la Nota de Traspaso',
+                         html: "No ha seleccionado el <b>Tipo de Movimiento</b>."
+                     }).then(function () {
+                         $("#error_inputTipoMovimiento").css("display","block");
+                         return false;
+                     });
+                }
+            }
+
+            $("#guardarDetalleNota").on('click',function(){
+                if(validaDatos())
+                {
+                    let id = $("#inputDetalleNotaId").val();
+                    let loteId = $("#inputLoteId").val();
+                    let tipoMovimientoId = $("#inputTipoMovimiento").val();
+                    let almacen = $("#inputCantidadPresentacion").val();
+                    let cantidad = $("#inputCantidad").val();
+                    let restante = $("#inputRestante").val();
+                    if(id != 0)
+                    {
+                        Swal.fire({
+                        allowOutsideClick: false,
+                        icon: "info",
+                        title: 'Detalle de la Nota de Traspaso',
+                        html: "Actualizando medicamento, espere por favor.",
+                    });
+                    Swal.showLoading();
+                    axios.put('/smedicos/medicamentos/'+modulo.id+'/'+submodulo.id+'/notasTraspaso/'+ opcion.id+'/detalle/'+notaTraspaso.id+'?handler=UpdateDetalleNotaTraspaso', {
+                        Id: parseInt(id),
+                        NotaId: parseInt(notaTraspaso.id),
+                        TipoMovimientoId: parseInt(tipoMovimientoId),
+                        LoteId: parseInt(loteId),
+                        Almacen: parseInt(almacen),
+                        Cantidad: parseInt(cantidad),
+                        Restante: parseInt(restante),
+                    }).then(response => {
+                        if (response.status == 200) {
+                            var id = response.data.id;
+                            Swal.fire({
+                                icon: "success",
+                                title: 'Detalle de la Nota de Traspaso',
+                                html: "Se actualizó el <b>Medicamento</b> correctamente.",
+                                confirmButtonText: 'Cerrar'
+                            }).then(function () {
+                                Swal.fire({
+                                    allowOutsideClick: false,
+                                    icon: "info",
+                                    title: 'Detalle de la Nota de Traspaso',
+                                    html: "Actualizando el listado de medicamentos, espere por favor."
+                                });
+                                Swal.showLoading();
+                                window.location.reload();
+                            });
+                        }
+                    });
+                    }
+                    else
+                    {
+                        Swal.fire({
+                        allowOutsideClick: false,
+                        icon: "info",
+                        title: 'Detalle de la Nota de Traspaso',
+                        html: "Agregando medicamento, espere por favor.",
+                    });
+                    Swal.showLoading();
+                    axios.post('/smedicos/medicamentos/'+modulo.id+'/'+submodulo.id+'/notasTraspaso/'+ opcion.id+'/detalle/'+notaTraspaso.id+'?handler=CreateDetalleNotaTraspaso', {
+                        NotaId: parseInt(notaTraspaso.id),
+                        TipoMovimientoId: parseInt(tipoMovimientoId),
+                        LoteId: parseInt(loteId),
+                        Almacen: parseInt(almacen),
+                        Cantidad: parseInt(cantidad),
+                        Restante: parseInt(restante),
+                    }).then(response => {
+                        if (response.status == 200) {
+                            var id = response.data.id;
+                            Swal.fire({
+                                icon: "success",
+                                title: 'Detalle de la Nota de Traspaso',
+                                html: "Se registró el <b>Medicamento</b> correctamente.",
+                                confirmButtonText: 'Cerrar'
+                            }).then(function () {
+                                Swal.fire({
+                                    allowOutsideClick: false,
+                                    icon: "info",
+                                    title: 'Detalle de la Nota de Traspaso',
+                                    html: "Actualizando el listado de medicamentos, espere por favor."
+                                });
+                                Swal.showLoading();
+                                window.location.reload();
+                            });
+                        }
+                    });
+                    }
+                }
+            });
+
+            $(".eliminarDetalle").on('click',function(){
+                let id = $(this).data('id');
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Detalle de la Nota de Traspaso',
+                    html: '¿Está seguro que desea <b>Eliminar</b> el medicamento de la nota de traspaso?',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Si, Eliminar',
+                    cancelButtonText: 'Cancelar',
+                    showCancelButton: true
+                }).then(confirm =>{
+                    if(confirm.isConfirmed)
+                    {
+                        Swal.fire({
+                        allowOutsideClick: false,
+                        icon: "info",
+                        title: 'Detalle de la Nota de Traspaso',
+                        html: "Eliminando el medicamento, espere por favor.",
+                    });
+                    Swal.showLoading();
+                    axios.put('/smedicos/medicamentos/'+modulo.id+'/'+submodulo.id+'/notasTraspaso/'+opcion.id+'/detalle/'+notaTraspaso.id+'?handler=DeleteDetalleNotaTraspaso', {
+                        Id: parseInt(id),
+                    }).then(response => {
+                        if (response.status == 200) {
+                            var id = response.data.id;
+                            Swal.fire({
+                                icon: "success",
+                                title: 'Detalle de la Nota de Traspaso',
+                                html: "Se eliminó el <b>Medicamento</b> correctamente.",
+                                confirmButtonText: 'Cerrar'
+                            }).then(function () {
+                                Swal.fire({
+                                    allowOutsideClick: false,
+                                    icon: "info",
+                                    title: 'Detalle de la Nota de Traspaso',
+                                    html: "Actualizando, espere por favor."
+                                });
+                                Swal.showLoading();
+                                window.location.reload();
+                            });
+                        }
+                    });
+                    }
+                });
+            });
+
+            $(".generaMemo").click(function(){
+                 Swal.fire({
+                     allowOutsideClick: false,
+                     icon: "info",
+                     title: 'Detalle de la Nota de Traspaso',
+                     html: "Generando el <b>Memorandum de notaTraspaso de Medicamentos</b>, espere por favor."
+                 });
+                 Swal.showLoading();
+                 axios.get('/smedicos/medicamentos/'+modulo.id+'/'+submodulo.id+'/notasTraspaso/'+opcion.id+'/detalle/'+notaTraspaso.id+'?notaId='+notaTraspaso.id+'&handler=MemorandumByNota', { responseType: 'blob' })
+                 .then(response => {
+                       if (response.status == 200) {
+                           const href = URL.createObjectURL(response.data);
+                           const link = document.createElement('a');
+                           link.href = href;
+                           link.setAttribute('download', 'Memorandum.docx');
+                           document.body.appendChild(link);
+                           link.click();
+                           document.body.removeChild(link);
+                           URL.revokeObjectURL(href);
+                           Swal.fire({
+                               allowOutsideClick: false,
+                               icon: "info",
+                               title: 'Detalle de la Nota de Traspaso',
+                               html: "El <b>Memorandum de Traspaso de Medicamentos</b> se descargó correctamente. <p class='text-justify mt-3'>" +
+                               "<b class='text-danger'>Sugerencia:</b> En caso de que se generé una hoja en blanco favor de eliminarla.</p>",
+                               confirmButtonText: 'Cerrar'
+                           });
+                           Swal.hideLoading();
+                       }
+                 });
+            });
+
+            $(".actualizarEstatusNota").on('click',function(){
+                let validaNota = detallesNota.length;
+
+                if(validaNota != 0)
+                {
+                    let estatusId = $(this).data('estatus');
+                    let nombreEstatus = $(this).data('nestatus');
+                    let procesar = $(this).data('procesar');
+                    let revertir = $(this).data('revertir');
+                    let mensaje = (notaTraspaso.estatusId < 4 ? '¿Está seguro que desea <b>'+nombreEstatus+'</b> la nota de traspaso?' :
+                                   '¿Está seguro que desea <b>'+nombreEstatus+'</b> de la nota de traspaso?');
+
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Detalle de la Nota de Traspaso',
+                        html: mensaje,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Si, continuar',
+                        cancelButtonText: 'Cancelar',
+                        showCancelButton: true
+                    }).then( confirm => {
+                        if(confirm.isConfirmed)
+                       {
+                             Swal.fire({
+                                 icon: 'info',
+                                 title: 'Detalle de la Nota de Traspaso',
+                                 text: 'Por favor indique alguna comentario.',
+                                 showCancelButton: true,
+                                 confirmButtonColor: '#3085d6',
+                                 cancelButtonColor: '#d33',
+                                 cancelButtonText: 'Cancelar',
+                                 confirmButtonText: 'Continuar',
+                                 input: 'textarea',
+                                 inputPlaceholder: 'Escriba los comentarios correspondientes'
+                             }).then(coments => {
+                                 if (coments.value.length > 0) {
+                                     Swal.fire({
+                                         allowOutsideClick: false,
+                                         icon: "info",
+                                         title: 'Detalle de la Nota de Traspaso',
+                                         html: "Procesando la nota de traspaso de medicamentos, espere por favor.",
+                                    });
+                                    Swal.showLoading();
+                                    axios.put('/smedicos/medicamentos/'+modulo.id+'/'+submodulo.id+'/notasTraspaso/'+opcion.id+'/detalle/'+notaTraspaso.id+'?handler=UpdateNotaTraspaso', {
+                                         Id: parseInt(notaTraspaso.id),
+                                         EstatusId: parseInt(estatusId),
+                                         Procesar: procesar,
+                                         Observaciones: coments.value
+                                     }).then(response => {
+                                         if (response.status == 200) {
+                                             var id = response.data.id;
+                                             Swal.fire({
+                                                 icon: "success",
+                                                 title: 'Detalle de la Nota de Traspaso',
+                                                 html: "Se procesó la <b>Nota de Traspaso</b> correctamente.",
+                                                 confirmButtonText: 'Cerrar'
+                                             }).then(function () {
+                                                 Swal.fire({
+                                                     allowOutsideClick: false,
+                                                     icon: "info",
+                                                     title: 'Detalle de la Nota de Traspaso',
+                                                     html: "Actualizando, espere por favor."
+                                                 });
+                                                 Swal.showLoading();
+                                                 window.location.reload();
+                                             });
+                                        }
+                                    });
+                                 }
+                             });
+                          }
+                    });
+                }
+                else
+                {
+                    Swal.fire({
+                        allowOutsideClick: false,
+                        icon: "error",
+                        title: 'Detalle de la Nota de Traspaso',
+                        html: "No hay medicamentos que procesar,por favor agregue medicamentos y vuelva a intentarlo."
+                    });
+
+                }
+            });
+
+            $("#customFile").on("change", function () {
+                var fileName = $(this).val().split("\\").pop();
+                var ext = fileName.split('.').pop();
+                if (ext == "pdf") {
+                    $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+                } else {
+                    Swal.fire({
+                        'icon': 'error',
+                        title: 'Detalle de la Nota de Traspaso',
+                        'text': 'El archivo que intentas adjuntar no es válido. Favor de solo seleccionar archivos "PDF"'
+                    });
+                    $(".custom-file-label").text("Seleccionar Archivo");
+                    document.getElementById('customFile').value = '';
+                    if ($('#customFile').hasClass('is-valid')) {
+                        $('#customFile').removeClass('is-valid');
+                    }
+                    $('#customFile').addClass('is-invalid');
+                    $('#error_customFile').css('display', 'block');
+                }
+            });
+            
+            
+            function validaEntregable() {
+                let filePDF = document.getElementById('customFile').files[0];
+                
+                if (filePDF) {
+                    return true;
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Detalle de la Nota de Traspaso',
+                        html: "No ha adjuntado el <b>Memorandum Firmado</b>."
+                    });
+
+                    $("#error_comprobantePDF").css("display", "block");
+                    return false;
+                }
+            }
+
+            $(".concluirNota").click(function(){
+                $("#inputEstatusId").val($(this).data('estatus'));
+                $("#modalConcluirNota").modal("show");
+            });
+            
+
+            $("#guardarConclusion").click(function(){
+                var formData = new FormData();
+                let estatusId = $("#inputEstatusId").val();
+                let nombreEstatus = $(this).data('nestatus');
+                let mensaje = '¿Está seguro que desea <b>Concluir</b> la nota de traspaso?';
+
+                if(validaEntregable())
+                {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Detalle de la Nota de Traspaso',
+                        html: mensaje,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Si, continuar',
+                        cancelButtonText: 'Cancelar',
+                        showCancelButton: true
+                    }).then( confirm => {
+                        if(confirm.isConfirmed)
+                        {
+                            let file = document.getElementById('customFile').files[0];
+                            formData.append("Id", notaTraspaso.id);
+                            formData.append("EstatusId", parseInt(estatusId));
+                            formData.append("Entregable", file);
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Detalle de la Nota de Traspaso',
+                                text: 'Por favor indique alguna comentario.',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                cancelButtonText: 'Cancelar',
+                                confirmButtonText: 'Continuar',
+                                input: 'textarea',
+                                inputPlaceholder: 'Escriba los comentarios correspondientes'
+                            }).then(coments => {
+                                if (coments.value.length > 0) 
+                                {
+                                    formData.append("Observaciones", coments.value);
+                                    Swal.fire({
+                                        allowOutsideClick: false,
+                                        icon: "info",
+                                        title: 'Detalle de la Nota de Traspaso',
+                                        html: "Procesando la nota de traspaso de medicamentos, espere por favor.",
+                                    });
+                                    Swal.showLoading();
+                                    axios.put('/smedicos/medicamentos/'+modulo.id+'/'+submodulo.id+'/notasTraspaso/'+opcion.id+'/detalle/'+notaTraspaso.id+'?handler=ConcluirNotaTraspaso',
+                                    formData, {
+                                        headers: { 'Content-Type': 'multipart/form-data' }
+                                    }).then(response => {
+                                        if(response.status == 200)
+                                        {
+                                            var id = response.data.id;
+                                            Swal.fire({
+                                                icon: "success",
+                                                title: 'Detalle de la Nota de Traspaso',
+                                                html: "Se concluyó la <b>Nota de Traspaso</b> correctamente.",
+                                                confirmButtonText: 'Cerrar'
+                                            }).then(function () {
+                                                Swal.fire({
+                                                    allowOutsideClick: false,
+                                                    icon: "info",
+                                                    title: 'Detalle de la Nota de Traspaso',
+                                                    html: "Finalizando, espere por favor."
+                                                });
+                                                Swal.showLoading();
+                                                window.location.reload();
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+            
+            $(".verEntregable").click(function () {
+                let url = '/smedicos/medicamentos/' + modulo.id + '/' + submodulo.id + '/notasTraspaso/' + opcion.id + '/detalle/' + notaTraspaso.id + '?notaId=' + notaTraspaso.id + '&handler=VisualizarEntregable';
+                let data = '<iframe src="' + url + '" style="width:100%; height:100%; border:none;"></iframe>';
+                $("#titleVerEntregables").text("Comprobante de Traspaso");
+                $('#objectPdf').html(data);
+                $("#modalVerEntregables").modal("show");
+            });
+        })
+    </script>
+}

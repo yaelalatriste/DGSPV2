@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="13.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DGSP.Module.Seguros.Domain\DGSP.Module.Seguros.Domain.csproj" />
+    <ProjectReference Include="..\DGSP.Shared.Contracts\DGSP.Shared.Contracts.csproj" />
+    <ProjectReference Include="..\DGSP.Shared.Domain\DGSP.Shared.Domain.csproj" />
+    <ProjectReference Include="..\DGSP.Shared.Infrastructure\DGSP.Shared.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FreeSpire.Office" Version="8.2.0" />
+    <PackageReference Include="MediatR" Version="13.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.23" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.23">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DGSP.Module.Catalogos.Application\DGSP.Module.Catalogos.Application.csproj" />
+    <ProjectReference Include="..\DGSP.Module.Catalogos.Persistence\DGSP.Module.Catalogos.Persistence.csproj" />
+    <ProjectReference Include="..\DGSP.Module.DGRH.Application\DGSP.Module.DGRH.Application.csproj" />
+    <ProjectReference Include="..\DGSP.Module.DGRH.Persistence\DGSP.Module.DGRH.Persistence.csproj" />
+    <ProjectReference Include="..\DGSP.Module.Estatus.Application\DGSP.Module.Estatus.Application.csproj" />
+    <ProjectReference Include="..\DGSP.Module.Estatus.Persistence\DGSP.Module.Estatus.Persistence.csproj" />
+    <ProjectReference Include="..\DGSP.Module.Modulos.Application\DGSP.Module.Modulos.Application.csproj" />
+    <ProjectReference Include="..\DGSP.Module.Modulos.Persistence\DGSP.Module.Modulos.Persistence.csproj" />
+    <ProjectReference Include="..\DGSP.Module.Permisos.Application\DGSP.Module.Permisos.Application.csproj" />
+    <ProjectReference Include="..\DGSP.Module.Permisos.Persistence\DGSP.Module.Permisos.Persistence.csproj" />
+    <ProjectReference Include="..\DGSP.Module.Seguros.Application\DGSP.Module.Seguros.Application.csproj" />
+    <ProjectReference Include="..\DGSP.Module.Seguros.Persistence\DGSP.Module.Seguros.Persistence.csproj" />
+    <ProjectReference Include="..\DGSP.Module.SMedicos.Application\DGSP.Module.SMedicos.Application.csproj" />
+    <ProjectReference Include="..\DGSP.Module.SMedicos.Persistence\DGSP.Module.SMedicos.Persistence.csproj" />
+    <ProjectReference Include="..\DGSP.Module.Usuarios.Application\DGSP.Module.Usuarios.Application.csproj" />
+    <ProjectReference Include="..\DGSP.Module.Usuarios.Persistence\DGSP.Module.Usuarios.Persistence.csproj" />
+    <ProjectReference Include="..\DGSP.Shared.Contracts\DGSP.Shared.Contracts.csproj" />
+    <ProjectReference Include="..\DGSP.Shared.Infrastructure\DGSP.Shared.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\DGRH\Commands\" />
+    <Folder Include="Entregables\Seguros\Continuidades\NewFolder\" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,202 @@
+﻿@page "/smedicos/medicamentos/{moduloId}/{submoduloId}/movimientosInventario/{opcionId}/detalle/{loteId}"
+@model Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Movimientos.DetalleMovimientosModel
+@{
+    ViewData["Title"] = "Detalle de Movimientos del Lote";
+    ViewData["Titulo"] = "Detalle de Movimientos del Lote";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h5>Datos del Lote</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-1"><b>Lote:</b> @Model.Lote.Lote</div>
+                <div class="col-md-3"><b>Medicamento:</b> @Model.Lote.Medicamento.Nombre</div>
+                <div class="col-md-2"><b>Tipo de Insumo:</b> @Model.Lote.TipoInsumo.Nombre</div>
+                <div class="col-md-2"><b>Caducidad:</b> @Model.Lote.FechaCaducidad.ToShortDateString()</div>
+                <div class="col-md-2"><b>Presentación:</b> @Model.Lote.FormaFarmaceutica.Nombre</div>
+                <div class="col-md-2"><b>Tipo de Envase:</b> @Model.Lote.TipoEnvase.Nombre</div>
+            </div>
+        </div>
+    </div>
+    <!-- 🔷 KPIs -->
+    @{
+        var totalEntradas = Model.DetalleMovimientos
+        .Where(x => x.TipoMovimiento == "E")
+        .Sum(x => x.CantidadTotal);
+
+        var totalSalidas = Model.DetalleMovimientos
+        .Where(x => x.TipoMovimiento == "S")
+        .Sum(x => x.CantidadTotal);
+
+        var stockActual = Model.DetalleMovimientos
+        .OrderByDescending(x => x.FechaMovimiento)
+        .FirstOrDefault()?.ExistenciaPosterior ?? 0;
+    }
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card p-3 kpi">
+                <h6>Stock actual</h6>
+                <h3>@stockActual</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3 kpi">
+                <h6>Total entradas</h6>
+                <h3 class="text-success">@totalEntradas</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3 kpi">
+                <h6>Total salidas</h6>
+                <h3 class="text-danger">@totalSalidas</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔷 KARDEX -->
+    <div class="card p-3">
+        <h5>Historial de Movimientos (Kardex)</h5>
+
+        <table id="tablaKardex" class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Movimiento</th>
+                    <th>Stock</th>
+                    <th>Origen</th>
+                    <th>Destino</th>
+                    <th>Detalle</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in Model.DetalleMovimientos.OrderBy(x => x.FechaMovimiento))
+                {
+                    var esEntrada = m.TipoMovimiento == "E";
+                    var diff = m.ExistenciaPosterior - m.ExistenciaAnterior;
+                    var usuario = m.Usuario.NombreEmp + " " + m.Usuario.PaternoEmp + " " + m.Usuario.MaternoEmp;
+
+                    <tr>
+                        <!-- Fecha -->
+                        <td>@m.FechaMovimiento.ToString("dd/MM/yyyy HH:mm tt")</td>
+
+                        <!-- Tipo -->
+                        <td>
+                            @if (esEntrada)
+                            {
+                                <span class="badge badge-entrada">Entrada</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-salida">Salida</span>
+                            }
+                        </td>
+
+                        <!-- Movimiento -->
+                        <td>
+                            @if (diff > 0)
+                            {
+                                <div><span class="stock-up">+ @(diff / m.CantidadEnvase != 1 ? diff / m.CantidadEnvase+" " +@m.Lote.TipoEnvase.Plural : " " + @m.Lote.TipoEnvase.Singular)</span></div>
+                                <div><span class="stock-up">+ @(diff / m.CantidadEnvase != 1 ? diff +" "+@m.Lote.FormaFarmaceutica.Plural : " " + @m.Lote.FormaFarmaceutica.Singular)</span></div>
+                            }
+                            else
+                            {
+                                <div><span class="stock-down">@(diff / m.CantidadEnvase != 1 ? diff / m.CantidadEnvase + " " + @m.Lote.TipoEnvase.Plural : " " + @m.Lote.TipoEnvase.Singular)</span></div>
+                                <div><span class="stock-down">@(diff / m.CantidadEnvase != 1 ? diff + " " + @m.Lote.FormaFarmaceutica.Plural : " " + @m.Lote.FormaFarmaceutica.Singular)</span></div>
+                            }
+                        </td>
+
+                        <!-- Stock -->
+                        <td>
+                            <div><b>@((m.ExistenciaPosterior / m.CantidadEnvase) != 1 ? m.ExistenciaPosterior / m.CantidadEnvase+ " - " + @m.Lote.TipoEnvase.Plural : m.ExistenciaPosterior / m.CantidadEnvase+" - " + @m.Lote.TipoEnvase.Singular)</b></div>
+                            <div><b>@(m.ExistenciaPosterior != 1 ? m.ExistenciaPosterior + " - " + @m.Lote.FormaFarmaceutica.Plural : m.ExistenciaPosterior + " - " + @m.Lote.FormaFarmaceutica.Singular)</b></div>
+                            <div class="detalle">
+                                <div>(@(m.ExistenciaAnterior/m.CantidadEnvase) → @(m.ExistenciaPosterior / m.CantidadEnvase)) @(m.ExistenciaPosterior / m.CantidadEnvase != 1 ? m.Lote.TipoEnvase.Plural : m.Lote.TipoEnvase.Singular)</div>
+                                <div>(@m.ExistenciaAnterior → @m.ExistenciaPosterior) @(m.ExistenciaPosterior/m.CantidadEnvase != 1 ? m.Lote.FormaFarmaceutica.Plural : m.Lote.FormaFarmaceutica.Singular)</div>
+                            </div>
+                        </td>
+
+                        <!-- Origen -->
+                        <td>
+                            @m.Lote.Consultorio.Nombre
+                        </td>
+
+                        <!-- Destino -->
+                        <td>
+                            @if (m.SalidaDetalle?.Salida?.Consultorio != null)
+                            {
+                                @m.SalidaDetalle.Consultorio.Nombre
+                            }
+                            else
+                            {
+                                <p>-</p>
+                            }
+                        </td>
+
+                        <!-- Detalle -->
+                        <td>
+                            <div>@m.Observaciones</div>
+                            <div class="detalle">
+                                Usuario: @(System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(usuario.ToLower()))
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<style>
+    .badge-entrada {
+        background: #198754;
+        color:white;
+    }
+
+    .badge-salida {
+        background: #dc3545;
+        color:white;
+    }
+
+    .stock-up {
+        color: #198754;
+        font-weight: bold;
+    }
+
+    .stock-down {
+        color: #dc3545;
+        font-weight: bold;
+    }
+
+    .kpi {
+        border-left: 5px solid #0d6efd;
+    }
+
+    .detalle {
+        font-size: 12px;
+        color: #6c757d;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(function(){
+            var usuario = @Html.Raw(Json.Serialize(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value));
+            var modulo = @Html.Raw(Json.Serialize(Model.Modulo));
+            var submodulo = @Html.Raw(Json.Serialize(Model.Submodulo));
+            var opcion = @Html.Raw(Json.Serialize(Model.Opcion));
+            
+           $('#tablaKardex').DataTable({
+               order: [[0, 'asc']],
+               language: {
+                   url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+               }
+           });
+        })
+    </script>
+}
