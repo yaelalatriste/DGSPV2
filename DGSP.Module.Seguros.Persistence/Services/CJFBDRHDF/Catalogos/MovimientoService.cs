@@ -1,5 +1,5 @@
 ﻿using DGSP.Module.Seguros.Application.Services.CJFBDRHDF.SGMM;
-using DGSP.Shared.Contracts.DTOs.Seguros.CJFBDRHDF;
+using DGSP.Shared.Contracts.DTOs.DGRH.Seguros;
 using Microsoft.EntityFrameworkCore;
 
 namespace DGSP.Module.Seguros.Persistence.Services.CJFBDRHDF.Catalogos

@@ -1,4 +1,4 @@
-﻿using DGSP.Shared.Contracts.DTOs.DGRH.Empleados;
+﻿using DGSP.Shared.Contracts.DTOs.DGRH.RH.Empleados;
 
 namespace DGSP.Shared.Contracts.DTOs.Catalogos.SMedicos
 {

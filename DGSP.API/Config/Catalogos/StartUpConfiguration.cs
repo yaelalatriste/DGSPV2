@@ -22,7 +22,9 @@ namespace DGSP.API.Config.Catalogos
             service.AddTransient<ICTTipoMovimientoService, CTTipoMovimientoService>();            
             service.AddTransient<ICTUnidadService, CTUnidadService>();            
             service.AddTransient<ICTVariableMedicaService, CTVariableMedicaService>();
+            service.AddTransient<ICTVariableGeneralService, CTVariableGeneralService>();
 
+            service.AddTransient<ICTVariableGeneralRepository, CTVariableGeneralRepository>();
             service.AddTransient<ICTMesRepository, CTMesRepository>();
             service.AddTransient<ICTAreaRepository, CTAreaRepository>();
             service.AddTransient<ICTConsultorioRepository, CTConsultorioRepository>();

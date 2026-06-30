@@ -1,4 +1,4 @@
-﻿using DGSP.Module.DGRH.Domain;
+﻿using DGSP.Module.DGRH.Domain.RH.DAdscripciones;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DGSP.Module.DGRH.Persistence.Configuration

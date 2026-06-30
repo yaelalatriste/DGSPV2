@@ -1,4 +1,4 @@
-﻿using DGSP.Module.DGRH.Application.Queries.Empleado;
+﻿using DGSP.Module.DGRH.Application.Services.RH;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DGSP.API.Controllers.DGRH.Queries
@@ -7,9 +7,9 @@ namespace DGSP.API.Controllers.DGRH.Queries
     [Route("api/dgrh/[controller]")]
     public class EmpleadoController : ControllerBase
     {
-        private readonly IEmpleadoQueryService _emp;
+        private readonly IEmpleadoService _emp;
 
-        public EmpleadoController(IEmpleadoQueryService emp)
+        public EmpleadoController(IEmpleadoService emp)
         {
             _emp = emp;
         }

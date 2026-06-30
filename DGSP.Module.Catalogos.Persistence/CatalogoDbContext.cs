@@ -30,6 +30,7 @@ namespace Catalogos.Persistence.Database
         public DbSet<CTVariableMedica> CTVariablesMedicas { get; set; }
         public DbSet<CTTipoInsumo> CTTiposInsumos { get; set; }
         public DbSet<CTEntregable> CTEntregables { get; set; }
+        public DbSet<CTVariableGeneral> CTVariablesGenerales { get; set; }
 
         private void ModelConfig(ModelBuilder modelBuilder)
         {
@@ -42,6 +43,7 @@ namespace Catalogos.Persistence.Database
             modelBuilder.Entity<CTUnidad>().ToTable("CTUnidades", "Catalogo");
             modelBuilder.Entity<CTTipoMovimiento>().ToTable("CTTiposMovimientos", "Catalogo");
             modelBuilder.Entity<CTTipoInsumo>().ToTable("CTTIposInsumos", "Catalogo");
+            modelBuilder.Entity<CTVariableGeneral>().ToTable("CTVariablesGenerales", "Catalogo");
             
             new CTAreaConfiguration(modelBuilder.Entity<CTArea>());
         }

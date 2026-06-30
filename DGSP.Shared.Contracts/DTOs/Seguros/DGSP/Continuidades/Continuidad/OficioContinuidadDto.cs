@@ -1,7 +1,5 @@
-﻿using DGSP.Shared.Contracts.DTOs.Catalogos.SMedicos;
-using DGSP.Shared.Contracts.DTOs.DGRH.Empleados;
-using DGSP.Shared.Contracts.DTOs.Seguros.CJFBDRHDF;
-using DGSP.Shared.Contracts.DTOs.Usuarios;
+﻿using DGSP.Shared.Contracts.DTOs.DGRH.RH.Empleados;
+using DGSP.Shared.Contracts.DTOs.DGRH.Seguros;
 
 namespace DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Continuidades.Continuidad
 {

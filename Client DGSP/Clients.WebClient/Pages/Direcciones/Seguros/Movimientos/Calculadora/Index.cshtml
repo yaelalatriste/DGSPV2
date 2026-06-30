@@ -1,0 +1,101 @@
+﻿@page "/seguros/movimientos/{moduloId}/{submoduloId}/calculadora/{opcionId}"
+@model Clients.WebClient.Pages.Direcciones.Seguros.Movimientos.Calculadora.IndexModel
+@{
+    ViewData["Title"] = "Calculadora de Póliza de SGMM";
+    ViewData["Titulo"] = "Calculadora de Póliza de SGMM";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <a class="btn btn-sm btn-danger ml-2 float-right restablecerCalculos" href="#" id="restablecerCalculos">
+            <i class="fal fa-arrow-alt-circle-left"></i>
+        </a>
+    </div>
+</div>
+
+@if (Model.Empleado != null) {
+    var servidorPublico = "";
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header cabeceraInformacionG">
+                <i class="fa-sharp fa-light fa-list-check mr-2"></i> General
+            </div>
+            <div class="card-body" id="cuerpoInformacionG" style="display: block">
+                <div class="row col-lg-12">
+                    <ul class="mb-0 fa-ul">
+                        <li class="medium mt-3"><span class="fa-li"><i class="fas fa-lg fa-hashtag"></i></span><b>Expediente: </b> @Model.Empleado.Expediente</li>
+                        <li class="medium mt-3"><span class="fa-li"><i class="fas fa-lg fa-calendar"></i></span><b>Servidor Público</b> @(System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(servidorPublico.ToLower()))</li>
+                        <li class="medium mt-3"><span class="fa-li"><i class="fas fa-lg fa-briefcase"></i></span> <b>Puesto: </b> @(System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Model.Kardex.First().Puesto.ToLower()))</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@* Card para los Criterios *@
+<div class="row mt-3">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header bg-secondary">Criterios a Calcular</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="row col-lg-12">
+                        <div class="form-group col-lg-1" id="divSuaMes">
+                            <label for="tipoIncidencia">Año:</label>
+                            <input type="number" class="form-control" id="inputAnio" readonly value="@DateTime.Now.Year" />
+                        </div>
+                        <div class="form-group col-lg-2">
+                            <label for="tipoIncidencia">Tipo de Póliza:</label>
+                            <select id="inputTipoPoliza" class="form-control">
+                                <option value="">Seleccione el tipo de póliza</option>
+                                @foreach (var tp in Model.Catalogos.Vigencias)
+                                {
+                                    <option value="@tp.Id">@tp.Descripcion</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group col-lg-2">
+                            <label>Suma Básica:</label>
+                            <select id="inputSumaBasica" class="form-control">
+                                <option value="">Seleccione la suma básica</option>
+                                @foreach (var sb in Model.Catalogos.SumasBasicas)
+                                {
+                                    <option value="@sb.Id">@sb.Descripcion</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group col-lg-2">
+                            <label>IQ:</label>
+                            <select id="inputIQ" class="form-control">
+                                <option value="">Seleccione el IQ</option>
+                                @foreach (var iq in Model.Catalogos.IQ)
+                                {
+                                    <option value="@iq.Id">@iq.Descripcion</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Card para la tabla de Parentescos*@
+<div class="row mt-3">
+    <div class="col-lg-12">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-secondary">Criterios a Calcular</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

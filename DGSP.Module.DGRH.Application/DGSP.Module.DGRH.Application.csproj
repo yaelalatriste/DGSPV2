@@ -8,8 +8,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DGSP.Module.DGRH.Domain\DGSP.Module.DGRH.Domain.csproj" />
-    <ProjectReference Include="..\DGSP.Module.DGRH.Persistence\DGSP.Module.DGRH.Persistence.csproj" />
     <ProjectReference Include="..\DGSP.Shared.Contracts\DGSP.Shared.Contracts.csproj" />
+    <ProjectReference Include="..\DGSP.Shared.Domain\DGSP.Shared.Domain.csproj" />
+    <ProjectReference Include="..\DGSP.Shared.Infrastructure\DGSP.Shared.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

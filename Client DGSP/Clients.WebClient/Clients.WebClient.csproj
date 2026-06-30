@@ -32,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Pages\Direcciones\Seguros\Movimientos\Renivelacion\" />
     <Folder Include="wwwroot\plugins\NewFolder\" />
   </ItemGroup>
 

@@ -1,5 +1,5 @@
 ﻿using Api.Gateway.WebClient.Proxy.Config;
-using DGSP.Shared.Contracts.DTOs.DGRH.Empleados;
+using DGSP.Shared.Contracts.DTOs.DGRH.RH.Empleados;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Net.Http;

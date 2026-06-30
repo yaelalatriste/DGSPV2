@@ -1,4 +1,4 @@
-﻿using DGSP.Shared.Contracts.DTOs.DGRH.Empleados;
+﻿using DGSP.Shared.Contracts.DTOs.DGRH.RH.Empleados;
 using DGSP.Shared.Contracts.DTOs.Estatus.Continuidades;
 using DGSP.Shared.Contracts.DTOs.Usuarios;
 

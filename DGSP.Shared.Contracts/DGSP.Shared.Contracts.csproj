@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Commands\Usuarios\" />
-    <Folder Include="DTOs\Seguros\DGSP\Continuidades\Oficios\" />
   </ItemGroup>
 
   <ItemGroup>

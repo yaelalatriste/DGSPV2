@@ -1,4 +1,4 @@
-﻿using DGSP.Shared.Contracts.DTOs.Seguros.CJFBDRHDF;
+﻿using DGSP.Shared.Contracts.DTOs.DGRH.Seguros;
 
 namespace DGSP.Module.Seguros.Application.Services.CJFBDRHDF.SGMM
 {

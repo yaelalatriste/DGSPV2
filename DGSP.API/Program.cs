@@ -1,6 +1,4 @@
 ﻿using Catalogos.Persistence.Database;
-using DGRH.Persistence.Database;
-using DGSP.API.Config;
 using DGSP.API.Config.Catalogos;
 using DGSP.API.Config.DGRH;
 using DGSP.API.Config.Estatus;
@@ -8,6 +6,7 @@ using DGSP.API.Config.Modulos;
 using DGSP.API.Config.Permisos;
 using DGSP.API.Config.Seguros;
 using DGSP.API.Config.SMedicos;
+using DGSP.Module.DGRH.Persistence;
 using DGSP.Module.Estatus.Persistence;
 using DGSP.Module.Seguros.Persistence;
 using DGSP.Module.SMedicos.Persistence;
@@ -38,7 +37,7 @@ services.AddDbContext<PermisosDbContext>(options => options.UseSqlServer(configu
 services.AddDbContext<SiacomDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("SiacomConnection")));
 services.AddDbContext<CatalogoDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("CatalogosConnection")));
 services.AddDbContext<SegurosSGMMContext>(options => options.UseSqlServer(configuration.GetConnectionString("SegurosSGMMConnection")));
-services.AddDbContext<DGRHProductionDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DGRHConnection")));
+services.AddDbContext<DGRHDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DGRHConnection")));
 
 //Services
 services.AddSMedicosQueries(configuration);

@@ -1,55 +1,38 @@
-﻿using DGSP.Module.Seguros.Application.Services.CJFBDRHDF.SGMM;
-using DGSP.Module.Seguros.Domain.CJFBDRHDF;
+﻿using DGSP.Module.DGRH.Application.Services.Seguros.Movimientos;
+using DGSP.Module.Seguros.Application.Services.CJFBDRHDF.SGMM;
 using DGSP.Shared.Contracts.Commands.Seguros.Continuidades.OficiosContinuidades;
 using DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Continuidades.Continuidad;
-using Microsoft.EntityFrameworkCore;
 
-namespace DGSP.Module.Seguros.Persistence.Services.CJFBDRHDF.MovimientosSP
+namespace DGSP.Module.DGRH.Persistence.Services.RH.Empleados
 {
     public class MovimientoSpService : IMovimientoSpService
     {
-        private readonly SegurosSGMMContext _context;
+        private readonly IMovimientoSpRepository _movimientoSpRepository;
 
-        public MovimientoSpService(SegurosSGMMContext context)
+        public MovimientoSpService(IMovimientoSpRepository movimientoSpRepository)
         {
-            _context = context;
+            _movimientoSpRepository = movimientoSpRepository;
         }
 
         public async Task<List<RegistrarOficioContinuidadCommand>> ObtenerMovimientoBajaAsync(ContinuidadDto continuidad)
         {
-            var oficio = await _context.MovimientosSP
-                .Where(mov =>
-                    (mov.fiIdMov == Convert.ToInt32(TipoMovimientoSp.Baja) || mov.fiIdMov == Convert.ToInt32(TipoMovimientoSp.BajaLineamientos)) &&
-                    mov.fiExpSp == continuidad.Expediente &&
-                    mov.fdFchAplicMovSp.Date == continuidad.FechaBaja.GetValueOrDefault().Date
-                )
-                .Select(mov => new
-                {
-                    mov,
-                    cor = _context.Correspondencias
-                        .Where(c =>
-                            c.fiIdRegOfic == mov.fiIdRegOfic && c.flValidado && !EF.Functions.Like(c.fcNumSalida, "%[^0-9]%"))
-                        .Select(c => new { c.fcNumSalida, c.flValidado })
-                        .FirstOrDefault()
-                })
-                .Select(x => new RegistrarOficioContinuidadCommand
-                {
-                    ContinuidadId = continuidad.Id,
-                    AnioMovimiento = x.mov.fiAnioMovSp,
-                    Expediente = x.mov.fiExpSp,
-                    TipoMovimiento = x.mov.fiIdMov,
-                    RegistroMovimiento = x.mov.fiUsrAltaMovSp,
-                    Oficio = x.cor != null ? Convert.ToInt32(x.cor.fcNumSalida) : 0,
-                    ObservacionMovimiento = string.Empty,
-                    Validado = x.cor != null && x.cor.flValidado,
-                    FechaAplicacionMovimientoSP = x.mov.fdFchAplicMovSp,
-                    FechaAltaMovimiento = x.mov.fdFchAltaMovSp,
-                    FechaCreacion = DateTime.Now,
-                    FechaActualizacion = DateTime.Now
-                })
-                .ToListAsync();
+            var oficio = await _movimientoSpRepository.ObtenerMovimientoBajaAsync(continuidad);
 
-            return oficio;
+            return oficio.Select(x => new RegistrarOficioContinuidadCommand
+            {
+                ContinuidadId = continuidad.Id,
+                AnioMovimiento = x.AnioMovimiento,
+                Expediente = x.Expediente,
+                TipoMovimiento = x.TipoMovimiento,
+                RegistroMovimiento = x.RegistroMovimiento,
+                Oficio = x.Oficio != 0 ? Convert.ToInt32(x.Oficio) : 0,
+                ObservacionMovimiento = string.Empty,
+                Validado = x.Validado != null && x.Validado,
+                FechaAplicacionMovimientoSP = x.FechaAplicacionMovimientoSP,
+                FechaAltaMovimiento = x.FechaAltaMovimiento,
+                FechaCreacion = DateTime.Now,
+                FechaActualizacion = DateTime.Now
+            }).ToList();
         }
     }
 }
