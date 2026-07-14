@@ -1,5 +1,6 @@
 ﻿using DGSP.Module.Seguros.Application.Interfaces.CJFBDRHDF.Calculadora;
 using DGSP.Module.Seguros.Domain.CJFBDRHDF.Models.Calculadora;
+using DGSP.Shared.Contracts.DTOs.Seguros.CJFBDRHDF.Calculadora;
 using DGSP.Shared.Contracts.Enums.Seguros.Calculadora;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,13 +15,8 @@ namespace DGSP.Module.Seguros.Persistence.Repositories.CJFBDRHDF.Calculadora
             _context = context;
         }
 
-        public async Task<List<PrimaOpMMSBase>> ObtenerPrimasPotenciadasAsync(short anio, short tipoPoliza, short iq, short sumaBasica)
+        public async Task<List<PrimaOpMMSExtraBaseDto>> ObtenerPrimasPotenciadasExtraAsync(short anio,short tipoPoliza,short iq,short sumaBasica)
         {
-            var sumaPotenciadaIds = Enum
-                .GetValues<SumaPotenciada>()
-                .Select(x => (short)x)
-                .ToArray();
-
             var parentescoIds = Enum
                 .GetValues<ParentescoSgmm>()
                 .Select(x => (short)x)
@@ -33,8 +29,6 @@ namespace DGSP.Module.Seguros.Persistence.Repositories.CJFBDRHDF.Calculadora
                     p.FiIdRegVig == tipoPoliza &&
                     p.FiIdIQ == iq &&
                     p.FiIdSAOrigen == sumaBasica &&
-                    p.FiIdSAPotenciada.HasValue &&
-                    sumaPotenciadaIds.Contains(p.FiIdSAPotenciada.Value) &&
                     p.FiIdParent.HasValue &&
                     parentescoIds.Contains(p.FiIdParent.Value))
                 .Join(
@@ -47,12 +41,14 @@ namespace DGSP.Module.Seguros.Persistence.Repositories.CJFBDRHDF.Calculadora
                     _context.CTSumaAseg.AsNoTracking(),
                     pc => pc.p.FiIdSAPotenciada,
                     sp => sp.FiIdRegSA,
-                    (pc, sp) => new PrimaOpMMSBase
+                    (pc, sp) => new PrimaOpMMSExtraBaseDto
                     {
                         FiIdSAPotenciada = pc.p.FiIdSAPotenciada,
                         Parentesco = pc.c.FcDescParent,
                         SumaPotenciada = sp.FcDescSumAseg,
-                        MontoPrima = pc.p.FnMtoPrim
+                        MontoPrima = pc.p.FnMtoPrim,
+                        FiTpoExtraPrima = pc.p.FiTpoExtraPrima ?? 0,
+                        FiTpoCAdicional = pc.p.FiTpoCAdicional ?? 0
                     }
                 )
                 .ToListAsync();

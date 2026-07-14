@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using DGSP.Gateway.Proxy.Queries.Modulos;
+﻿using DGSP.Gateway.Proxy.Queries.Modulos;
 using DGSP.Gateway.Proxy.Queries.Permisos;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Clients.WebClient.Pages
 {

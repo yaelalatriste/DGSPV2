@@ -36,21 +36,21 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Reportes.Consultorios
 
 
         [BindProperty(SupportsGet = true)]
-        public int FAnios { get; set; } 
+        public int FAnios { get; set; }
         [BindProperty(SupportsGet = true)]
         public List<int> FMeses { get; set; }
         public ModuloDto Modulo { get; set; }
         public SubmoduloDto Submodulo { get; set; }
         public CTAreaDto Area { get; set; }
-        public List<CTTipoConsultaDto> CTTiposConsultas  { get; set; }
+        public List<CTTipoConsultaDto> CTTiposConsultas { get; set; }
         public List<PermisoUsuarioDto> Permisos { get; set; }
         public List<int> Anios { get; set; } = new List<int>();
         public List<CTMesDto> Meses { get; set; } = new List<CTMesDto>();
         public DashboardConsultasResponseDto Dashboard { get; set; } = new DashboardConsultasResponseDto();
         public List<RConsultaDto> ConsultasMedicas { get; set; } = new List<RConsultaDto>();
 
-        public IndexModel(IUsuarioProxy usuarios, IModuloProxy modulo, IPermisoProxy permisos, IQCTAreaProxy ctareas, IQCTMesProxy ctmeses, 
-                          IQSMReporteProxy reportes, IQCTTipoServicioProxy ctTipoServicio, IQCTTipoConsultaProxy ctTipoConsulta, 
+        public IndexModel(IUsuarioProxy usuarios, IModuloProxy modulo, IPermisoProxy permisos, IQCTAreaProxy ctareas, IQCTMesProxy ctmeses,
+                          IQSMReporteProxy reportes, IQCTTipoServicioProxy ctTipoServicio, IQCTTipoConsultaProxy ctTipoConsulta,
                           IQCTTipoConsultaDetallesProxy ctTipoConsultaDetalle)
         {
             _usuarios = usuarios;
@@ -77,7 +77,7 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Reportes.Consultorios
                 Anios = await _reportes.GetAniosOfConsultas();
                 CTTiposConsultas = await _ctTipoConsulta.GetAllTiposConsultas();
 
-                if (FAnios != 0 && FMeses.Count() != 0 )
+                if (FAnios != 0 && FMeses.Count() != 0)
                 {
                     FiltrosSmDto filtros = new FiltrosSmDto();
                     filtros.Anios = FAnios;

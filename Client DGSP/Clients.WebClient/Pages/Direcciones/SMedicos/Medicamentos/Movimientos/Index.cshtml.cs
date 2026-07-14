@@ -12,7 +12,6 @@ using DGSP.Shared.Contracts.DTOs.Catalogos.SMedicos;
 using DGSP.Shared.Contracts.DTOs.Modulos;
 using DGSP.Shared.Contracts.DTOs.Permisos;
 using DGSP.Shared.Contracts.DTOs.SMedicos.Medicamentos.Entradas;
-using DGSP.Shared.Contracts.DTOs.SMedicos.Medicamentos.Movimientos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
@@ -81,14 +80,16 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Movimientos
 
         private async Task<List<LoteDto>> CargarLotesAsync()
         {
-            var lotes = (await _inventarios.GetLotesAsync()).Select(m => new LoteDto {
+            var lotes = (await _inventarios.GetLotesAsync()).Select(m => new LoteDto
+            {
                 UsuarioId = m.UsuarioId,
                 Lote = m.Lote,
                 MedicamentoId = m.MedicamentoId,
                 TipoInsumoId = m.TipoInsumoId,
                 FormaFarmaceuticaId = m.FormaFarmaceuticaId,
                 FechaCaducidad = m.FechaCaducidad,
-            }).DistinctBy(x => new {
+            }).DistinctBy(x => new
+            {
                 x.UsuarioId,
                 x.Lote,
                 x.MedicamentoId,

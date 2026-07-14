@@ -76,7 +76,7 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.NotasTraspas
         public List<DetalleNotaTraspasoDto> DetalleNota { get; set; }
         public List<LogNotaTraspasoDto> Logs { get; set; }
 
-        public DetalleNotaModel(IModuloProxy modulo, IPermisoProxy permisos, IQNotasTraspasoProxy qNotasTraspaso, IQCTConsultoriosProxy qCTConsultorio, 
+        public DetalleNotaModel(IModuloProxy modulo, IPermisoProxy permisos, IQNotasTraspasoProxy qNotasTraspaso, IQCTConsultoriosProxy qCTConsultorio,
             IQCTENotaTraspasoProxy qEstatusNotas, IQCTMedicamentosProxy qCTMedicamentos, IQCTTipoInsumoProxy qCTTiposInsumos, ICNotasTraspasoProxy cNotasTraspaso,
             IQCTTipoMovimientoProxy qCTTipoMovimientos, IQInventariosProxy inventarios, ICDetalleNotasTraspasoProxy cDetalleNotas, IQDetalleNotasTraspasoProxy qDetalleNotas,
             ICInventariosProxy cInventarios, ICSalidaMedicamentoProxy cSalidaMedicamentoProxy, ICSalidaMedicamentoDetalleProxy cSalidaMedicamentoDetalleProxy,
@@ -151,7 +151,7 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.NotasTraspas
 
             return logs;
         }
-        
+
         public async Task<IActionResult> OnGetDetalleById(int detalleId)
         {
             var detalle = await _qDetalleNotas.GetDetalleNotaTraspasoByIdAsync(detalleId);
@@ -161,17 +161,17 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.NotasTraspas
             }
             return new JsonResult(new DetalleNotaTraspasoDto());
         }
-        
+
         public async Task<IActionResult> OnGetLoteById(int loteId)
         {
             var lote = await _qInventarios.GetLoteByIdAsync(loteId);
-            if (lote!= null)
+            if (lote != null)
             {
                 return new JsonResult(lote);
             }
             return new JsonResult(new LoteDto());
         }
-        
+
         private async Task<List<DetalleNotaTraspasoDto>> GetDetallesNotaTraspasoById(int nota)
         {
             var detallesNota = await _qDetalleNotas.GetDetallesNotaTraspasoByNotaAsync(nota);
@@ -190,33 +190,33 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.NotasTraspas
 
         public async Task<IActionResult> OnGetDatosLote(string lote, int consultorio)
         {
-            var datos = await _qInventarios.GetDatosByLoteConsultorioAsync(lote,consultorio);
+            var datos = await _qInventarios.GetDatosByLoteConsultorioAsync(lote, consultorio);
             datos.FormaFarmaceutica = await _variables.GEtVariableByIdAsync(datos.FormaFarmaceuticaId);
             datos.TipoEnvase = await _variables.GEtVariableByIdAsync(datos.TipoEnvaseId);
-            if(datos != null)
-            {
-                return new JsonResult(datos);
-            }
-            return new JsonResult(new LoteDto());
-        }
-        
-        public async Task<IActionResult> OnGetDatosLoteMedicamento(string lote, int consultorio)
-        {
-            var obtenerLote = await _qInventarios.GetDatosByLoteConsultorioAsync(lote, consultorio);
-            var datos = await _qInventarios.GetDatosByLoteConsultorioMedicamentoAsync(lote,consultorio, obtenerLote.MedicamentoId);
-            datos.FormaFarmaceutica = await _variables.GEtVariableByIdAsync(datos.FormaFarmaceuticaId);
-            datos.TipoEnvase = await _variables.GEtVariableByIdAsync(datos.TipoEnvaseId);
-            if(datos != null)
+            if (datos != null)
             {
                 return new JsonResult(datos);
             }
             return new JsonResult(new LoteDto());
         }
 
-        public async Task<JsonResult> OnGetMedicamentosPorLote(string lote,int consultorio)
+        public async Task<IActionResult> OnGetDatosLoteMedicamento(string lote, int consultorio)
+        {
+            var obtenerLote = await _qInventarios.GetDatosByLoteConsultorioAsync(lote, consultorio);
+            var datos = await _qInventarios.GetDatosByLoteConsultorioMedicamentoAsync(lote, consultorio, obtenerLote.MedicamentoId);
+            datos.FormaFarmaceutica = await _variables.GEtVariableByIdAsync(datos.FormaFarmaceuticaId);
+            datos.TipoEnvase = await _variables.GEtVariableByIdAsync(datos.TipoEnvaseId);
+            if (datos != null)
+            {
+                return new JsonResult(datos);
+            }
+            return new JsonResult(new LoteDto());
+        }
+
+        public async Task<JsonResult> OnGetMedicamentosPorLote(string lote, int consultorio)
         {
             var medicamentos = await _qInventarios.GetMedicamentosPorLote(lote, consultorio);
-            if(medicamentos != null)
+            if (medicamentos != null)
             {
                 foreach (var datos in medicamentos)
                 {
@@ -231,17 +231,17 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.NotasTraspas
         }
 
         public async Task<IActionResult> OnGetLoteDetalleNota(int notaId, int loteId)
-         {
+        {
             var detalle = await _qDetalleNotas.GetDetallesNotaTraspasoByNotaAsync(notaId);
             var existLote = detalle.Where(dt => dt.LoteId == loteId).Count();
             return new JsonResult(existLote);
         }
-        
+
         public async Task<IActionResult> OnGetDatosMedicamento(int id)
         {
             var datos = await _qCTMedicamentos.GetMedicamentoByIdAsync(id);
-            
-            if(datos != null)
+
+            if (datos != null)
             {
                 return new JsonResult(datos);
             }
@@ -260,7 +260,7 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.NotasTraspas
             }
             return BadRequest();
         }
-        
+
         public async Task<IActionResult> OnPutUpdateDetalleNotaTraspaso([FromBody] ActualizarDetalleNotaTraspasoCommand command)
         {
             string Usuario = User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -273,11 +273,11 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.NotasTraspas
             }
             return BadRequest();
         }
-        
+
         public async Task<IActionResult> OnPutDeleteDetalleNotaTraspaso([FromBody] EliminarDetalleNotaTraspasoCommand command)
         {
             string Usuario = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            command.UsuarioId= Usuario;
+            command.UsuarioId = Usuario;
             var detalle = await _cDetalleNotas.DeleteDetalleNotaTraspasoAsync(command);
 
             if (detalle != null)
@@ -304,7 +304,7 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.NotasTraspas
             log.EstatusId = command.EstatusId;
             log.Observaciones = command.Observaciones;
             var createLog = await _cNotasTraspaso.CreateLogNotaTraspaso(log);
-            
+
             if (createLog != null)
             {
                 return new JsonResult(update);
@@ -385,7 +385,7 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.NotasTraspas
                 var responsableConsultorio = await _empleado.GetEmpleadoByExpediente(consultorio.ExpedienteResponsable);
                 var puestoResponsable = (await _empleado.GetMovimientosEmpleado(consultorio.ExpedienteResponsable)).First();
 
-                var responsable = responsableConsultorio.Nombre.ToLower()+" "+responsableConsultorio.Paterno.ToLower()+" "+responsableConsultorio.Materno.ToLower();
+                var responsable = responsableConsultorio.Nombre.ToLower() + " " + responsableConsultorio.Paterno.ToLower() + " " + responsableConsultorio.Materno.ToLower();
                 var puesto = puestoResponsable.Puesto.ToLower();
 
                 int f = 0;
@@ -393,17 +393,17 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.NotasTraspas
 
                 Document document = new Document();
 
-                var path = Path.Combine(Directory.GetCurrentDirectory(),"Plantillas", "Formato Memo.docx");
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "Plantillas", "Formato Memo.docx");
                 document.LoadFromFile(path);
 
                 // Reemplazos
-                document.Replace("|día|", (DateTime.Now.Day < 10 ? "0"+ DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString()), false, true);
+                document.Replace("|día|", (DateTime.Now.Day < 10 ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString()), false, true);
                 document.Replace("|mes|", DateTime.Now.ToString("MMMM", new CultureInfo("es-ES")), false, true);
                 document.Replace("|anio|", DateTime.Now.Year.ToString(), false, true);
                 document.Replace("|memo|", notaTraspaso.NumeroTraspaso, false, true);
                 document.Replace("|ResponsableConsultorio|", CultureInfo.CurrentCulture.TextInfo.ToTitleCase(responsable), false, true);
                 document.Replace("|PuestoResponsable|", CultureInfo.CurrentCulture.TextInfo.ToTitleCase(puesto), false, true);
-                document.Replace("|ServicioMedico|", "Servicio Médico en "+CultureInfo.CurrentCulture.TextInfo.ToTitleCase(consultorio.Nombre.ToLower()), false, true);
+                document.Replace("|ServicioMedico|", "Servicio Médico en " + CultureInfo.CurrentCulture.TextInfo.ToTitleCase(consultorio.Nombre.ToLower()), false, true);
 
                 // Buscar el texto |Tabla|
                 TextSelection selection = document.FindString("|Tabla|", true, true);
@@ -438,13 +438,13 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.NotasTraspas
                     table[0, 5].AddParagraph().AppendText("Cantidad");
 
                     // Datos dinámicos (ejemplo)
-                    foreach(var dt in detallesNota)
+                    foreach (var dt in detallesNota)
                     {
                         f++;
                         var lote = await _qInventarios.GetLoteByIdAsync(dt.LoteId);
                         var medicamento = await _qCTMedicamentos.GetMedicamentoByIdAsync(lote.MedicamentoId);
 
-                        table[i + 1, 0].AddParagraph().AppendText(f+"");
+                        table[i + 1, 0].AddParagraph().AppendText(f + "");
                         table[i + 1, 1].AddParagraph().AppendText(medicamento.Nombre);
                         table[i + 1, 2].AddParagraph().AppendText(lote.Lote);
                         table[i + 1, 3].AddParagraph().AppendText(lote.FechaCaducidad.ToString("dd/MM/yyyy"));

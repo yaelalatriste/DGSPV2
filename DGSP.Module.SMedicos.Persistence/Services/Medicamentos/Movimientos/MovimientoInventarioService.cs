@@ -32,7 +32,7 @@ namespace DGSP.Module.SMedicos.Persistence.Services.Medicamentos.Movimientos
                 ExistenciaPosterior = m.ExistenciaPosterior,
                 FechaMovimiento = m.FechaMovimiento,
                 Observaciones = m.Observaciones
-            }).ToList();
+            }).OrderBy(l => l.FechaMovimiento).ToList();
         }
 
         public async Task<List<MovimientoInventarioDto>> GetMovimientosInventariosByLoteAsync(int loteId)
@@ -54,7 +54,7 @@ namespace DGSP.Module.SMedicos.Persistence.Services.Medicamentos.Movimientos
                 ExistenciaPosterior = m.ExistenciaPosterior,
                 FechaMovimiento = m.FechaMovimiento,
                 Observaciones = m.Observaciones
-            }).ToList();
+            }).OrderBy(l => l.FechaMovimiento).ToList();
         }
     }
 }

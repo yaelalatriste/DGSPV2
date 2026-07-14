@@ -82,7 +82,7 @@ namespace Clients.WebClient.Pages.Direcciones.Seguros.Continuidades
                 Area = await _ctArea.GetAreaByIdAsync((int)Submodulo.AreaId);
                 Estatus = await _estatusContinuidad.GetAllEstatus();
                 continuidades = await _qContinuidad.GetAllContinuidades();
-                if (Expediente != 0) 
+                if (Expediente != 0)
                 {
                     Continuidades = await ContinuidadByExpediente(Expediente);
                 }
@@ -122,7 +122,7 @@ namespace Clients.WebClient.Pages.Direcciones.Seguros.Continuidades
             }
             return continuidad;
         }
-        
+
         public async Task<IActionResult> OnPostCreateContinuidad([FromBody] RegistrarContinuidadCommand command)
         {
             string Usuario = User.FindFirst(ClaimTypes.NameIdentifier).Value;

@@ -47,7 +47,7 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Entradas
         public List<LoteDto> Lotes { get; set; } = new();
         public List<CTVariableMedicaDto> FormasFarmaceuticas { get; set; } = new();
         public List<CTVariableMedicaDto> TiposEnvase { get; set; } = new();
-        public List<CTVariableMedicaDto> UnidadesContenido{ get; set; } = new();
+        public List<CTVariableMedicaDto> UnidadesContenido { get; set; } = new();
 
 
         [BindProperty]
@@ -59,8 +59,8 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Entradas
         [TempData]
         public string Ok { get; set; } = string.Empty;
 
-        public CreateModel(IModuloProxy modulo, IPermisoProxy permisos, IQCTConsultoriosProxy qCTConsultorio, IQCTMedicamentosProxy qMedicamentos, 
-            IQCTTipoInsumoProxy qCTTipoInsumo, IQCTTipoMovimientoProxy qCTTipoMovimiento, IQInventariosProxy qInventarios, 
+        public CreateModel(IModuloProxy modulo, IPermisoProxy permisos, IQCTConsultoriosProxy qCTConsultorio, IQCTMedicamentosProxy qMedicamentos,
+            IQCTTipoInsumoProxy qCTTipoInsumo, IQCTTipoMovimientoProxy qCTTipoMovimiento, IQInventariosProxy qInventarios,
             ICInventariosProxy iInventarios, IQCTVariablesMedicasProxy qVariables)
         {
             _modulo = modulo;
@@ -105,8 +105,8 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Entradas
         public async Task<IActionResult> OnGetDatosMedicamento(int id)
         {
             var datos = await _qMedicamentos.GetMedicamentoByIdAsync(id);
-            
-            if(datos != null)
+
+            if (datos != null)
             {
                 return new JsonResult(datos);
             }
@@ -195,7 +195,7 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Entradas
                 Error = "Seleccione la unidad de contenido.";
                 return Page();
             }
-           
+
             if (Form.Observaciones == null)
             {
                 Error = "Favor de registrar las observaciones.";

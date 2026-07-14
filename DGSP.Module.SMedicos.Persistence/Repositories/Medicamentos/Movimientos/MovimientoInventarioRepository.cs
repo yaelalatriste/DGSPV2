@@ -20,12 +20,12 @@ namespace DGSP.Module.SMedicos.Persistence.Repositories.Medicamentos.Movimientos
 
         public async Task<List<MovimientoInventario>> GetAllMovimientosInventariosAsync()
         {
-            return await _db.MovimientosInventario.AsNoTracking().ToListAsync();
+            return await _db.MovimientosInventario.AsNoTracking().OrderBy(l => l.FechaMovimiento).ToListAsync();
         }
         
         public async Task<List<MovimientoInventario>> GetMovimientosInventariosByLoteAsync(int lote)
         {
-            return await _db.MovimientosInventario.Where(m => m.LoteId == lote).ToListAsync();
+            return await _db.MovimientosInventario.Where(m => m.LoteId == lote).OrderBy(l => l.FechaMovimiento).ToListAsync();
         }
 
         public Task SaveChangesAsync()

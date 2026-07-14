@@ -12,7 +12,7 @@ namespace DGSP.Gateway.Proxy.Queries.Seguros.CJFBDRHDF.Calculadora
 {
     public interface IQCalcularPolizaSgmmProxy
     {
-        Task<List<CalculadoraSgmmResponseDto>> CalcularPolizaSgmmAsync(FiltroSGMMDto query);
+        Task<List<PrimaPotenciadaDto>> CalcularPolizaSgmmAsync(FiltroSGMMDto query);
         Task<CatalogosSgmmDto> ObtenerCatalogosSgmm(ObtenerCatalogosSgmmDto catalogo);
     }
 
@@ -29,7 +29,7 @@ namespace DGSP.Gateway.Proxy.Queries.Seguros.CJFBDRHDF.Calculadora
             _apiGatewayUrl = apiGatewayUrl.Value;
         }
 
-        public Task<List<CalculadoraSgmmResponseDto>> CalcularPolizaSgmmAsync(FiltroSGMMDto query) => SendJsonAsync<FiltroSGMMDto, List<CalculadoraSgmmResponseDto>>(HttpMethod.Post, "seguros/CalculadoraSgmm/calcular", query);
+        public Task<List<PrimaPotenciadaDto>> CalcularPolizaSgmmAsync(FiltroSGMMDto query) => SendJsonAsync<FiltroSGMMDto, List<PrimaPotenciadaDto>>(HttpMethod.Post, "seguros/CalculadoraSgmm/calcular", query);
         public Task<CatalogosSgmmDto> ObtenerCatalogosSgmm(ObtenerCatalogosSgmmDto catalogo) => GetAsync<CatalogosSgmmDto>($"{_apiGatewayUrl}seguros/CalculadoraSgmm/getAllCatalogosSgmm");
 
         private async Task<T> GetAsync<T>(string url)

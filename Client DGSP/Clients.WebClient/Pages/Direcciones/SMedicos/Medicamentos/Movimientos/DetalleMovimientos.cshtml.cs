@@ -1,44 +1,23 @@
-﻿using DGSP.Gateway.Proxy.Commands.SMedicos.Medicamentos.Entradas;
-using DGSP.Gateway.Proxy.Commands.SMedicos.Medicamentos.NotasTraspaso;
-using DGSP.Gateway.Proxy.Commands.SMedicos.Medicamentos.Salidas;
-using DGSP.Gateway.Proxy.Queries.Catalogos.CTConsultorios;
+﻿using DGSP.Gateway.Proxy.Queries.Catalogos.CTConsultorios;
 using DGSP.Gateway.Proxy.Queries.Catalogos.CTMedicamentos;
 using DGSP.Gateway.Proxy.Queries.Catalogos.CTTiposInsumos;
 using DGSP.Gateway.Proxy.Queries.Catalogos.CTTiposMovimientos;
 using DGSP.Gateway.Proxy.Queries.Catalogos.CTVariablesMedicas;
-using DGSP.Gateway.Proxy.Queries.Estatus.NotasTraspaso;
 using DGSP.Gateway.Proxy.Queries.Modulos;
 using DGSP.Gateway.Proxy.Queries.Permisos;
 using DGSP.Gateway.Proxy.Queries.SMedicos.Medicamentos.Entradas;
 using DGSP.Gateway.Proxy.Queries.SMedicos.Medicamentos.Movimientos;
-using DGSP.Gateway.Proxy.Queries.SMedicos.Medicamentos.NotasTraspaso;
 using DGSP.Gateway.Proxy.Queries.SMedicos.Medicamentos.Salidas;
 using DGSP.Gateway.Proxy.Queries.Usuarios;
-using DGSP.Shared.Contracts.Commands.SMedicos.Medicamentos.Entradas;
-using DGSP.Shared.Contracts.Commands.SMedicos.Medicamentos.Logs;
-using DGSP.Shared.Contracts.Commands.SMedicos.Medicamentos.NotasTraspaso;
-using DGSP.Shared.Contracts.Commands.SMedicos.Medicamentos.Salidas;
-using DGSP.Shared.Contracts.DTOs.Catalogos.SMedicos;
-using DGSP.Shared.Contracts.DTOs.Estatus.NotasTraspaso;
 using DGSP.Shared.Contracts.DTOs.Modulos;
 using DGSP.Shared.Contracts.DTOs.Permisos;
 using DGSP.Shared.Contracts.DTOs.SMedicos.Medicamentos.Entradas;
-using DGSP.Shared.Contracts.DTOs.SMedicos.Medicamentos.Logs;
 using DGSP.Shared.Contracts.DTOs.SMedicos.Medicamentos.Movimientos;
-using DGSP.Shared.Contracts.DTOs.SMedicos.Medicamentos.NotasTraspaso;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Spire.Doc;
-using Spire.Doc.Documents;
-using Spire.Doc.Fields;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Security.Claims;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Movimientos
@@ -65,9 +44,9 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Movimientos
         public LoteDto Lote { get; set; }
         public List<MovimientoInventarioDto> DetalleMovimientos { get; set; }
 
-        public DetalleMovimientosModel(IModuloProxy modulo, IPermisoProxy permisos, IUsuarioProxy usuario, 
-            IQMovimientosProxy movimientos, IQCTConsultoriosProxy qCTConsultorio, IQCTMedicamentosProxy qCTMedicamentos, 
-            IQCTTipoInsumoProxy qCTTiposInsumos, IQCTTipoMovimientoProxy qCTTipoMovimientos, IQInventariosProxy qInventarios, 
+        public DetalleMovimientosModel(IModuloProxy modulo, IPermisoProxy permisos, IUsuarioProxy usuario,
+            IQMovimientosProxy movimientos, IQCTConsultoriosProxy qCTConsultorio, IQCTMedicamentosProxy qCTMedicamentos,
+            IQCTTipoInsumoProxy qCTTiposInsumos, IQCTTipoMovimientoProxy qCTTipoMovimientos, IQInventariosProxy qInventarios,
             IQCTVariablesMedicasProxy variables, IQSalidaMedicamentoDetalleProxy salidaDetalle, IQSalidaMedicamentoProxy salidas)
         {
             _modulo = modulo;
@@ -108,7 +87,7 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Movimientos
             var movimientos = await _movimientos.GetAllMovimientosInventariosAsync();
 
             var detalleMovimientos = movimientos.Where(m => lotes.Contains(m.LoteId)).ToList();
-            
+
             foreach (var m in detalleMovimientos)
             {
                 m.Usuario = await _usuario.GetUsuarioById(m.UsuarioId);
@@ -127,7 +106,9 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Movimientos
                 }
             }
 
-            return detalleMovimientos;
+            return detalleMovimientos
+                .OrderBy(x => x.FechaMovimiento)
+                .ToList();
         }
 
         private async Task<LoteDto> GetLote(string lote)
@@ -136,8 +117,8 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Movimientos
             lotes.FormaFarmaceutica = await _variables.GEtVariableByIdAsync(lotes.FormaFarmaceuticaId);
             lotes.TipoEnvase = await _variables.GEtVariableByIdAsync(lotes.TipoEnvaseId);
             lotes.Medicamento = await _qCTMedicamentos.GetMedicamentoByIdAsync(lotes.MedicamentoId);
-            lotes.TipoInsumo= await _qCTTiposInsumos.GetTipoInsumoByIdAsync(lotes.TipoInsumoId);
-            
+            lotes.TipoInsumo = await _qCTTiposInsumos.GetTipoInsumoByIdAsync(lotes.TipoInsumoId);
+
             return lotes;
         }
     }

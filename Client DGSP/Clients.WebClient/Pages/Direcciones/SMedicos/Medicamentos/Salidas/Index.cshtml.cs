@@ -43,8 +43,8 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Salidas
         public List<PermisoUsuarioDto> Permisos { get; set; }
         public List<SalidaMedicamentoDto> Salidas { get; set; } = new();
 
-        public IndexModel(IModuloProxy modulo, IPermisoProxy permisos, IQCTConsultoriosProxy qCTConsultorio, IQCTMedicamentosProxy qCTMedicamentos, 
-            IQCTTipoInsumoProxy qCTTipoInsumo, IQCTTipoMovimientoProxy qCTTipoMovimiento, IQCTVariablesMedicasProxy qVariables, 
+        public IndexModel(IModuloProxy modulo, IPermisoProxy permisos, IQCTConsultoriosProxy qCTConsultorio, IQCTMedicamentosProxy qCTMedicamentos,
+            IQCTTipoInsumoProxy qCTTipoInsumo, IQCTTipoMovimientoProxy qCTTipoMovimiento, IQCTVariablesMedicasProxy qVariables,
             IQSalidaMedicamentoProxy qSalidas, IQSalidaMedicamentoDetalleProxy qSalidasDetalle, IQInventariosProxy lotes)
         {
             _modulo = modulo;

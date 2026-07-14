@@ -82,7 +82,9 @@
 
                     <tr>
                         <!-- Fecha -->
-                        <td>@m.FechaMovimiento.ToString("dd/MM/yyyy HH:mm tt")</td>
+                        <td data-order="@m.FechaMovimiento.ToString("yyyyMMddHHmmss")">
+                            @m.FechaMovimiento.ToString("dd/MM/yyyy HH:mm tt")
+                        </td>
 
                         <!-- Tipo -->
                         <td>

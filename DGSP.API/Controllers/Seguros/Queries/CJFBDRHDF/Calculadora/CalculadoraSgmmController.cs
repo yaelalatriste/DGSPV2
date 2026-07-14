@@ -1,5 +1,4 @@
 ﻿using DGSP.Module.Seguros.Application.Services.CJFBDRHDF.Calculadora;
-using DGSP.Module.Seguros.Application.Services.DGSP.Continuidades;
 using DGSP.Shared.Contracts.DTOs.Seguros.CJFBDRHDF.Calculadora;
 using DGSP.Shared.Contracts.DTOs.Seguros.CJFBDRHDF.Catalogos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -36,15 +35,7 @@ namespace DGSP.API.Controllers.Seguros.Queries.DGSP.Continuidades
         [Route("calcular")]
         public async Task<IActionResult> Calcular([FromBody] FiltroSGMMDto calcular)
         {
-            calcular.Anio = 2026;
-            calcular.TipoPoliza = 61;
-            calcular.Quincenas = 13;
-            calcular.SumaBasica= 1;
-            calcular.IQ = 1;
-            calcular.FechaInicio = Convert.ToDateTime("2025-12-31");
-            calcular.FechaFinal = Convert.ToDateTime("2026-12-31");
-
-            var continuidades = await _calculadoraSgmmService.CalcularPolizaSgmmAsync(calcular);
+            var continuidades = await _calculadoraSgmmService.ObtenerPrimasPotenciadasAsync(calcular);
 
             return Ok(continuidades);
         }

@@ -5,14 +5,12 @@ using DGSP.Gateway.Proxy.Queries.Catalogos.CTVariablesMedicas;
 using DGSP.Gateway.Proxy.Queries.DGRH.Empleados;
 using DGSP.Gateway.Proxy.Queries.Modulos;
 using DGSP.Gateway.Proxy.Queries.Permisos;
-using DGSP.Gateway.Proxy.Queries.Usuarios;
 using DGSP.Shared.Contracts.Commands.Catalogos.SMedicos.Consultorios;
 using DGSP.Shared.Contracts.DTOs.Catalogos.SMedicos;
 using DGSP.Shared.Contracts.DTOs.Modulos;
 using DGSP.Shared.Contracts.DTOs.Permisos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -77,7 +75,7 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Catalogos.Consultorios
             var Consultorios = await _qCtConsultorios.GetAllConsultoriosAsync();
             foreach (var m in Consultorios)
             {
-                if(m.ExpedienteResponsable != 0)
+                if (m.ExpedienteResponsable != 0)
                 {
                     m.ServidorPublico = await _empleado.GetEmpleadoByExpediente(m.ExpedienteResponsable);
                 }
@@ -91,7 +89,7 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Catalogos.Consultorios
             var ultimoMovimiento = (await _empleado.GetMovimientosEmpleado(expediente)).First();
             empleado.Puesto = ultimoMovimiento.Puesto;
 
-            if(empleado != null)
+            if (empleado != null)
             {
                 return new JsonResult(empleado);
             }

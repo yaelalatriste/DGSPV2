@@ -10,7 +10,6 @@ using DGSP.Shared.Contracts.DTOs.Permisos;
 using DGSP.Shared.Contracts.DTOs.SMedicos.Medicamentos.Entradas;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -38,7 +37,7 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.Entradas
         public List<PermisoUsuarioDto> Permisos { get; set; }
         public List<LoteDto> Lotes { get; set; } = new();
 
-        public IndexModel(IModuloProxy modulo, IPermisoProxy permisos, IQInventariosProxy qInventarios, ICInventariosProxy iInventarios, IQCTMedicamentosProxy qCTMedicamentos, 
+        public IndexModel(IModuloProxy modulo, IPermisoProxy permisos, IQInventariosProxy qInventarios, ICInventariosProxy iInventarios, IQCTMedicamentosProxy qCTMedicamentos,
                           IQCTConsultoriosProxy qCTConsultorio, IQCTVariablesMedicasProxy variables)
         {
             _modulo = modulo;

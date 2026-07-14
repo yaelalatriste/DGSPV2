@@ -6,13 +6,11 @@ using DGSP.Gateway.Proxy.Queries.Modulos;
 using DGSP.Gateway.Proxy.Queries.Permisos;
 using DGSP.Gateway.Proxy.Queries.Usuarios;
 using DGSP.Shared.Contracts.Commands.Catalogos.SMedicos.Medicamentos;
-using DGSP.Shared.Contracts.Commands.SMedicos.Medicamentos.NotasTraspaso;
 using DGSP.Shared.Contracts.DTOs.Catalogos.SMedicos;
 using DGSP.Shared.Contracts.DTOs.Modulos;
 using DGSP.Shared.Contracts.DTOs.Permisos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.ReportingServices.ReportProcessing.OnDemandReportObjectModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,7 +103,7 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Catalogos.Medicamentos
 
             return BadRequest();
         }
-        
+
         public async Task<IActionResult> OnPutUpdateMedicamento([FromBody] ActualizarCTMedicamentoCommand command)
         {
             string usuario = User.FindFirst(ClaimTypes.NameIdentifier).Value;

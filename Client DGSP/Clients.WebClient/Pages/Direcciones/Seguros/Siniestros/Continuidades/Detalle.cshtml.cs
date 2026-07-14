@@ -181,12 +181,12 @@ namespace Clients.WebClient.Pages.Direcciones.Seguros.Continuidades
 
             return new JsonResult(oficio);
         }
-        
+
         public async Task<IActionResult> OnGetExisteContinuidad(int expediente, string fechaBaja)
         {
             var continuidades = await _qContinuidad.GetAllContinuidades();
             var continuidad = continuidades.Where(c => c.Expediente == expediente && c.FechaBaja.GetValueOrDefault().ToString("yyyy-MM-dd").Equals(fechaBaja)).ToList();
-            if(continuidad.Count() != 0)
+            if (continuidad.Count() != 0)
             {
                 return new JsonResult(null);
             }
@@ -273,7 +273,7 @@ namespace Clients.WebClient.Pages.Direcciones.Seguros.Continuidades
                 update.Id = entregable.ContinuidadId;
                 update.UsuarioId = entregable.UsuarioId;
                 update.FechaEnvioSP = command.FechaEnvioSP;
-                update.FechaLimitePago= command.FechaLimitePago;
+                update.FechaLimitePago = command.FechaLimitePago;
                 update.Importe = command.Importe;
                 var updateContinuidad = await _cContinuidad.ActualizarContinuidadAsync(update);
                 if (updateContinuidad != null)

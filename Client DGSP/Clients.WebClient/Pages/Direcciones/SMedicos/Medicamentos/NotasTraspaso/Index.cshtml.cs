@@ -36,7 +36,7 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.NotasTraspas
         public List<CTConsultorioDto> Consultorios { get; set; }
         public List<NotaTraspasoDto> NotasTraspaso { get; set; }
 
-        public SalidaModel(IModuloProxy modulo, IPermisoProxy permisos, IQCTConsultoriosProxy qCTConsultorio, IQNotasTraspasoProxy qNotasTraspaso, 
+        public SalidaModel(IModuloProxy modulo, IPermisoProxy permisos, IQCTConsultoriosProxy qCTConsultorio, IQNotasTraspasoProxy qNotasTraspaso,
             ICNotasTraspasoProxy cNotasTraspaso, IQCTENotaTraspasoProxy qEstatusNotas, IUsuarioProxy usuario)
         {
             _modulo = modulo;

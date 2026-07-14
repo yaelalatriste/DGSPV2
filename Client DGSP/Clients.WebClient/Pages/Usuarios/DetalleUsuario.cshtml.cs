@@ -1,13 +1,11 @@
 using DGSP.Gateway.Proxy.Queries.Modulos;
 using DGSP.Gateway.Proxy.Queries.Permisos;
 using DGSP.Gateway.Proxy.Queries.Usuarios;
-using DGSP.Shared.Contracts.Commands.Permisos;
 using DGSP.Shared.Contracts.DTOs.Modulos;
 using DGSP.Shared.Contracts.DTOs.Permisos;
 using DGSP.Shared.Contracts.DTOs.Usuarios;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
 using System.Linq;

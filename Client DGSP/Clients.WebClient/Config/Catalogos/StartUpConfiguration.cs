@@ -7,6 +7,7 @@ using DGSP.Gateway.Proxy.Queries.Catalogos.CTMedicamentos;
 using DGSP.Gateway.Proxy.Queries.Catalogos.CTMeses;
 using DGSP.Gateway.Proxy.Queries.Catalogos.CTTiposInsumos;
 using DGSP.Gateway.Proxy.Queries.Catalogos.CTTiposMovimientos;
+using DGSP.Gateway.Proxy.Queries.Catalogos.CTVariablesGenerales;
 using DGSP.Gateway.Proxy.Queries.Catalogos.CTVariablesMedicas;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,9 +27,10 @@ namespace Clients.WebClient.Config.Catalogos
             service.AddHttpClient<IQCTTipoMovimientoProxy, QCTTipoMovimientoProxy>();
             service.AddHttpClient<IQCTTipoInsumoProxy, QCTTipoInsumoProxy>();
             service.AddHttpClient<IQCTVariablesMedicasProxy, QCTVariablesMedicasProxy>();
-            service.AddHttpClient<IQCTEntregableProxy, QCTEntregableProxy>();            
+            service.AddHttpClient<IQCTEntregableProxy, QCTEntregableProxy>();
             service.AddHttpClient<ICCTMedicamentoProxy, CCTMedicamentoProxy>();
             service.AddHttpClient<ICCTConsultorioProxy, CCTConsultorioProxy>();
+            service.AddHttpClient<IQCTVariablesGeneralesProxy, QCTVariablesGeneralesProxy>();
 
             return service;
         }

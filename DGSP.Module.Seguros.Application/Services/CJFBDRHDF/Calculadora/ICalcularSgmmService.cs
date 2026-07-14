@@ -4,6 +4,6 @@ namespace DGSP.Module.Seguros.Application.Services.CJFBDRHDF.Calculadora
 {
     public interface ICalcularPolizaSgmmService
     {
-        Task<List<PrimaPotenciadaDto>> CalcularPolizaSgmmAsync(FiltroSGMMDto query);
+        Task<List<PrimaPotenciadaDto>> ObtenerPrimasPotenciadasAsync(FiltroSGMMDto query);
     }
 }
