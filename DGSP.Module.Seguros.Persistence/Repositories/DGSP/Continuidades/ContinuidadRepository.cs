@@ -1,6 +1,5 @@
 ﻿using DGSP.Module.Seguros.Application.Interfaces.DGSP.Continuidades;
 using DGSP.Module.Seguros.Domain.DGSP.Continuidades;
-using DGSP.Shared.Contracts.Commands.Seguros.Continuidades.Continuidad;
 using Microsoft.EntityFrameworkCore;
 
 namespace DGSP.Module.Seguros.Persistence.Repositories.DGSP.Continuidades

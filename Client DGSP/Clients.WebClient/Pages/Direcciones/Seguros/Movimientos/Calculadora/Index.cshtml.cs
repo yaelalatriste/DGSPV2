@@ -1,3 +1,4 @@
+using DGSP.Gateway.Proxy.Commands.Seguros.Movimientos.Calculadora;
 using DGSP.Gateway.Proxy.Queries.Catalogos.CTAreas;
 using DGSP.Gateway.Proxy.Queries.Catalogos.CTMeses;
 using DGSP.Gateway.Proxy.Queries.Catalogos.CTVariablesGenerales;
@@ -8,6 +9,7 @@ using DGSP.Gateway.Proxy.Queries.Permisos;
 using DGSP.Gateway.Proxy.Queries.Seguros.CJFBDRHDF.Calculadora;
 using DGSP.Gateway.Proxy.Queries.Seguros.DGSP.Continuidades;
 using DGSP.Gateway.Proxy.Queries.Usuarios;
+using DGSP.Shared.Contracts.Commands.Seguros.Movimientos.Calculadora;
 using DGSP.Shared.Contracts.DTOs.Catalogos.Generales;
 using DGSP.Shared.Contracts.DTOs.DGRH.RH.Empleados;
 using DGSP.Shared.Contracts.DTOs.Modulos;
@@ -36,6 +38,7 @@ namespace Clients.WebClient.Pages.Direcciones.Seguros.Movimientos.Calculadora
         private readonly IQEmpleadoProxy _empleado;
         private readonly IQCalcularPolizaSgmmProxy _calcularSgmm;
         private readonly IEmailProxy _email;
+        private readonly ICCorreoCalculadoraProxy _mailCotizacion;
 
         [BindProperty(SupportsGet = true)]
         public FiltroSGMMDto FiltrosPoliza { get; set; } = new FiltroSGMMDto();
@@ -61,7 +64,8 @@ namespace Clients.WebClient.Pages.Direcciones.Seguros.Movimientos.Calculadora
             IQCalcularPolizaSgmmProxy calcularSgmm,
             IQCorreoContinuidadProxy correos,
             IQEmpleadoProxy empleado,
-            IEmailProxy email)
+            IEmailProxy email,
+            ICCorreoCalculadoraProxy mailCotizacion)
         {
             _usuarios = usuarios;
             _modulo = modulo;
@@ -72,6 +76,7 @@ namespace Clients.WebClient.Pages.Direcciones.Seguros.Movimientos.Calculadora
             _correos = correos;
             _empleado = empleado;
             _email = email;
+            _mailCotizacion = mailCotizacion;
             _calcularSgmm = calcularSgmm;
         }
 
@@ -134,6 +139,21 @@ namespace Clients.WebClient.Pages.Direcciones.Seguros.Movimientos.Calculadora
         private ObtenerCatalogosSgmmDto ObtieneCatalogos()
         {
             return new ObtenerCatalogosSgmmDto((short)DateTime.Now.Year);
+        }
+
+        public async Task<JsonResult> OnPostEnviarCotizacionCorreo([FromBody] ResultadoCotizacionSgmmCommand command)
+        {
+            try
+            {
+                var emailRequest = await _mailCotizacion.EnviarCotizacionByCorreo(command);
+                var email = await _email.EnviarCorreoAsync(emailRequest);
+
+                return new JsonResult(email);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(null);
+            }
         }
     }
 }

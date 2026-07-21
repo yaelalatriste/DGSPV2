@@ -1,6 +1,6 @@
 ﻿using DGSP.Module.Estatus.Application.Services.Continuidades;
-using DGSP.Shared.Contracts.Commands.Seguros.Continuidades.Continuidad;
-using DGSP.Shared.Contracts.Commands.Seguros.Logs;
+using DGSP.Shared.Contracts.Commands.Seguros.Siniestros.Continuidades.Continuidad;
+using DGSP.Shared.Contracts.Commands.Seguros.Siniestros.Logs;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

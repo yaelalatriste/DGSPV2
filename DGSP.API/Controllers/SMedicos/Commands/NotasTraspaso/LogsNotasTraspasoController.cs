@@ -1,5 +1,4 @@
-﻿using DGSP.Shared.Contracts.Commands.Seguros.Logs;
-using DGSP.Shared.Contracts.Commands.SMedicos.Medicamentos.Logs;
+﻿using DGSP.Shared.Contracts.Commands.SMedicos.Medicamentos.Logs;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

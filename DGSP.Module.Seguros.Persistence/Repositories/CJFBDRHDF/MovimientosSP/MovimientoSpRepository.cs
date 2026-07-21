@@ -1,8 +1,8 @@
 ﻿using DGSP.Module.DGRH.Application.Services.Seguros.Movimientos;
 using DGSP.Module.Seguros.Domain.CJFBDRHDF.Models.Movimientos;
 using DGSP.Module.Seguros.Persistence;
-using DGSP.Shared.Contracts.Commands.Seguros.Continuidades.OficiosContinuidades;
-using DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Continuidades.Continuidad;
+using DGSP.Shared.Contracts.Commands.Seguros.Siniestros.Continuidades.OficiosContinuidades;
+using DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Siniestros.Continuidades.Continuidad;
 using Microsoft.EntityFrameworkCore;
 
 namespace DGSP.Module.DGRH.Persistence.Repositories.Seguros.MovimientosSP

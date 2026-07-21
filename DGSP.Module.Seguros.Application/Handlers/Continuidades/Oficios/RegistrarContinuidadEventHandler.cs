@@ -1,6 +1,6 @@
 ﻿using DGSP.Module.Seguros.Application.Services.DGSP.Continuidades;
-using DGSP.Shared.Contracts.Commands.Seguros.Continuidades.OficiosContinuidades;
-using DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Continuidades.Continuidad;
+using DGSP.Shared.Contracts.Commands.Seguros.Siniestros.Continuidades.OficiosContinuidades;
+using DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Siniestros.Continuidades.Continuidad;
 using MediatR;
 
 namespace DGSP.Module.Seguros.Application.Handlers.OficioContinuidades.Oficios

@@ -1,5 +1,4 @@
 ﻿using DGSP.Module.Seguros.Domain.DGSP.Continuidades;
-using DGSP.Shared.Contracts.Commands.Seguros.Continuidades.Continuidad;
 
 namespace DGSP.Module.Seguros.Application.Interfaces.DGSP.Continuidades
 {

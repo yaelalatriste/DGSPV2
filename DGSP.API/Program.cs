@@ -126,5 +126,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles();
 
 app.Run();

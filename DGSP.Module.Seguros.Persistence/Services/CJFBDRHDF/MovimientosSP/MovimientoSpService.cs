@@ -1,7 +1,7 @@
 ﻿using DGSP.Module.DGRH.Application.Services.Seguros.Movimientos;
 using DGSP.Module.Seguros.Application.Services.CJFBDRHDF.SGMM;
-using DGSP.Shared.Contracts.Commands.Seguros.Continuidades.OficiosContinuidades;
-using DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Continuidades.Continuidad;
+using DGSP.Shared.Contracts.Commands.Seguros.Siniestros.Continuidades.OficiosContinuidades;
+using DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Siniestros.Continuidades.Continuidad;
 
 namespace DGSP.Module.DGRH.Persistence.Services.RH.Empleados
 {

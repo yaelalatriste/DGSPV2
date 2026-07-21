@@ -1,5 +1,4 @@
 ﻿using Api.Gateway.WebClient.Proxy.Config;
-using DGSP.Shared.Contracts.Commands.Seguros.Logs;
 using DGSP.Shared.Contracts.Commands.SMedicos.Medicamentos.Logs;
 using DGSP.Shared.Contracts.Commands.SMedicos.Medicamentos.NotasTraspaso;
 using DGSP.Shared.Contracts.DTOs.SMedicos.Medicamentos.NotasTraspaso;

@@ -1,5 +1,5 @@
-﻿using DGSP.Shared.Contracts.Commands.Seguros.Logs;
-using DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Continuidades.Continuidad;
+﻿using DGSP.Shared.Contracts.Commands.Seguros.Siniestros.Logs;
+using DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Siniestros.Continuidades.Continuidad;
 
 namespace DGSP.Module.Seguros.Application.Services.Logs
 {

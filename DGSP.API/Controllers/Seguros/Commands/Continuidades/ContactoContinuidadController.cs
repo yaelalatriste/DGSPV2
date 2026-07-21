@@ -1,4 +1,4 @@
-﻿using DGSP.Shared.Contracts.Commands.Seguros.Continuidades.MediosContacto;
+﻿using DGSP.Shared.Contracts.Commands.Seguros.Siniestros.Continuidades.MediosContacto;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

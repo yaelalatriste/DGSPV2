@@ -1,5 +1,7 @@
-﻿using DGSP.Gateway.Proxy.Commands.Seguros.Continuidades.ContactosContinuidades;
-using DGSP.Gateway.Proxy.Commands.Seguros.Continuidades.Entregables;
+﻿using DGSP.Gateway.Proxy.Commands.Seguros.Movimientos.Calculadora;
+using DGSP.Gateway.Proxy.Commands.Seguros.Siniestros.ContactosContinuidades;
+using DGSP.Gateway.Proxy.Commands.Seguros.Siniestros.Continuidades;
+using DGSP.Gateway.Proxy.Commands.Seguros.Siniestros.Entregables;
 using DGSP.Gateway.Proxy.Queries.DGRH.Empleados;
 using DGSP.Gateway.Proxy.Queries.Seguros.CJFBDRHDF.Calculadora;
 using DGSP.Gateway.Proxy.Queries.Seguros.CJFBDRHDF.Movimiento;
@@ -32,6 +34,7 @@ namespace Clients.WebClient.Config.Seguros
             service.AddHttpClient<ICContinuidadProxy, CContinuidadProxy>();
             service.AddHttpClient<ICEntregableContinuidadProxy, CEntregableContinuidadProxy>();
             service.AddHttpClient<ICContactoContinuidadProxy, CContactoContinuidadProxy>();
+            service.AddHttpClient<ICCorreoCalculadoraProxy, CCorreoCalculadoraProxy>();
 
             return service;
         }

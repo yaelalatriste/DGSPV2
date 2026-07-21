@@ -1,10 +1,6 @@
 ﻿using Api.Gateway.WebClient.Proxy.Config;
-using DGSP.Shared.Contracts.Commands.Seguros.Continuidades.OficiosContinuidades;
 using DGSP.Shared.Contracts.DTOs.DGRH.Seguros;
-using DGSP.Shared.Contracts.DTOs.Seguros.CJFBDRHDF;
-using DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Continuidades.Continuidad;
 using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
