@@ -12,7 +12,6 @@ namespace DGSP.API.Controllers.Seguros.Queries.DGSP.Siniestros.Continuidades
 {
 
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/seguros/continuidades/[controller]")]
     public class MovimientoSpController : ControllerBase
     {

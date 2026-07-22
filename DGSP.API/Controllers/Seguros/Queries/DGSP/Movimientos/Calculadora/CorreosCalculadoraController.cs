@@ -75,9 +75,9 @@ namespace DGSP.API.Controllers.Seguros.Queries.DGSP.Movimientos.Calculadora
                 var correosOcultos = new List<string>
                 {
                     "jymiranda@oaj.gob.mx",
-                    /*"aavalosf@oaj.gob.mx",
+                    "aavalosf@oaj.gob.mx",
                     "mehernandezc@oaj.gob.mx",
-                    "eetrujillo@oaj.gob.mx",*/
+                    "eetrujillo@oaj.gob.mx",
                 };
 
                 var destinatarios = new List<string>
