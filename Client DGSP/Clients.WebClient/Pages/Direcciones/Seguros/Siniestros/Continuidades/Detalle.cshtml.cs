@@ -11,7 +11,7 @@ using DGSP.Gateway.Proxy.Queries.ExternalServices;
 using DGSP.Gateway.Proxy.Queries.Modulos;
 using DGSP.Gateway.Proxy.Queries.Permisos;
 using DGSP.Gateway.Proxy.Queries.Seguros.CJFBDRHDF.Movimiento;
-using DGSP.Gateway.Proxy.Queries.Seguros.DGSP.Continuidades;
+using DGSP.Gateway.Proxy.Queries.Seguros.DGSP.Siniestros.Continuidades;
 using DGSP.Gateway.Proxy.Queries.Usuarios;
 using DGSP.Shared.Contracts.Commands.Seguros.Siniestros.Continuidades.Continuidad;
 using DGSP.Shared.Contracts.Commands.Seguros.Siniestros.Continuidades.Entregables;

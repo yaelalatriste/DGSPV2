@@ -7,7 +7,8 @@ using DGSP.Gateway.Proxy.Queries.ExternalServices;
 using DGSP.Gateway.Proxy.Queries.Modulos;
 using DGSP.Gateway.Proxy.Queries.Permisos;
 using DGSP.Gateway.Proxy.Queries.Seguros.CJFBDRHDF.Calculadora;
-using DGSP.Gateway.Proxy.Queries.Seguros.DGSP.Continuidades;
+using DGSP.Gateway.Proxy.Queries.Seguros.DGSP.Movimientos.Calculadora;
+using DGSP.Gateway.Proxy.Queries.Seguros.DGSP.Siniestros.Continuidades;
 using DGSP.Gateway.Proxy.Queries.Usuarios;
 using DGSP.Shared.Contracts.Commands.Seguros.Movimientos.Calculadora;
 using DGSP.Shared.Contracts.DTOs.Catalogos.Generales;
@@ -16,6 +17,7 @@ using DGSP.Shared.Contracts.DTOs.Modulos;
 using DGSP.Shared.Contracts.DTOs.Permisos;
 using DGSP.Shared.Contracts.DTOs.Seguros.CJFBDRHDF.Calculadora;
 using DGSP.Shared.Contracts.DTOs.Seguros.CJFBDRHDF.Catalogos;
+using DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Movimientos.Calculadora;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -39,6 +41,7 @@ namespace Clients.WebClient.Pages.Direcciones.Seguros.Movimientos.Calculadora
         private readonly IQCalcularPolizaSgmmProxy _calcularSgmm;
         private readonly IEmailProxy _email;
         private readonly ICCorreoCalculadoraProxy _mailCotizacion;
+        private readonly IQCalendarioNominaProxy _calendarioNomina;
 
         [BindProperty(SupportsGet = true)]
         public FiltroSGMMDto FiltrosPoliza { get; set; } = new FiltroSGMMDto();
@@ -53,6 +56,7 @@ namespace Clients.WebClient.Pages.Direcciones.Seguros.Movimientos.Calculadora
         public List<EmpleadoDto> Kardex { get; set; } = new List<EmpleadoDto>();
         public CatalogosSgmmDto Catalogos { get; set; } = new CatalogosSgmmDto();
         public List<PrimaPotenciadaDto> Poliza { get; set; } = new List<PrimaPotenciadaDto>();
+        public List<CalendarioNominaDto> Quincenas { get; set; } = new List<CalendarioNominaDto>();
 
         public IndexModel(
             IUsuarioProxy usuarios,
@@ -65,7 +69,8 @@ namespace Clients.WebClient.Pages.Direcciones.Seguros.Movimientos.Calculadora
             IQCorreoContinuidadProxy correos,
             IQEmpleadoProxy empleado,
             IEmailProxy email,
-            ICCorreoCalculadoraProxy mailCotizacion)
+            ICCorreoCalculadoraProxy mailCotizacion,
+            IQCalendarioNominaProxy calendarioNomina)
         {
             _usuarios = usuarios;
             _modulo = modulo;
@@ -78,6 +83,7 @@ namespace Clients.WebClient.Pages.Direcciones.Seguros.Movimientos.Calculadora
             _email = email;
             _mailCotizacion = mailCotizacion;
             _calcularSgmm = calcularSgmm;
+            _calendarioNomina = calendarioNomina;
         }
 
         public async Task<IActionResult> OnGetAsync(int moduloId, int submoduloId, int opcionId)
@@ -102,7 +108,7 @@ namespace Clients.WebClient.Pages.Direcciones.Seguros.Movimientos.Calculadora
             }
 
             FiltrosPoliza.Anio = (short)DateTime.Now.Year;
-
+            FiltrosPoliza.DiasRestantes = FiltrosPoliza.FechaFinal.Subtract(FiltrosPoliza.FechaInicio).Days;
             Poliza = await _calcularSgmm.CalcularPolizaSgmmAsync(FiltrosPoliza);
 
             return Page();
@@ -134,6 +140,25 @@ namespace Clients.WebClient.Pages.Direcciones.Seguros.Movimientos.Calculadora
             Catalogos = await _calcularSgmm.ObtenerCatalogosSgmm(ObtieneCatalogos());
 
             return true;
+        }
+
+        public async Task<JsonResult> OnGetQuincenasAsync(DateTime fechaInicio, DateTime fechaFinal)
+        {
+            try
+            {
+                if (fechaInicio == default || fechaFinal == default || fechaFinal < fechaInicio)
+                {
+                    return new JsonResult(new List<CalendarioNominaDto>());
+                }
+
+                Quincenas = await _calendarioNomina.GetQuincenasByPeriodoAsync(fechaInicio.ToString("yyyy-MM-dd"), fechaFinal.ToString("yyyy-MM-dd"));
+
+                return new JsonResult(Quincenas);
+            }
+            catch (Exception)
+            {
+                return new JsonResult(new List<CalendarioNominaDto>());
+            }
         }
 
         private ObtenerCatalogosSgmmDto ObtieneCatalogos()

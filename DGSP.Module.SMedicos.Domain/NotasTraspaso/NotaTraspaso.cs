@@ -11,5 +11,6 @@
         public string Entregable { get; set; } = string.Empty;
         public DateTime FechaCreacion { get; set; }
         public Nullable<DateTime> FechaActualizacion { get; set; }
+        public Nullable<DateTime> FechaEliminacion{ get; set; }
     }
 }

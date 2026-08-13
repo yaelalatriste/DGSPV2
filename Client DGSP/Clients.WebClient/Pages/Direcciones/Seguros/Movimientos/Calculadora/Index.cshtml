@@ -1,10 +1,8 @@
-﻿ @page "/seguros/movimientos/{moduloId}/{submoduloId}/calculadora/{opcionId}"
+﻿@page "/seguros/movimientos/{moduloId}/{submoduloId}/calculadora/{opcionId}"
 @model Clients.WebClient.Pages.Direcciones.Seguros.Movimientos.Calculadora.IndexModel
 @{
     ViewData["Title"] = "Calculadora de Póliza de SGMM";
     ViewData["Titulo"] = "Calculadora de Póliza de SGMM";
-    var quincenaActual = ((DateTime.Today.Month - 2) * 2)
-                       + (DateTime.Today.Day <= 15 ? 1 : 2);
 }
 
 <div class="row">
@@ -163,7 +161,7 @@
                                                         <input type="text"
                                                                id="conyuge"
                                                                class="form-control text-center cantidad"
-                                                               value="1"
+                                                               value="0"
                                                                min="1" max="1"
                                                                style="max-width:55px;">
 
@@ -266,7 +264,7 @@
                                                         <input type="text"
                                                                id="hijo25"
                                                                class="form-control text-center cantidad"
-                                                               value="1"
+                                                               value="0"
                                                                style="max-width:55px;">
 
                                                         <div class="input-group-append">
@@ -313,7 +311,7 @@
                                                         <input type="text"
                                                                id="ascendiente"
                                                                class="form-control text-center cantidad"
-                                                               value="1"
+                                                               value="0"
                                                                style="max-width:55px;">
 
                                                         <div class="input-group-append">
@@ -346,7 +344,7 @@
     <div class="row col-lg-12">
         <div class="col-lg-12">
             <div class="card">
-                <div class="card-header bg-secondary">Cotización</div>
+                <div class="card-header bg-secondary">Cotización - Dias: @Model.FiltrosPoliza.DiasRestantes</div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-sm">
@@ -375,7 +373,8 @@
                                 {
                                     foreach (var item in Model.Poliza)
                                     {
-                                        <tr class="fila-poliza" data-poliza="@item.SumaAsegurada" data-nivel="@Model.FiltrosPoliza.Nivel"
+
+                                        <tr class="fila-poliza" data-poliza="@item.SumaAsegurada" data-nivel="@Model.FiltrosPoliza.Nivel" data-dias="@Model.FiltrosPoliza.DiasRestantes"
                                                 data-sumabasica="@Model.Catalogos.SumasBasicas.Where(tp => tp.Id == Model.FiltrosPoliza.SumaBasica).First().Descripcion">
                                                 <td>@item.SumaAsegurada</td>
                                                 <td>@String.Format(System.Globalization.CultureInfo.CurrentCulture, "{0:C}", Model.UMA * Convert.ToDecimal(item.SumaAsegurada))</td>
@@ -528,19 +527,19 @@
                             <div class="row col-lg-12">
                                 <div class="form-group col-lg-3">
                                     <label>Fecha Inicial:</label>
-                                    <input type="date" class="form-control" asp-for="FiltrosPoliza.FechaInicio" />
+                                    <input type="date" class="form-control" asp-for="FiltrosPoliza.FechaInicio" id="fechaInicio" />
                                 </div>
                                 <div class="form-group col-lg-3">
                                     <label>Fecha Final:</label>
-                                    <input type="date" class="form-control" asp-for="FiltrosPoliza.FechaFinal" />
+                                    <input type="date" class="form-control" asp-for="FiltrosPoliza.FechaFinal" id="fechaFinal"/>
                                 </div>
                                 <div class="form-group col-lg-3">
                                     <label>Quincenas:</label>
-                                    <select asp-for="FiltrosPoliza.Quincenas" class="form-control">
+                                    <select asp-for="FiltrosPoliza.Quincenas" class="form-control" id="quincenas">
                                         <option value="">Seleccione la quincena</option>
-                                        @for (int i = quincenaActual + 1; i <= 22; i++)
+                                        @foreach(var qn in Model.Quincenas)
                                         {
-                                            <option value="@i">@i Quincena(s)</option>
+                                            <option value="@qn.QuincenaRestante">@qn.NumeroQuincena Quincena(s)</option>
                                         }
                                     </select>
                                 </div>
@@ -573,6 +572,7 @@
             var opcion = @Html.Raw(Json.Serialize(Model.Opcion));
 
             $("#filtrosSGMM").click(function(){
+                cargarQuincenas();
                 $("#modalFiltros").modal('show');
             });
             
@@ -701,286 +701,653 @@
             function obtenerCantidad(tipo) {
                 return parseInt($("#" + tipo).val()) || 0;
             }
-
-            function recalcularTabla() {
-
-                var edadTitular = $("#edadTitular").val();
-                var edadConyuge = $("#edadConyuge").val();
-
-                var titular = obtenerCantidad("titular");
-                var conyuge = obtenerCantidad("conyuge");
-                var hijo019 = obtenerCantidad("hijo019");
-                var hijo2059 = obtenerCantidad("hijo2059");
-                var hijo25 = obtenerCantidad("hijo25");
-                var ascendiente = obtenerCantidad("ascendiente");
-
-                var aplicaHijo25 = parseInt($("#aplicaHijo25").val()) || 0;
-                var aplicaAsc = parseInt($("#aplicaAscendiente").val()) || 0;
-
+            
+            function prorratearMonto(monto, totalDiasAnio, diasRestantes) {
+                monto = parseFloat(monto) || 0;
+                totalDiasAnio = parseInt(totalDiasAnio) || 365;
+                diasRestantes = parseInt(diasRestantes) || 0;
                 /*
-                 * Ocultar inicialmente las columnas dependientes
-                 * de las cantidades y rangos seleccionados.
+                 * Se evita que los días restantes sean negativos
+                 * o superiores a los días totales del año.
                  */
-                $(".col-titular").hide();
-                $(".col-conyuge").hide();
-                $(".col-hijo019").hide();
-                $(".col-hijo2059").hide();
+                diasRestantes = Math.max(
+                    0,
+                    Math.min(diasRestantes, totalDiasAnio)
+                );
 
-                if (titular > 0 && edadTitular !== "0") {
-                    $(".edad-titular-" + edadTitular).show();
+                if (monto <= 0 || diasRestantes <= 0) {
+                    return 0;
                 }
 
-                if (conyuge > 0 && edadConyuge !== "0") {
-                    $(".edad-conyuge-" + edadConyuge).show();
-                }
-
-                if (hijo019 > 0) {
-                    $(".col-hijo019").show();
-                }
-
-                if (hijo2059 > 0) {
-                    $(".col-hijo2059").show();
-                }
-
+                var montoProrrateado = (monto / totalDiasAnio) * diasRestantes;
                 /*
-                 * Mostrar u ocultar la columna de hijo mayor de 25 años.
+                 * Redondear a dos decimales para que el total coincida
+                 * con los valores mostrados en la tabla.
                  */
-                if (hijo25 > 0) {
-                    $(".montoHijo25").show();
+                return Math.round(
+                    (montoProrrateado + Number.EPSILON) * 100
+                ) / 100;
+            }
+            
+            /*Función Recalcular Tabla*/
+                    function recalcularTabla() {
 
-                    $("th").filter(function () {
-                        return $(this).text().trim() === "Hijo(a) > 25 años";
-                    }).show();
-                } else {
-                    $(".montoHijo25").hide();
-                    $("th").filter(function () {
-                        return $(this).text().trim() === "Hijo(a) > 25 años";
-                    }).hide();
-                }
+            var edadTitular = $("#edadTitular").val();
+            var edadConyuge = $("#edadConyuge").val();
 
-                /*
-                 * Mostrar u ocultar la columna de ascendientes.
-                 */
-                if (ascendiente > 0) {
-                    $(".montoAsc").show();
-                    $("th").filter(function () {
-                        return $(this).text().trim() === "Ascendente(s)";
-                    }).show();
-                } else {
-                    $(".montoAsc").hide();
-                    $("th").filter(function () {
-                        return $(this).text().trim() === "Ascendente(s)";
-                    }).hide();
-                }
+            var titular = obtenerCantidad("titular");
+            var conyuge = obtenerCantidad("conyuge");
+            var hijo019 = obtenerCantidad("hijo019");
+            var hijo2059 = obtenerCantidad("hijo2059");
+            var hijo25 = obtenerCantidad("hijo25");
+            var ascendiente = obtenerCantidad("ascendiente");
 
-                /*
-                 * Obtener valores adicionales de la póliza 0.
-                 */
-                var filaPolizaCero = $(".fila-poliza[data-poliza='0']");
+            var aplicaHijo25 =
+                parseInt($("#aplicaHijo25").val()) || 0;
 
-                var extraHijo25 = 0;
-                var extraAsc = 0;
+            var aplicaAsc =
+                parseInt($("#aplicaAscendiente").val()) || 0;
 
-                if (filaPolizaCero.length > 0) {
+            /*
+             * Datos utilizados para el prorrateo.
+             */
+            var totalDiasAnio =
+                @Html.Raw(DateTime.IsLeapYear(DateTime.Now.Year) ? 366 : 365);
 
-                    extraHijo25 =
-                        parseFloat(
-                            filaPolizaCero
-                                .find(".montoHijo25")
-                                .attr("data-original")
-                        ) || 0;
-                        
-                        extraAsc = parseFloat(filaPolizaCero
+            var diasRestantes =
+                @Html.Raw(Model.FiltrosPoliza.DiasRestantes);
+
+            totalDiasAnio =
+                parseInt(totalDiasAnio) || 365;
+
+            diasRestantes =
+                parseInt(diasRestantes) || 0;
+
+            /*
+             * Indica si existe al menos un hijo mayor de 25
+             * o un ascendiente.
+             */
+            var tieneDependientesEspeciales =
+                hijo25 > 0 ||
+                ascendiente > 0;
+
+            /*
+             * Ocultar inicialmente las columnas dependientes.
+             */
+            $(".col-titular").hide();
+            $(".col-conyuge").hide();
+            $(".col-hijo019").hide();
+            $(".col-hijo2059").hide();
+
+            if (
+                titular > 0 &&
+                edadTitular !== "0"
+            ) {
+                $(".edad-titular-" + edadTitular).show();
+            }
+
+            if (
+                conyuge > 0 &&
+                edadConyuge !== "0"
+            ) {
+                $(".edad-conyuge-" + edadConyuge).show();
+            }
+
+            if (hijo019 > 0) {
+                $(".col-hijo019").show();
+            }
+
+            if (hijo2059 > 0) {
+                $(".col-hijo2059").show();
+            }
+
+            /*
+             * Mostrar u ocultar la columna de hijo mayor de 25.
+             */
+            if (hijo25 > 0) {
+
+                $(".montoHijo25").show();
+                $(".col-hijo25").show();
+
+            } else {
+
+                $(".montoHijo25").hide();
+                $(".col-hijo25").hide();
+            }
+
+            /*
+             * Mostrar u ocultar la columna de ascendientes.
+             */
+            if (ascendiente > 0) {
+
+                $(".montoAsc").show();
+                $(".col-asc").show();
+
+            } else {
+
+                $(".montoAsc").hide();
+                $(".col-asc").hide();
+            }
+
+            /*
+             * Obtener los valores adicionales desde la póliza 0.
+             */
+            var filaPolizaCero =
+                $(".fila-poliza[data-poliza='0']");
+
+            var extraHijo25 = 0;
+            var extraAsc = 0;
+
+            if (filaPolizaCero.length > 0) {
+
+                extraHijo25 =
+                    parseFloat(
+                        filaPolizaCero
+                            .find(".montoHijo25")
+                            .attr("data-original")
+                    ) || 0;
+
+                extraAsc =
+                    parseFloat(
+                        filaPolizaCero
                             .find(".montoAsc")
                             .attr("data-original")
-                        ) || 0;
-                }
-                /*
-                * Obtener los montos originales de la fila 111 UMA.
-                */
-               var filaNivel111 = $(".fila-poliza[data-poliza='111']").first();
+                    ) || 0;
+            }
 
-                var montosNivel111 = {
-                    titular019: obtenerMontoOriginal(filaNivel111.find(".edad-titular-1")),
-                    titular2059: obtenerMontoOriginal(filaNivel111.find(".edad-titular-2")),
-                    titular6069: obtenerMontoOriginal(filaNivel111.find(".edad-titular-3")),
-                    titular7089: obtenerMontoOriginal(filaNivel111.find(".edad-titular-4")),
-                    conyuge019: obtenerMontoOriginal(filaNivel111.find(".edad-conyuge-1")),
-                    conyuge2059: obtenerMontoOriginal(filaNivel111.find(".edad-conyuge-2")),
-                    conyuge6069: obtenerMontoOriginal(filaNivel111.find(".edad-conyuge-3")),
-                    conyuge7089: obtenerMontoOriginal(filaNivel111.find(".edad-conyuge-4")),
-                    hijo019: obtenerMontoOriginal(filaNivel111.find(".col-hijo019")),
-                    hijo2059: obtenerMontoOriginal(filaNivel111.find(".col-hijo2059"))
-                };
+            /*
+             * Obtener los importes originales de la fila 111 UMA.
+             */
+            var filaNivel111 =
+                $(".fila-poliza[data-poliza='111']").first();
+
+            var montosNivel111 = {
+
+                titular019:
+                    obtenerMontoOriginal(
+                        filaNivel111.find(".edad-titular-1")
+                    ),
+
+                titular2059:
+                    obtenerMontoOriginal(
+                        filaNivel111.find(".edad-titular-2")
+                    ),
+
+                titular6069:
+                    obtenerMontoOriginal(
+                        filaNivel111.find(".edad-titular-3")
+                    ),
+
+                titular7089:
+                    obtenerMontoOriginal(
+                        filaNivel111.find(".edad-titular-4")
+                    ),
+
+                conyuge019:
+                    obtenerMontoOriginal(
+                        filaNivel111.find(".edad-conyuge-1")
+                    ),
+
+                conyuge2059:
+                    obtenerMontoOriginal(
+                        filaNivel111.find(".edad-conyuge-2")
+                    ),
+
+                conyuge6069:
+                    obtenerMontoOriginal(
+                        filaNivel111.find(".edad-conyuge-3")
+                    ),
+
+                conyuge7089:
+                    obtenerMontoOriginal(
+                        filaNivel111.find(".edad-conyuge-4")
+                    ),
+
+                hijo019:
+                    obtenerMontoOriginal(
+                        filaNivel111.find(".col-hijo019")
+                    ),
+
+                hijo2059:
+                    obtenerMontoOriginal(
+                        filaNivel111.find(".col-hijo2059")
+                    )
+            };
+
+            /*
+             * Recorrer las filas de la tabla.
+             */
+            $(".fila-poliza").each(function () {
+
+                var filaActual = $(this);
+
+                filaActual.show();
+
+                var totalFila = 0;
+
+                var sumaBasicaValue =
+                    parseInt(
+                        filaActual.attr("data-sumabasica")
+                    ) || 0;
+
+                var poliza =
+                    parseInt(
+                        filaActual.attr("data-poliza")
+                    ) || 0;
+
+                var esPolizaCero =
+                    poliza === 0;
+
+                var nivelMMValor = String(
+                    filaActual.attr("data-nivel") || ""
+                ).toLowerCase();
+
+                var nivelMM =
+                    nivelMMValor === "true" ||
+                    nivelMMValor === "1";
 
                 /*
-                 * Recorrer cada fila de la tabla.
+                 * Toda póliza inferior a la suma básica
+                 * permanece oculta.
                  */
-                $(".fila-poliza").each(function () {
-                    var filaActual = $(this);
-                    filaActual.show();
-                    var totalFila = 0;
-                    var sumaBasicaValue = $(this).data("sumabasica");
-                    var poliza = parseInt(filaActual.attr("data-poliza")) || 0;
-                    var esPolizaCero = poliza === 0;
-                    
-                    var nivelMMValor = String(filaActual.attr("data-nivel") || "").toLowerCase();
-                    var nivelMM = nivelMMValor === "true" || nivelMMValor === "1";
-                    
-                    filaActual.find(".monto").each(function () {
-                        var celda = $(this);
-                        var tipo = celda.attr("data-tipo");
-                        var original = parseFloat(celda.attr("data-original")) || 0;
-                        var montoBase = original;
-                        var total = 0;
-                        /*
-                         * Nuevo requerimiento:
-                         *
-                         * Cuando Nivel sea true, se suma el monto de la fila 111
-                         * al monto original de cada fila.
-                         *
-                         * Solo aplica para:
-                         * - Titular
-                         * - Cónyuge
-                         * - Hijos menores de 25 años
-                         *
-                         * La fila 111 no se suma consigo misma.
-                         */
-                        if (nivelMM && poliza !== 111 && !esPolizaCero) {
-                            if (tipo === "titular" &&celda.hasClass("edad-titular-1")) 
-                            {
-                                montoBase = original + montosNivel111.titular019;
-                            }
-                            
-                            if (tipo === "titular" && celda.hasClass("edad-titular-2")) 
-                            {
-                                montoBase = original + montosNivel111.titular2059;
-                            }
-                            
-                            if (tipo === "titular" && celda.hasClass("edad-titular-3")) 
-                            {
-                                montoBase = original + montosNivel111.titular6069;
-                            }
-                            
-                            if (tipo === "titular" && celda.hasClass("edad-titular-4")) 
-                            {
-                                montoBase = original + montosNivel111.titular7089;
-                            }
-                            
-                            if (tipo === "conyuge" && celda.hasClass("edad-conyuge-1")) 
-                            {
-                                montoBase = original + montosNivel111.conyuge019;
-                            }
-                            
-                            if (tipo === "conyuge" && celda.hasClass("edad-conyuge-2")) 
-                            {
-                                montoBase = original + montosNivel111.conyuge2059;
-                            }
-                            
-                            if (tipo === "conyuge" && celda.hasClass("edad-conyuge-3")) 
-                            {
-                                montoBase = original + montosNivel111.conyuge6069;
-                            }
+                var esMenorQueSumaBasica =
+                    !esPolizaCero &&
+                    poliza < sumaBasicaValue;
 
-                            if (tipo === "conyuge" && celda.hasClass("edad-conyuge-4")) 
-                            {
-                                montoBase = original + montosNivel111.conyuge7089;
-                            }
-                            
-                            if (tipo === "hijo019") 
-                            { 
-                                montoBase = original + montosNivel111.hijo019;
-                            }
-                            
-                            if (tipo === "hijo2059") 
-                            {
-                                montoBase = original + montosNivel111.hijo2059;
-                            }
-                       }
+                /*
+                 * Identificar la fila correspondiente exactamente
+                 * a la suma básica seleccionada.
+                 */
+                var esIgualASumaBasica =
+                    !esPolizaCero &&
+                    poliza === sumaBasicaValue;
 
-                        /*
-                         * Aplicar cantidades por tipo de persona.
-                         */
-                        if (tipo === "titular") {
-                            total = (nivelMM && poliza !== 111 && poliza !== 148 ? montoBase * titular : poliza <= sumaBasicaValue ? 0 : montoBase);
+                /*
+                 * La fila de la suma básica se oculta cuando no existen
+                 * hijos mayores de 25 ni ascendientes.
+                 */
+                    var mostrarFilaSumaBasica =
+        esIgualASumaBasica &&
+        (
+            nivelMM ||
+            tieneDependientesEspeciales
+        );
+
+
+                /*
+                 * La fila de la suma básica debe mostrarse cuando existe
+                 * al menos un hijo mayor de 25 o un ascendiente.
+                 */
+                    var ocultarFilaSumaBasica =
+        esIgualASumaBasica &&
+        !mostrarFilaSumaBasica;
+
+                /*
+                 * Recorrer todas las celdas de importes.
+                 */
+                filaActual.find(".monto").each(function () {
+
+                    var celda = $(this);
+
+                    var tipo =
+                        celda.attr("data-tipo");
+
+                    var original =
+                        parseFloat(
+                            celda.attr("data-original")
+                        ) || 0;
+
+                    var montoBase =
+                        original;
+
+                    var totalAnual = 0;
+
+                    /*
+                     * El ajuste de Nivel únicamente aplica para:
+                     *
+                     * - Titular
+                     * - Cónyuge
+                     * - Hijos menores de 25 años
+                     *
+                     * No modifica:
+                     *
+                     * - Hijo mayor de 25
+                     * - Ascendientes
+                     */
+                    if (
+                        nivelMM &&
+                        poliza !== 111 &&
+                        !esPolizaCero
+                    ) {
+
+                        if (
+                            tipo === "titular" &&
+                            celda.hasClass("edad-titular-1")
+                        ) {
+                            montoBase =
+                                original +
+                                montosNivel111.titular019;
                         }
 
-                        if (tipo === "conyuge") {
-                            total = (nivelMM && poliza !== 111 && poliza !== 148 ? montoBase * conyuge : poliza <= sumaBasicaValue ? 0 : montoBase);
+                        if (
+                            tipo === "titular" &&
+                            celda.hasClass("edad-titular-2")
+                        ) {
+                            montoBase =
+                                original +
+                                montosNivel111.titular2059;
+                        }
+
+                        if (
+                            tipo === "titular" &&
+                            celda.hasClass("edad-titular-3")
+                        ) {
+                            montoBase =
+                                original +
+                                montosNivel111.titular6069;
+                        }
+
+                        if (
+                            tipo === "titular" &&
+                            celda.hasClass("edad-titular-4")
+                        ) {
+                            montoBase =
+                                original +
+                                montosNivel111.titular7089;
+                        }
+
+                        if (
+                            tipo === "conyuge" &&
+                            celda.hasClass("edad-conyuge-1")
+                        ) {
+                            montoBase =
+                                original +
+                                montosNivel111.conyuge019;
+                        }
+
+                        if (
+                            tipo === "conyuge" &&
+                            celda.hasClass("edad-conyuge-2")
+                        ) {
+                            montoBase =
+                                original +
+                                montosNivel111.conyuge2059;
+                        }
+
+                        if (
+                            tipo === "conyuge" &&
+                            celda.hasClass("edad-conyuge-3")
+                        ) {
+                            montoBase =
+                                original +
+                                montosNivel111.conyuge6069;
+                        }
+
+                        if (
+                            tipo === "conyuge" &&
+                            celda.hasClass("edad-conyuge-4")
+                        ) {
+                            montoBase =
+                                original +
+                                montosNivel111.conyuge7089;
                         }
 
                         if (tipo === "hijo019") {
-                            total = (nivelMM && poliza !== 111 && poliza !== 148 ? montoBase * hijo019 : poliza <= sumaBasicaValue ? 0 : montoBase);
+
+                            montoBase =
+                                original +
+                                montosNivel111.hijo019;
                         }
 
                         if (tipo === "hijo2059") {
-                            total = (nivelMM && poliza !== 111 && poliza !== 148 ? montoBase * hijo2059 : poliza <= sumaBasicaValue ? 0 : montoBase);
+
+                            montoBase =
+                                original +
+                                montosNivel111.hijo2059;
+                        }
+                    }
+
+                    /*
+                     * Titular.
+                     *
+                     * - En filas menores a la suma básica queda en cero.
+                     * - En la fila igual a la suma básica:
+                     *      Nivel false = cero.
+                     *      Nivel true = muestra el importe.
+                     * - En filas superiores muestra el importe.
+                     */
+                    if (tipo === "titular") {
+
+                        if (poliza < sumaBasicaValue) {
+
+                            totalAnual = 0;
+
+                        } else if (
+                            poliza === sumaBasicaValue &&
+                            !nivelMM
+                        ) {
+
+                            totalAnual = 0;
+
+                        } else {
+
+                            totalAnual =
+                                montoBase * titular;
                         }
 
-                         /*
-                         * Hijo mayor de 25:
-                         * no se le suma la fila 111.
-                         */
-                        if (tipo === "hijo25") {
-                            
-                            total = original * hijo25;
-                            
-                            if (aplicaHijo25 === 1 &&!esPolizaCero) 
-                            {
-                                total += extraHijo25 * hijo25;
-                            }
+                    /*
+                     * Cónyuge.
+                     */
+                    } else if (tipo === "conyuge") {
 
-                            if (aplicaHijo25 === 0) {
-                                total = original * hijo25;
-                            }
+                        if (poliza < sumaBasicaValue) {
+
+                            totalAnual = 0;
+
+                        } else if (
+                            poliza === sumaBasicaValue &&
+                            !nivelMM
+                        ) {
+
+                            totalAnual = 0;
+
+                        } else {
+
+                            totalAnual =
+                                montoBase * conyuge;
                         }
 
-                        /*
-                         * Ascendientes:
-                         * no se les suma la fila 111.
-                         */
-                        if (tipo === "ascendiente") 
-                        {
-                            total = original * ascendiente;
-                        
-                            if (aplicaAsc === 1 && !esPolizaCero) 
-                            {
-                                total += extraAsc * ascendiente;
-                            }
-                            
-                            if (aplicaAsc === 0) 
-                            {
-                                total = original * ascendiente;
-                            }
+                    /*
+                     * Hijos de 0 a 19 años.
+                     */
+                    } else if (tipo === "hijo019") {
+
+                        if (poliza < sumaBasicaValue) {
+
+                            totalAnual = 0;
+
+                        } else if (
+                            poliza === sumaBasicaValue &&
+                            !nivelMM
+                        ) {
+
+                            totalAnual = 0;
+
+                        } else {
+
+                            totalAnual =
+                                montoBase * hijo019;
                         }
-                        
-                        celda.text(money(total));
-                        
-                        if ( celda.is(":visible") && !esPolizaCero) 
-                        {
-                            totalFila += total;
+
+                    /*
+                     * Hijos de 20 a 24 años.
+                     */
+                    } else if (tipo === "hijo2059") {
+
+                        if (poliza < sumaBasicaValue) {
+
+                            totalAnual = 0;
+
+                        } else if (
+                            poliza === sumaBasicaValue &&
+                            !nivelMM
+                        ) {
+
+                            totalAnual = 0;
+
+                        } else {
+
+                            totalAnual =
+                                montoBase * hijo2059;
                         }
-                   });
-                   
-                   filaActual.find(".totalFila").text(money(totalFila));
-                   
-                   var quincenas = parseInt("@Model.FiltrosPoliza.Quincenas") || 1;
-                   
-                   filaActual.find(".totalFilaQuincenal").text(money(totalFila / quincenas));
-                   
-                   if (Math.abs(totalFila) < 0.01) {
-                       filaActual.hide();
-                   } else {
-                       filaActual.show();
-                   }
+
+                    /*
+                     * Hijo mayor de 25.
+                     *
+                     * No depende de:
+                     * - nivelMM;
+                     * - suma básica;
+                     * - importe de la fila 111.
+                     */
+                    } else if (tipo === "hijo25") {
+
+                        totalAnual =
+                            original * hijo25;
+
+                        if (
+                            aplicaHijo25 === 1 &&
+                            !esPolizaCero
+                        ) {
+                            totalAnual +=
+                                extraHijo25 * hijo25;
+                        }
+
+                    /*
+                     * Ascendientes.
+                     *
+                     * No dependen de:
+                     * - nivelMM;
+                     * - suma básica;
+                     * - importe de la fila 111.
+                     */
+                    } else if (tipo === "ascendiente") {
+
+                        totalAnual =
+                            original * ascendiente;
+
+                        if (
+                            aplicaAsc === 1 &&
+                            !esPolizaCero
+                        ) {
+                            totalAnual +=
+                                extraAsc * ascendiente;
+                        }
+                    }
+
+                    /*
+                     * Aplicar el prorrateo por días restantes.
+                     */
+                    var totalProrrateado =
+                        prorratearMonto(
+                            totalAnual,
+                            totalDiasAnio,
+                            diasRestantes
+                        );
+
+                    celda.text(
+                        money(totalProrrateado)
+                    );
+
+                    /*
+                     * Sumar únicamente las celdas visibles.
+                     */
+                    if (
+                        celda.is(":visible") &&
+                        !esPolizaCero
+                    ) {
+                        totalFila +=
+                            totalProrrateado;
+                    }
                 });
 
                 /*
-                 * La póliza 0 se utiliza únicamente para obtener adicionales.
+                 * Redondear total de la póliza.
                  */
+                totalFila = Math.round(
+                    (totalFila + Number.EPSILON) * 100
+                ) / 100;
 
-                filaPolizaCero.hide();
-            }
+                filaActual
+                    .find(".totalFila")
+                    .text(
+                        money(totalFila)
+                    );
+
+                /*
+                 * Calcular descuento quincenal.
+                 */
+                var quincenas =
+                    parseInt(
+                        "@Model.FiltrosPoliza.Quincenas"
+                    ) || 1;
+
+                var descuentoQuincenal =
+                    totalFila / quincenas;
+
+                descuentoQuincenal = Math.round(
+                    (descuentoQuincenal + Number.EPSILON) * 100
+                ) / 100;
+
+                filaActual
+                    .find(".totalFilaQuincenal")
+                    .text(
+                        money(descuentoQuincenal)
+                    );
+
+                /*
+                 * Reglas de visibilidad:
+                 *
+                 * 1. La póliza 0 siempre se oculta.
+                 * 2. Las filas menores a la suma básica se ocultan.
+                 * 3. La fila igual a la suma básica se oculta si no
+                 *    existen hijos mayores de 25 ni ascendientes.
+                 * 4. La fila igual a la suma básica se muestra cuando
+                 *    sí existen esos dependientes.
+                 * 5. Las demás filas se ocultan cuando su total es cero.
+                 */
+                       if (esPolizaCero) {
+
+            filaActual.hide();
+
+        }
+        else if (esMenorQueSumaBasica) {
+
+            filaActual.hide();
+
+        }
+        else if (ocultarFilaSumaBasica) {
+
+            filaActual.hide();
+
+        }
+        else if (Math.abs(totalFila) < 0.01) {
+
+            filaActual.hide();
+
+        }
+        else {
+
+            filaActual.show();
+
+        }
+            });
+
+            /*
+             * La póliza 0 únicamente se utiliza para obtener
+             * importes adicionales.
+             */
+            filaPolizaCero.hide();
+        }
             
             function obtenerMontoOriginal(elemento) 
             {
@@ -1127,6 +1494,93 @@
                     }
                 });
             });
+            
+            $("#fechaInicio, #fechaFinal").on("change", function () {
+                cargarQuincenas();
+            });
+            
+            function cargarQuincenas() {
+                const fechaInicio = $("#fechaInicio").val();
+                const fechaFinal = $("#fechaFinal").val();
+                const selectQuincenas = $("#quincenas");
+
+                /*
+                 * Guardamos el valor seleccionado antes de limpiar el select.
+                 *
+                 * Primero intentamos recuperar el valor actual del control.
+                 * Si no tiene valor, usamos el que viene desde el modelo.
+                 */
+                const valorActual = selectQuincenas.val();
+                const valorModelo = parseInt("@Model.FiltrosPoliza.Quincenas") || "";
+                const valorSeleccionado = valorActual || valorModelo;
+
+                /*
+                * Limpiamos las opciones actuales.
+                */
+                selectQuincenas.empty();
+
+                selectQuincenas.append('<option value="">Seleccione la quincena</option>');
+
+                /*
+                 * No consultar hasta que ambas fechas tengan información.
+                 */
+                if (!fechaInicio || !fechaFinal) {
+                    selectQuincenas.prop("disabled", true);
+                    return;
+                }
+
+                /*
+                 * Validar que la fecha final no sea menor
+                 * que la fecha inicial.
+                 */
+               
+
+                /*
+                 * Deshabilitar mientras se realiza la consulta.
+                 */
+                selectQuincenas.prop("disabled", true);
+                axios.get('@Url.Page(null, "Quincenas")', {
+                    params: {
+                        fechaInicio: fechaInicio,
+                        fechaFinal: fechaFinal
+                    }
+                }).then(function (response) {
+                    const quincenas = response.data || [];
+                    quincenas.forEach(function (quincena) {
+                        selectQuincenas.append(
+                            $("<option>", {
+                                value: quincena.quincenaRestante,
+                                text: quincena.quincenaRestante + " Quincena(s)"
+                            })
+                        );
+                    });
+
+                    /*
+                     * Verificamos que el valor utilizado anteriormente
+                     * siga existiendo entre las nuevas opciones.
+                     */
+                    const existeValorSeleccionado = selectQuincenas.find('option[value="' + valorSeleccionado + '"]').length > 0;
+                    /*
+                    * Si existe, volvemos a seleccionarlo.
+                    */
+                    if (existeValorSeleccionado) {
+                        selectQuincenas.val(String(valorSeleccionado));
+                    }
+                    else {
+                        selectQuincenas.val("");
+                    }
+                    selectQuincenas.prop("disabled",quincenas.length === 0);
+                })
+                .catch(function (error) {
+                    console.error("Error al consultar las quincenas:",error);
+                    selectQuincenas.prop("disabled", true);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "No fue posible consultar las quincenas del periodo."
+                    });
+                });
+            }
         });
     </script>
 }

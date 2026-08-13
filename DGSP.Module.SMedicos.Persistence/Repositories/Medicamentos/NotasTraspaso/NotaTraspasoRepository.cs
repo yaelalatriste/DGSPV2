@@ -26,12 +26,12 @@ namespace DGSP.Module.SMedicos.Persistence.Repositories.Medicamentos.NotasTraspa
 
         public async Task<List<NotaTraspaso>> GetAllNotasTraspaso()
         {
-            return await _context.NotasTraspaso.AsNoTracking().ToListAsync();
+            return await _context.NotasTraspaso.AsNoTracking().Where(nt => !nt.FechaEliminacion.HasValue).ToListAsync();
         }
 
         public async Task<NotaTraspaso> GetNotaTraspasoById(int id)
         {
-            return await _context.NotasTraspaso.AsNoTracking().Where(c => c.Id == id).FirstAsync();
+            return await _context.NotasTraspaso.AsNoTracking().Where(nt => !nt.FechaEliminacion.HasValue).Where(c => c.Id == id).FirstAsync();
         }
 
         public async Task SaveChangesAsync()

@@ -1,4 +1,4 @@
-﻿using DGSP.Module.Seguros.Application.Services.DGSP.Continuidades;
+﻿using DGSP.Module.Seguros.Application.Services.DGSP.Siniestros.Continuidades;
 using DGSP.Shared.Contracts.Commands.Seguros.Siniestros.Continuidades.Continuidad;
 using DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Siniestros.Continuidades.Continuidad;
 using MediatR;

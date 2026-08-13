@@ -26,9 +26,6 @@
     <None Update="Reportes\Rutina.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Reportes\RJubilados.rdlc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <ItemGroup>

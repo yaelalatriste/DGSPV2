@@ -1,4 +1,4 @@
-﻿using DGSP.Module.Seguros.Application.Services.DGSP.Continuidades;
+﻿using DGSP.Module.Seguros.Application.Services.DGSP.Siniestros.Continuidades;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

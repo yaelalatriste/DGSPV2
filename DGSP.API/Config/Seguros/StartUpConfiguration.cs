@@ -4,20 +4,20 @@ using DGSP.Module.DGRH.Persistence.Repositories.Seguros.MovimientosSP;
 using DGSP.Module.DGRH.Persistence.Services.RH.Empleados;
 using DGSP.Module.Seguros.Application.Interfaces.CJFBDRHDF.Calculadora;
 using DGSP.Module.Seguros.Application.Interfaces.CJFBDRHDF.SGMM;
-using DGSP.Module.Seguros.Application.Interfaces.DGSP.Continuidades;
-using DGSP.Module.Seguros.Application.Interfaces.Logs;
+using DGSP.Module.Seguros.Application.Interfaces.DGSP.Movimientos.Calculadora;
+using DGSP.Module.Seguros.Application.Interfaces.DGSP.Siniestros.Continuidades;
 using DGSP.Module.Seguros.Application.Services.CJFBDRHDF.Calculadora;
 using DGSP.Module.Seguros.Application.Services.CJFBDRHDF.SGMM;
-using DGSP.Module.Seguros.Application.Services.DGSP.Continuidades;
-using DGSP.Module.Seguros.Application.Services.Logs;
+using DGSP.Module.Seguros.Application.Services.DGSP.Movimientos.Calculadora;
+using DGSP.Module.Seguros.Application.Services.DGSP.Siniestros.Continuidades;
 using DGSP.Module.Seguros.Persistence.Repositories.CJFBDRHDF.Calculadora;
 using DGSP.Module.Seguros.Persistence.Repositories.CJFBDRHDF.SGMM;
-using DGSP.Module.Seguros.Persistence.Repositories.DGSP.Continuidades;
-using DGSP.Module.Seguros.Persistence.Repositories.Logs;
+using DGSP.Module.Seguros.Persistence.Repositories.DGSP.Movimientos.Calculadora;
+using DGSP.Module.Seguros.Persistence.Repositories.DGSP.Siniestros.Continuidades;
 using DGSP.Module.Seguros.Persistence.Services.CJFBDRHDF.Calculadora;
 using DGSP.Module.Seguros.Persistence.Services.CJFBDRHDF.Catalogos;
-using DGSP.Module.Seguros.Persistence.Services.DGSP.Continuidades;
-using DGSP.Module.Seguros.Persistence.Services.Logs;
+using DGSP.Module.Seguros.Persistence.Services.DGSP.Movimientos.Calculadora;
+using DGSP.Module.Seguros.Persistence.Services.DGSP.Siniestros.Continuidades;
 using SISSGMM.Infrastructure.Repositories;
 
 namespace DGSP.API.Config.Seguros
@@ -35,6 +35,7 @@ namespace DGSP.API.Config.Seguros
             service.AddTransient<IContactoContinuidadService, ContactoContinuidadService>();
             service.AddTransient<ICatalogosSgmmService, CatalogosSgmmService>();
             service.AddTransient<ICalcularPolizaSgmmService, CalcularPolizaSgmmService>();
+            service.AddTransient<ICalendarioNominaService, CalendarioNominaService>();
             
             service.AddTransient<ICalcularPolizaSGMMRepository, CalcularPolizaSGMMRepository>();
             service.AddTransient<IServidorPublicoOpMMSRepository, ServidorPublicoOpMMSRepository>();
@@ -46,6 +47,7 @@ namespace DGSP.API.Config.Seguros
             service.AddTransient<IOficioContinuidadRepository, OficioContinuidadRepository>();
             service.AddTransient<IEntregableContinuidadRepository, EntregableContinuidadRepository>();
             service.AddTransient<IContactoContinuidadRepository, ContactoContinuidadRepository>();
+            service.AddTransient<ICalendarioNominaRepository, CalendarioNominaRepository>();
 
             return service;
         }

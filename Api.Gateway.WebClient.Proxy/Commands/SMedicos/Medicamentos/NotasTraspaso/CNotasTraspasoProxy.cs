@@ -17,6 +17,7 @@ namespace DGSP.Gateway.Proxy.Commands.SMedicos.Medicamentos.NotasTraspaso
         Task<NotaTraspasoDto> AddNotaTraspasoAsync(RegistrarNotaTraspasoCommand command);
         Task<NotaTraspasoDto> CreateLogNotaTraspaso(RegistrarLogNotaTraspasoCommand command);
         Task<NotaTraspasoDto> ActualizarNotaTraspasoAsync(ActualizarNotaTraspasoCommand command);
+        Task<NotaTraspasoDto> EliminarNotaTraspasoAsync(EliminarNotaTraspasoCommand command);
         Task<NotaTraspasoDto> ConcluirNotaTraspasoAsync(ConcluirNotaTraspasoCommand command);
     }
 
@@ -82,6 +83,26 @@ namespace DGSP.Gateway.Proxy.Commands.SMedicos.Medicamentos.NotasTraspaso
              );
 
             var request = await _httpClient.PutAsync($"{_apiGatewayUrl}smedicos/notasTraspaso/updateNota", content);
+            request.EnsureSuccessStatusCode();
+
+            return JsonSerializer.Deserialize<NotaTraspasoDto>(
+                await request.Content.ReadAsStringAsync(),
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }
+            );
+        }
+        
+        public async Task<NotaTraspasoDto> EliminarNotaTraspasoAsync([FromBody] EliminarNotaTraspasoCommand command)
+        {
+            var content = new StringContent(
+                 JsonSerializer.Serialize(command),
+                 Encoding.UTF8,
+                 "application/json"
+             );
+
+            var request = await _httpClient.PutAsync($"{_apiGatewayUrl}smedicos/notasTraspaso/deleteNota", content);
             request.EnsureSuccessStatusCode();
 
             return JsonSerializer.Deserialize<NotaTraspasoDto>(

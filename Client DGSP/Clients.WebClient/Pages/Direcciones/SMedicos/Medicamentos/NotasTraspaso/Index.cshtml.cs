@@ -87,6 +87,19 @@ namespace Clients.WebClient.Pages.Direcciones.SMedicos.Medicamentos.NotasTraspas
 
             return BadRequest();
         }
+       
+        public async Task<IActionResult> OnPutDeleteNotaTraspaso([FromBody] EliminarNotaTraspasoCommand command)
+        {
+            string usuario = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            command.UsuarioId = usuario;
+            var nota = await _cNotasTraspaso.EliminarNotaTraspasoAsync(command);
+            if (nota != null)
+            {
+                return new JsonResult(nota);
+            }
+
+            return BadRequest();
+        }
 
         private async Task<List<NotaTraspasoDto>> GetNotasTraspaso()
         {

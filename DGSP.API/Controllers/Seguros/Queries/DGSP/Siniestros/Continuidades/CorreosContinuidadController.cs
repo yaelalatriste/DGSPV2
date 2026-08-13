@@ -2,7 +2,7 @@
 using DGSP.Module.Catalogos.Application.Services.SMedicos;
 using DGSP.Module.DGRH.Application.Services.RH;
 using DGSP.Module.Estatus.Application.Services.Continuidades;
-using DGSP.Module.Seguros.Application.Services.DGSP.Continuidades;
+using DGSP.Module.Seguros.Application.Services.DGSP.Siniestros.Continuidades;
 using DGSP.Shared.Contracts.DTOs.ExternalServices.Email;
 using DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Siniestros.Continuidades.Continuidad;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

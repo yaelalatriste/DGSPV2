@@ -1,4 +1,5 @@
-﻿using DGSP.Shared.Contracts.Commands.SMedicos.Medicamentos.NotasTraspaso;
+﻿using DGSP.Module.SMedicos.Application.Services.Medicamentos.NotasTraspaso;
+using DGSP.Shared.Contracts.Commands.SMedicos.Medicamentos.NotasTraspaso;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -12,10 +13,12 @@ namespace DGSP.API.Controllers.SMedicos.Commands.NotasTraspaso
     public class NotasTraspasoController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IDetalleNotaTraspasoQueryService _detalleNotaTraspasoQueryService;
 
-        public NotasTraspasoController(IMediator mediator)
+        public NotasTraspasoController(IMediator mediator, IDetalleNotaTraspasoQueryService detalleNotaTraspasoQueryService)
         {
             _mediator = mediator;
+            _detalleNotaTraspasoQueryService = detalleNotaTraspasoQueryService;
         }
 
         [HttpPost("createNota")]
@@ -29,6 +32,28 @@ namespace DGSP.API.Controllers.SMedicos.Commands.NotasTraspaso
         public async Task<IActionResult> ActualizarNota([FromBody] ActualizarNotaTraspasoCommand command)
         {
             var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+        
+        [HttpPut("deleteNota")]
+        public async Task<IActionResult> EliminarNota([FromBody] EliminarNotaTraspasoCommand command)
+        {
+            var result = await _mediator.Send(command);
+            if (result != null)
+            {
+                var detalles = await _detalleNotaTraspasoQueryService.GetDetallesNotaTraspasoByNotaAsync(command.Id);
+
+                foreach ( var dt in detalles) 
+                { 
+                    EliminarDetalleNotaTraspasoCommand eliminarDetalleCommand = new EliminarDetalleNotaTraspasoCommand
+                    {
+                        Id = dt.Id,
+                        UsuarioId = command.UsuarioId,
+                    };
+
+                    await _mediator.Send(eliminarDetalleCommand);
+                }
+            }
             return Ok(result);
         }
         

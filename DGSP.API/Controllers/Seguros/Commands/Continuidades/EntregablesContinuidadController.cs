@@ -1,5 +1,4 @@
-﻿using DGSP.Module.Seguros.Application.Services.DGSP.Continuidades;
-using DGSP.Shared.Contracts.Commands.Seguros.Siniestros.Continuidades.Entregables;
+﻿using DGSP.Shared.Contracts.Commands.Seguros.Siniestros.Continuidades.Entregables;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

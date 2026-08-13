@@ -10,5 +10,6 @@
         public bool Nivel { get; set; }
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFinal { get; set; }
+        public int DiasRestantes { get; set; }
     }
 }

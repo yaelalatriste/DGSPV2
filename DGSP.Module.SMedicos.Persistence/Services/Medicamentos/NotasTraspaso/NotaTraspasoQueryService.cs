@@ -100,6 +100,30 @@ namespace DGSP.Module.SMedicos.Persistence.Services.Medicamentos.NotasTraspaso
             };
         }
         
+        public async Task<NotaTraspasoDto> EliminarNotaTraspaso(EliminarNotaTraspasoCommand command)
+        {
+            var fechaEliminacion = DateTime.Now;
+            var nota= await _notaTraspasoRepository.GetNotaTraspasoById(command.Id);
+
+            nota.UsuarioId = command.UsuarioId;
+            nota.FechaActualizacion = fechaEliminacion;
+            nota.FechaEliminacion= fechaEliminacion;
+
+            await _notaTraspasoRepository.ActualizarNotaTraspasoAsync(nota);
+
+            return new NotaTraspasoDto
+            {
+                Id = nota.Id,
+                UsuarioId = nota.UsuarioId,
+                ConsultorioId = nota.ConsultorioId,
+                ConsultorioDestinoId = nota.ConsultorioDestinoId,
+                EstatusId = nota.EstatusId,
+                NumeroTraspaso = nota.NumeroTraspaso,
+                Entregable = nota.Entregable,
+                FechaActualizacion = nota.FechaActualizacion
+            };
+        }
+        
         public async Task<NotaTraspasoDto> ActualizarEstatusNotaTraspaso(ConcluirNotaTraspasoCommand command)
         {
             var nota= await _notaTraspasoRepository.GetNotaTraspasoById(command.Id);

@@ -5,7 +5,8 @@ using DGSP.Gateway.Proxy.Commands.Seguros.Siniestros.Entregables;
 using DGSP.Gateway.Proxy.Queries.DGRH.Empleados;
 using DGSP.Gateway.Proxy.Queries.Seguros.CJFBDRHDF.Calculadora;
 using DGSP.Gateway.Proxy.Queries.Seguros.CJFBDRHDF.Movimiento;
-using DGSP.Gateway.Proxy.Queries.Seguros.DGSP.Continuidades;
+using DGSP.Gateway.Proxy.Queries.Seguros.DGSP.Movimientos.Calculadora;
+using DGSP.Gateway.Proxy.Queries.Seguros.DGSP.Siniestros.Continuidades;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,6 +25,7 @@ namespace Clients.WebClient.Config.Seguros
             service.AddHttpClient<IQMovimientoSpProxy, QMovimientoSpProxy>();
             service.AddHttpClient<IQCorreoContinuidadProxy, QCorreoContinuidadProxy>();
             service.AddHttpClient<IQCalcularPolizaSgmmProxy, QCalcularPolizaSgmmProxy>();
+            service.AddHttpClient<IQCalendarioNominaProxy, QCalendarioNominaProxy>();
 
             return service;
         }

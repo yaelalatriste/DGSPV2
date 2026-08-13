@@ -54,6 +54,11 @@
                                 {
                                     <a href="/smedicos/medicamentos/@Model.Modulo.Id/@Model.Submodulo.Id/notasTraspaso/@Model.Opcion.Id/detalle/@item.Id"><i class="fas fa-eye text-success"></i></a>
                                 }
+
+                                @if (@Model.Permisos.Any(p => p.Permiso.Nombre == "Eliminar" && p.Submodulo.Id == Model.Submodulo.Id && p.OpcionId == @Model.Opcion.Id))
+                                {
+                                    <a href="javascript:" data-id="@item.Id" class="eliminarNotaTraspaso ml-2" data-numero="@item.NumeroTraspaso"><i class="fas fa-trash text-danger"></i></a>
+                                }
                             </td>
                         </tr>
                         i++;
@@ -244,6 +249,79 @@
                         }
                     });
                 }
+            });
+
+            $(".eliminarNotaTraspaso").on('click',function(){
+                let id = $(this).data('id');
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Detalle de la Nota de Traspaso',
+                    html: '¿Está seguro que desea <b>Eliminar</b> la nota de traspaso?',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Si, Eliminar',
+                    cancelButtonText: 'Cancelar',
+                    showCancelButton: true
+                }).then(confirm =>{
+                    if(confirm.isConfirmed)
+                    {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Notas de Traspaso',
+                            text: 'Por favor indique algún comentario.',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            cancelButtonText: 'Cancelar',
+                            confirmButtonText: 'Continuar',
+                            input: 'textarea',
+                            inputPlaceholder: 'Escriba los comentarios correspondientes'
+                        }).then(coments => {
+                            if (coments.value.length > 0) {
+                                Swal.fire({
+                                    allowOutsideClick: false,
+                                    icon: "info",
+                                    title: 'Notas de Traspaso',
+                                    html: "Eliminando la <b>Nota de Traspaso</b> con número <b>"+$(this).data("numero")+"</b>, espere por favor.",
+                                });
+                                Swal.showLoading();
+                                axios.put('/smedicos/medicamentos/'+modulo.id+'/'+submodulo.id+'/notasTraspaso/'+opcion.id+'?handler=DeleteNotaTraspaso', {
+                                    Id: parseInt(id),
+                                    Observaciones: coments.value
+                                }).then(response => {
+                                    if (response.status == 200) {
+                                        var id = response.data.id;
+                                        Swal.fire({
+                                            icon: "success",
+                                            title: 'Notas de Traspaso',
+                                            html: "Se eliminó el <b>Nota de Traspaso </b> con número <b>"+$(this).data("numero")+"</b> correctamente.",
+                                            confirmButtonText: 'Cerrar'
+                                        }).then(function () {
+                                            Swal.fire({
+                                                allowOutsideClick: false,
+                                                icon: "info",
+                                                title: 'Notas de Traspaso',
+                                                html: "Actualizando, espere por favor."
+                                            });
+                                            Swal.showLoading();
+                                            window.location.reload();
+                                        });
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                 Swal.fire({
+                                     icon: "error",
+                                     title: 'Notas de Traspaso',
+                                     html: "Favor de escribir un comentario, de lo contrario no se podrá eliminar la <b>Nota de Traspaso</b>.",
+                                     confirmButtonText: 'Cerrar'
+                                 });
+                            }
+                        });
+                    }
+                });
             });
 
         })

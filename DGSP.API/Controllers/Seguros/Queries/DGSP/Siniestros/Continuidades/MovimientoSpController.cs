@@ -1,6 +1,6 @@
 ﻿using DGSP.Module.Estatus.Application.Services.Continuidades;
 using DGSP.Module.Seguros.Application.Services.CJFBDRHDF.SGMM;
-using DGSP.Module.Seguros.Application.Services.DGSP.Continuidades;
+using DGSP.Module.Seguros.Application.Services.DGSP.Siniestros.Continuidades;
 using DGSP.Shared.Contracts.Commands.Seguros.Siniestros.Continuidades.Continuidad;
 using DGSP.Shared.Contracts.Commands.Seguros.Siniestros.Logs;
 using MediatR;

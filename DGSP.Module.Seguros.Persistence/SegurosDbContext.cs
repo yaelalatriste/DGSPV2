@@ -1,4 +1,6 @@
-﻿using DGSP.Module.Seguros.Domain.DGSP.Continuidades;
+﻿using DGSP.Module.Seguros.Domain.DGSP.Movimientos.Calculadora;
+using DGSP.Module.Seguros.Domain.DGSP.Siniestros.Continuidades;
+using DGSP.Module.Seguros.Persistence.Configuration.Calculadora;
 using DGSP.Module.Seguros.Persistence.Configuration.Reportes;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,6 +30,7 @@ namespace DGSP.Module.Seguros.Persistence
         public DbSet<EntregableContinuidad> EntregablesContinuidades { get; set; }
         public DbSet<OficioContinuidad> OficiosContinuidades { get; set; }
         public DbSet<ContactoContinuidad> ContactosContinuidades { get; set; }
+        public DbSet<CalendarioNomina> CalendarioNominas { get; set; }
 
         private void ModelConfig(ModelBuilder modelBuilder)
         {
@@ -37,12 +40,14 @@ namespace DGSP.Module.Seguros.Persistence
             modelBuilder.Entity<ContactoContinuidad>().ToTable("ContactoContinuidades", "Seguros");
             modelBuilder.Entity<EntregableContinuidad>().ToTable("EntregablesContinuidades", "Seguros");
             modelBuilder.Entity<OficioContinuidad>().ToTable("OficiosContinuidad", "Seguros");
+            modelBuilder.Entity<CalendarioNomina>().ToTable("CalendarioNominas", "Seguros");
 
             new ContinuidadConfiguration(modelBuilder.Entity<Continuidad>());
             new LogContinuidadConfiguration(modelBuilder.Entity<LogContinuidad>());
             new EntregableContinuidadConfiguration(modelBuilder.Entity<EntregableContinuidad>());
             new ContactoContinuidadConfiguration(modelBuilder.Entity<ContactoContinuidad>());
             new OficioContinuidadConfiguration(modelBuilder.Entity<OficioContinuidad>());
+            new CalendarioNominaConfiguration(modelBuilder.Entity<CalendarioNomina>());
         }
     }
 }

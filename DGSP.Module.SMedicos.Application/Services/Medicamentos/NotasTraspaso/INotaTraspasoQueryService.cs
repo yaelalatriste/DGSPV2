@@ -9,6 +9,7 @@ namespace DGSP.Module.SMedicos.Application.Services.Medicamentos.NotasTraspaso
         Task<NotaTraspasoDto> GetNotaTraspasoByIdAsync(int id);
         Task<NotaTraspasoDto> AddNotaTraspaso(RegistrarNotaTraspasoCommand command);
         Task<NotaTraspasoDto> ActualizarNotaTraspaso(ActualizarNotaTraspasoCommand command);
+        Task<NotaTraspasoDto> EliminarNotaTraspaso(EliminarNotaTraspasoCommand command);
         Task<NotaTraspasoDto> ConcluirNotaTraspaso(ConcluirNotaTraspasoCommand command);
     }
 }
