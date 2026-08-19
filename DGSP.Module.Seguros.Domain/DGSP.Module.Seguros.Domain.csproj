@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Folder Include="CJFBDRHDF\Enums\Calculadora\" />
+    <Folder Include="DGSP\Siniestros\Dashboard\" />
   </ItemGroup>
 
 </Project>

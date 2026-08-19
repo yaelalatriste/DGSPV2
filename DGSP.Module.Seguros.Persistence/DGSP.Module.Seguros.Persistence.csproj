@@ -17,4 +17,9 @@
     <ProjectReference Include="..\DGSP.Shared.Infrastructure\DGSP.Shared.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Repositories\DGSP\Siniestros\Dashboard\" />
+    <Folder Include="Services\DGSP\Siniestros\Dashboard\" />
+  </ItemGroup>
+
 </Project>

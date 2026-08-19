@@ -1,5 +1,7 @@
 ﻿using DGSP.Module.DGRH.Application.Services.RH;
 using DGSP.Module.DGRH.Domain.RH.DEmpleado;
+using DGSP.Module.DGRH.Domain.RH.DPuestos;
+using DGSP.Shared.Contracts.DTOs.DGRH.RH.Empleados;
 using Microsoft.EntityFrameworkCore;
 
 namespace DGSP.Module.DGRH.Persistence.Repositories.RH
@@ -122,6 +124,46 @@ namespace DGSP.Module.DGRH.Persistence.Repositories.RH
             var lista = await query.ToListAsync();
 
             return lista;
+        }
+
+        public async Task<List<UltimoPuestoEmpleadoDto>> GetUltimosPuestosAsync(IReadOnlyCollection<int> expedientes,CancellationToken cancellationToken = default)
+        {
+            if (expedientes is null || expedientes.Count == 0)
+                return [];
+
+            var expedientesUnicos = expedientes
+                .Where(e => e > 0)
+                .Distinct()
+                .ToArray();
+
+            if (expedientesUnicos.Length == 0)
+                return [];
+
+            var query =
+                from k in _context.Kardex.AsNoTracking()
+
+                where expedientesUnicos.Contains(k.exp)
+
+                where k.csc_nomb ==
+                    _context.Kardex
+                        .Where(k2 => k2.exp == k.exp)
+                        .Max(k2 => k2.csc_nomb)
+
+                join p in _context.Puestos.AsNoTracking()
+                    on k.cve_puesto equals p.cve_puesto into puestos
+
+                from p in puestos.DefaultIfEmpty()
+
+                select new UltimoPuestoEmpleadoDto
+                {
+                    Expediente = k.exp,
+                    Nivel = p != null && p.nivel != null
+                        ? p.nivel.Trim()
+                        : string.Empty
+                };
+
+            return await query
+                .ToListAsync(cancellationToken);
         }
     }
 }

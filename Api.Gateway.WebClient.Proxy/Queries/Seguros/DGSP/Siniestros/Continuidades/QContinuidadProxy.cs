@@ -1,9 +1,11 @@
 ﻿using Api.Gateway.WebClient.Proxy.Config;
 using DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Siniestros.Continuidades.Continuidad;
 using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DGSP.Gateway.Proxy.Queries.Seguros.DGSP.Siniestros.Continuidades
@@ -11,6 +13,7 @@ namespace DGSP.Gateway.Proxy.Queries.Seguros.DGSP.Siniestros.Continuidades
     public interface IQContinuidadProxy
     {
         Task<List<ContinuidadDto>> GetAllContinuidades();
+        Task<List<ContinuidadDto>> GetContinuidadesPorPeriodoAsync(DateTime fechaInicio,DateTime fechaFin);
         Task<ContinuidadDto> GetContinuidadById(int id);
         Task<List<ContinuidadDto>> GetContinuidadesByEstatus(int estatus);
     }
@@ -30,6 +33,23 @@ namespace DGSP.Gateway.Proxy.Queries.Seguros.DGSP.Siniestros.Continuidades
         public Task<List<ContinuidadDto>> GetAllContinuidades() => GetAsync<List<ContinuidadDto>>($"{_apiGatewayUrl}seguros/continuidades/getAllContinuidades");
         public Task<ContinuidadDto> GetContinuidadById(int id) => GetAsync<ContinuidadDto>($"{_apiGatewayUrl}seguros/continuidades/getContinuidadById/{id}");
         public Task<List<ContinuidadDto>> GetContinuidadesByEstatus(int estatus) => GetAsync<List<ContinuidadDto>>($"{_apiGatewayUrl}seguros/continuidades/getContinuidadesByEstatus/{estatus}");
+
+        public async Task<List<ContinuidadDto>> GetContinuidadesPorPeriodoAsync(DateTime fechaInicio,DateTime fechaFin)
+        {
+            var inicio = Uri.EscapeDataString(fechaInicio.ToString("yyyy-MM-dd"));
+
+            var fin = Uri.EscapeDataString(fechaFin.ToString("yyyy-MM-dd"));
+
+            var url = $"{_apiGatewayUrl}seguros/continuidades/periodo"+$"?fechaInicio={inicio}&fechaFin={fin}";
+
+            using var response = await _httpClient.GetAsync(url);
+
+            response.EnsureSuccessStatusCode();
+
+            await using var stream = await response.Content.ReadAsStreamAsync();
+
+            return await JsonSerializer.DeserializeAsync<List<ContinuidadDto>>(stream,_jsonOptions) ?? [];
+        }
 
         private async Task<T> GetAsync<T>(string url)
         {

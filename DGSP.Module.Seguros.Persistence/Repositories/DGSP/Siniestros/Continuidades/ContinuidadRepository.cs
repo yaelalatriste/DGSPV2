@@ -19,6 +19,17 @@ namespace DGSP.Module.Seguros.Persistence.Repositories.DGSP.Siniestros.Continuid
 
             return continuidades;
         }
+        public async Task<List<Continuidad>> GetContinuidadesPorPeriodoAsync(DateTime fechaInicio,DateTime fechaFin)
+        {
+            return await _context.Continuidades
+                .AsNoTracking()
+                .Where(c =>
+                    !c.FechaEliminacion.HasValue &&
+                    c.FechaCreacion.HasValue &&
+                    c.FechaCreacion.Value >= fechaInicio &&
+                    c.FechaCreacion.Value < fechaFin)
+                .ToListAsync();
+        }
 
         public async Task<Continuidad> GetContinuidadByIdAsync(int id)
         {

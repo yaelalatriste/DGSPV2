@@ -1,4 +1,6 @@
 ﻿using DGSP.Module.Seguros.Application.Services.DGSP.Siniestros.Continuidades;
+using DGSP.Module.Seguros.Persistence.Services.DGSP.Siniestros.Continuidades;
+using DGSP.Shared.Contracts.DTOs.Seguros.DGSP.Siniestros.Continuidades.Continuidad;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +27,20 @@ namespace DGSP.API.Controllers.Seguros.Queries.DGSP.Siniestros.Continuidades
 
             return Ok(continuidades);
         }
-        
+
+        [HttpGet("periodo")]
+        public async Task<ActionResult<List<ContinuidadDto>>> GetPorPeriodo([FromQuery] DateTime fechaInicio,[FromQuery] DateTime fechaFin)
+        {
+            if (fechaInicio >= fechaFin)
+            {
+                return BadRequest("La fecha inicial debe ser menor a la fecha final.");
+            }
+
+            var resultado = await _continuidad.GetContinuidadesPorPeriodoAsync(fechaInicio,fechaFin);
+
+            return Ok(resultado);
+        }
+
         [HttpGet]
         [Route("getContinuidadById/{id}")]
         public async Task<IActionResult> GetContinuidadById(int id)

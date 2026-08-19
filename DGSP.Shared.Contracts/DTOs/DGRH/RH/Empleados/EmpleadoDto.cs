@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DGSP.Shared.Contracts.DTOs.DGRH.RH.Empleados;
+﻿namespace DGSP.Shared.Contracts.DTOs.DGRH.RH.Empleados;
 
 public class EmpleadoDto
 {

@@ -8,5 +8,6 @@ namespace DGSP.Module.DGRH.Application.Services.RH
         Task<EmpleadoDto> GetEmpleado(int exp);
         Task<List<EmpleadoDto>> GetMovimientosEmpleado(int exp);
         Task<List<EmpleadoDto>> GetEmpleadosTEAsync();
+        Task<List<UltimoPuestoEmpleadoDto>> GetUltimosPuestosAsync(IReadOnlyCollection<int> expedientes,CancellationToken cancellationToken = default);
     }
 }

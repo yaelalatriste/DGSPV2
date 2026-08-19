@@ -6,6 +6,7 @@ namespace DGSP.Module.Seguros.Application.Services.DGSP.Siniestros.Continuidades
     public interface IContinuidadService
     {
         Task<List<ContinuidadDto>> GetAllContinuidadesAsync();
+        Task<List<ContinuidadDto>> GetContinuidadesPorPeriodoAsync(DateTime fechaInicio, DateTime fechaFin);
         Task<List<ContinuidadDto>> GetContinuidadesByAnio(int anio);        
         Task<ContinuidadDto> GetContinuidadByIdAsync(int id);
         Task<List<ContinuidadDto>> GetContinuidadesByEstatus(int estatus);

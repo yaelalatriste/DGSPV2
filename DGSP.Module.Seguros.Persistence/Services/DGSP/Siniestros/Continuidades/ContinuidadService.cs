@@ -35,6 +35,26 @@ namespace DGSP.Module.Seguros.Persistence.Services.DGSP.Siniestros.Continuidades
             }).ToList();
         }
 
+        public async Task<List<ContinuidadDto>> GetContinuidadesPorPeriodoAsync(DateTime fechaInicio, DateTime fechaFin)
+        {
+            var continuidades = await _continuidadRepository.GetContinuidadesPorPeriodoAsync(fechaInicio,fechaFin);
+
+            return continuidades.Select(c => new ContinuidadDto {
+                Id = c.Id,
+                UsuarioId = c.UsuarioId,
+                EstatusId = c.EstatusId,
+                Expediente = c.Expediente,
+                FechaBaja = c.FechaBaja,
+                FechaEnvioSp = c.FechaEnvioSp,
+                FechaLimitePago = c.FechaLimitePago,
+                Importe = c.Importe,
+                Pagado = c.Pagado,
+                FechaCreacion = c.FechaCreacion,
+                FechaActualizacion = c.FechaActualizacion,
+                FechaEliminacion = c.FechaEliminacion,
+            }).ToList();
+        }
+
         public async Task<ContinuidadDto> GetContinuidadByIdAsync(int id)
         {
             var continuidad = await _continuidadRepository.GetContinuidadByIdAsync(id);

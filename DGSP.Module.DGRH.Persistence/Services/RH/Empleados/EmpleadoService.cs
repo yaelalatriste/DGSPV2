@@ -91,5 +91,16 @@ namespace DGSP.Module.DGRH.Persistence.Services.RH.Empleados
                 FechaBaja = k.FechaBaja
             }).ToList();
         }
+
+        public async Task<List<UltimoPuestoEmpleadoDto>> GetUltimosPuestosAsync(IReadOnlyCollection<int> expedientes, CancellationToken cancellationToken = default)
+        {
+            if (expedientes is null || expedientes.Count == 0)
+                return [];
+
+            return await _empleadoRepository
+                .GetUltimosPuestosAsync(
+                    expedientes,
+                    cancellationToken);
+        }
     }
 }

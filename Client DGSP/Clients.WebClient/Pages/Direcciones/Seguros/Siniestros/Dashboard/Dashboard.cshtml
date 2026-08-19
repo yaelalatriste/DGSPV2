@@ -1,0 +1,1199 @@
+﻿@page "/seguros/informes/{moduloId}/{submoduloId}/dashboardContinuidades/{opcionId}"
+@model DashboardModel
+@{
+    ViewData["Title"] = "Dashboard Continuidades SGMM";
+    ViewData["Titulo"] = "Dashboard Continuidades SGMM";
+}
+
+<section class="content">
+    <div class="container-fluid">
+
+        <!-- FILTROS -->
+        <div class="card card-outline card-primary">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-filter mr-1"></i> Filtros
+                </h3>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Año</label>
+                            <select id="filtroAnio" class="form-control">
+                                @for (var anio = Model.AnioActual - 4; anio <= Model.AnioActual + 1; anio++)
+                                {
+                                    if (anio == Model.AnioActual)
+                                    {
+                                        <option value="@anio" selected>@anio</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@anio">@anio</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Mes</label>
+                            <select id="filtroMes" class="form-control">
+                                @{
+                                    var meses = System.Globalization.CultureInfo
+                                    .GetCultureInfo("es-MX")
+                                    .DateTimeFormat
+                                    .MonthNames;
+                                }
+
+                                @for (var mes = 1; mes <= 12; mes++)
+                                {
+                                    if (mes == Model.MesActual)
+                                    {
+                                        <option value="@mes" selected>@meses[mes - 1]</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@mes">@meses[mes - 1]</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Tipo de personal</label>
+                            <select id="filtroTipo" class="form-control">
+                                <option value="">Todos</option>
+                                <option value="OP">Operativo</option>
+                                <option value="MM">Mando Medio</option>
+                                <option value="MS">Mando Superior</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <div class="form-group w-100">
+                            <button id="btnConsultar" type="button" class="btn btn-primary btn-block">
+                                <i class="fas fa-search"></i> Consultar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARDS -->
+        <div class="row">
+            @foreach (var item in Model.Estatus)
+            {
+                var id = "total" + item.Abreviacion;
+
+                <div class="col-lg col-md-4 col-6 dashboard-estatus"
+                     data-total-id="@id">
+                    <div class="small-box @Html.Raw(item.Fondo)">
+                        <div class="inner">
+                            <h3 id="@id">0</h3>
+                            <p>@item.Nombre</p>
+                        </div>
+
+                        <div class="icon">
+                            @Html.Raw(item.Icono)
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- GRÁFICAS -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card card-outline card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            Comportamiento semanal
+                        </h3>
+
+                        <div class="card-tools">
+                            <span id="periodoTitulo" class="badge badge-primary"></span>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="chart">
+                            <canvas id="chartSemanas"
+                                    style="min-height:320px; height:320px; max-height:320px;">
+                            </canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card card-outline card-secondary">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            Distribución actual por estatus
+                        </h3>
+                    </div>
+
+                    <div class="card-body">
+                        <canvas id="chartEstatus"
+                                style="min-height:320px; height:320px; max-height:320px;">
+                        </canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPARATIVO -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-outline card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            Operativo vs Mando Medio vs Mando Superior
+                        </h3>
+                    </div>
+
+                    <div class="card-body">
+                        <canvas id="chartComparativo"
+                                style="min-height:320px; height:320px; max-height:320px;">
+                        </canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLA -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    Detalle semanal
+                </h3>
+            </div>
+
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover table-bordered text-nowrap mb-0">
+                    <thead id="tablaSemanasHead"></thead>
+                    <tbody id="tablaSemanas"></tbody>
+                    <tfoot id="tablaSemanasFoot"></tfoot>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+@section Scripts {
+
+    <!-- Si Chart.js ya está cargado en _Layout, elimina esta referencia. -->
+    <script src="~/plugins/chart.js/Chart.min.js"></script>
+
+    <script>
+        let chartSemanas = null;
+        let chartEstatus = null;
+        let chartComparativo = null;
+
+        /*
+         * Plugin compatible con Chart.js 2.x.
+         * Muestra porcentajes sobre barras y dentro de la gráfica de dona.
+         */
+        Chart.plugins.register({
+            afterDatasetsDraw: function (chart) {
+
+                const config = chart.options.porcentajeLabels;
+
+                if (!config || !config.enabled)
+                    return;
+
+                const ctx = chart.ctx;
+
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = 'bold 11px Arial';
+
+                // BARRAS
+                if (chart.config.type === 'bar') {
+
+                    chart.data.datasets.forEach(function (dataset, datasetIndex) {
+
+                        const meta = chart.getDatasetMeta(datasetIndex);
+
+                        if (meta.hidden)
+                            return;
+
+                        meta.data.forEach(function (barra, index) {
+
+                            const valor = Number(dataset.data[index]) || 0;
+
+                            if (valor <= 0)
+                                return;
+
+                            const porcentaje =
+                                dataset.porcentajes &&
+                                dataset.porcentajes[index] != null
+                                    ? dataset.porcentajes[index]
+                                    : 0;
+
+                            if (porcentaje <= 0)
+                                return;
+
+                            const posicion = barra.tooltipPosition();
+
+                            ctx.fillStyle = '#343a40';
+
+                            ctx.fillText(
+                                `${porcentaje.toFixed(1)}%`,
+                                posicion.x,
+                                posicion.y - 10
+                            );
+                        });
+                    });
+                }
+
+                // DONA
+                if (chart.config.type === 'doughnut') {
+
+                    const dataset = chart.data.datasets[0];
+
+                    if (!dataset)
+                        return;
+
+                    const valores =
+                        dataset.data.map(v => Number(v) || 0);
+
+                    const total =
+                        valores.reduce(
+                            (acumulado, valor) => acumulado + valor,
+                            0
+                        );
+
+                    if (total <= 0)
+                        return;
+
+                    const meta = chart.getDatasetMeta(0);
+
+                    meta.data.forEach(function (segmento, index) {
+
+                        const valor = valores[index];
+
+                        if (valor <= 0)
+                            return;
+
+                        const porcentaje = (valor / total) * 100;
+                        const modelo = segmento._model;
+
+                        if (!modelo)
+                            return;
+
+                        const angulo =
+                            (modelo.startAngle + modelo.endAngle) / 2;
+
+                        const radio =
+                            (modelo.innerRadius + modelo.outerRadius) / 2;
+
+                        const x =
+                            modelo.x + Math.cos(angulo) * radio;
+
+                        const y =
+                            modelo.y + Math.sin(angulo) * radio;
+
+                        ctx.fillStyle = '#ffffff';
+
+                        ctx.fillText(
+                            `${porcentaje.toFixed(1)}%`,
+                            x,
+                            y
+                        );
+                    });
+                }
+
+                ctx.restore();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            document
+                .getElementById('btnConsultar')
+                .addEventListener('click', cargarDashboard);
+
+            cargarDashboard();
+        });
+
+        async function cargarDashboard() {
+
+            const anio =
+                document.getElementById('filtroAnio').value;
+
+            const mes =
+                document.getElementById('filtroMes').value;
+
+            const tipo =
+                document.getElementById('filtroTipo').value;
+
+            const boton =
+                document.getElementById('btnConsultar');
+
+            try {
+
+                boton.disabled = true;
+                boton.innerHTML =
+                    '<i class="fas fa-spinner fa-spin"></i> Consultando...';
+
+                const parametros =
+                    new URLSearchParams({
+                        handler: 'Datos',
+                        anio: anio,
+                        mes: mes
+                    });
+
+                if (tipo)
+                    parametros.append('tipoPersonal', tipo);
+
+                const response =
+                    await fetch(
+                        `${window.location.pathname}?${parametros.toString()}`,
+                        {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        }
+                    );
+
+                if (!response.ok) {
+
+                    let mensaje =
+                        'No fue posible obtener la información.';
+
+                    try {
+                        const error = await response.json();
+
+                        mensaje =
+                            error.detalle ||
+                            error.mensaje ||
+                            mensaje;
+
+                        console.error(
+                            'Error Dashboard:',
+                            error
+                        );
+                    }
+                    catch {
+                        // Se conserva el mensaje genérico.
+                    }
+
+                    throw new Error(mensaje);
+                }
+
+                const data =
+                    await response.json();
+
+                actualizarDashboard(data);
+            }
+            catch (error) {
+
+                console.error(error);
+
+                if (window.toastr) {
+                    toastr.error(
+                        error.message,
+                        'Dashboard SGMM'
+                    );
+                }
+                else {
+                    alert(error.message);
+                }
+            }
+            finally {
+
+                boton.disabled = false;
+                boton.innerHTML =
+                    '<i class="fas fa-search"></i> Consultar';
+            }
+        }
+
+        function actualizarDashboard(data) {
+
+            document
+                .getElementById('periodoTitulo')
+                .textContent =
+                    data.periodo || '';
+
+            actualizarEstatus(
+                data.estatus || []
+            );
+
+            construirGraficaSemanas(
+                data.semanas || []
+            );
+
+            construirGraficaEstatus(
+                data.estatus || []
+            );
+
+            construirComparativo(
+                data.estatus || []
+            );
+
+            construirTabla(
+                data.semanas || []
+            );
+        }
+
+        function actualizarEstatus(estatus) {
+
+            // Primero ocultamos todas las cards para evitar que
+            // queden visibles datos de una consulta anterior.
+            document
+                .querySelectorAll('.dashboard-estatus')
+                .forEach(card => {
+                    card.style.display = 'none';
+                });
+
+            estatus.forEach(item => {
+
+                const id =
+                    `total${item.abreviacion}`;
+
+                const elemento =
+                    document.getElementById(id);
+
+                if (!elemento)
+                    return;
+
+                const total =
+                    Number(item.total) || 0;
+
+                elemento.textContent =
+                    total;
+
+                const card =
+                    elemento.closest(
+                        '.dashboard-estatus'
+                    );
+
+                if (card) {
+                    card.style.display =
+                        total > 0 ? '' : 'none';
+                }
+            });
+        }
+
+        function construirGraficaSemanas(semanas) {
+
+            const labels =
+                semanas.map(
+                    s => `Semana ${s.numero}`
+                );
+
+            const operativo =
+                semanas.map(
+                    s =>
+                        Number(
+                            s.ingresadasOperativo
+                        ) || 0
+                );
+
+            const mandoMedio =
+                semanas.map(
+                    s =>
+                        Number(
+                            s.ingresadasMandoMedio
+                        ) || 0
+                );
+
+            const mandoSuperior =
+                semanas.map(
+                    s =>
+                        Number(
+                            s.ingresadasMandoSuperior
+                        ) || 0
+                );
+
+            const totalesSemana =
+                semanas.map(
+                    (_, index) =>
+                        operativo[index] +
+                        mandoMedio[index] +
+                        mandoSuperior[index]
+                );
+
+            function calcularPorcentajes(datos) {
+
+                return datos.map(
+                    (valor, index) => {
+
+                        const total =
+                            totalesSemana[index];
+
+                        if (total === 0)
+                            return 0;
+
+                        return (valor / total) * 100;
+                    }
+                );
+            }
+
+            const datasets = [];
+
+            if (operativo.some(v => v > 0)) {
+
+                datasets.push({
+                    label: 'Operativo',
+                    data: operativo,
+                    porcentajes:
+                        calcularPorcentajes(
+                            operativo
+                        ),
+                    backgroundColor: '#007bff'
+                });
+            }
+
+            if (mandoMedio.some(v => v > 0)) {
+
+                datasets.push({
+                    label: 'Mando Medio',
+                    data: mandoMedio,
+                    porcentajes:
+                        calcularPorcentajes(
+                            mandoMedio
+                        ),
+                    backgroundColor: '#6f42c1'
+                });
+            }
+
+            if (mandoSuperior.some(v => v > 0)) {
+
+                datasets.push({
+                    label: 'Mando Superior',
+                    data: mandoSuperior,
+                    porcentajes:
+                        calcularPorcentajes(
+                            mandoSuperior
+                        ),
+                    backgroundColor: '#17a2b8'
+                });
+            }
+
+            if (chartSemanas)
+                chartSemanas.destroy();
+
+            const ctx =
+                document
+                    .getElementById(
+                        'chartSemanas'
+                    )
+                    .getContext('2d');
+
+            chartSemanas =
+                new Chart(ctx, {
+
+                    type: 'bar',
+
+                    data: {
+                        labels: labels,
+                        datasets: datasets
+                    },
+
+                    options: {
+
+                        responsive: true,
+                        maintainAspectRatio: false,
+
+                        porcentajeLabels: {
+                            enabled: true
+                        },
+
+                        layout: {
+                            padding: {
+                                top: 25
+                            }
+                        },
+
+                        legend: {
+                            display:
+                                datasets.length > 0
+                        },
+
+                        tooltips: {
+                            callbacks: {
+
+                                label: function (
+                                    tooltipItem,
+                                    data) {
+
+                                    const dataset =
+                                        data.datasets[
+                                            tooltipItem.datasetIndex
+                                        ];
+
+                                    const valor =
+                                        Number(
+                                            dataset.data[
+                                                tooltipItem.index
+                                            ]
+                                        ) || 0;
+
+                                    const porcentaje =
+                                        dataset.porcentajes[
+                                            tooltipItem.index
+                                        ] || 0;
+
+                                    return `${dataset.label}: ${valor} (${porcentaje.toFixed(1)}%)`;
+                                }
+                            }
+                        },
+
+                        scales: {
+
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true,
+                                    precision: 0
+                                }
+                            }],
+
+                            xAxes: [{
+                                gridLines: {
+                                    display: false
+                                }
+                            }]
+                        }
+                    }
+                });
+        }
+
+        function construirGraficaEstatus(estatus) {
+
+            // Omite cualquier estatus con total 0.
+            const datosValidos =
+                estatus.filter(
+                    e =>
+                        (Number(e.total) || 0) > 0
+                );
+
+            const labels =
+                datosValidos.map(
+                    e => e.nombre
+                );
+
+            const datos =
+                datosValidos.map(
+                    e => Number(e.total) || 0
+                );
+
+            const colores =
+                datosValidos.map(
+                    e =>
+                        e.fondoHexadecimal ||
+                        '#6c757d'
+                );
+
+            if (chartEstatus)
+                chartEstatus.destroy();
+
+            const ctx =
+                document
+                    .getElementById(
+                        'chartEstatus'
+                    )
+                    .getContext('2d');
+
+            chartEstatus =
+                new Chart(ctx, {
+
+                    type: 'doughnut',
+
+                    data: {
+
+                        labels: labels,
+
+                        datasets: [{
+                            data: datos,
+                            backgroundColor: colores,
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+
+                    options: {
+
+                        responsive: true,
+                        maintainAspectRatio: false,
+
+                        porcentajeLabels: {
+                            enabled: true
+                        },
+
+                        legend: {
+                            position: 'bottom',
+                            display:
+                                datosValidos.length > 0
+                        },
+
+                        tooltips: {
+                            callbacks: {
+
+                                label: function (
+                                    tooltipItem,
+                                    data) {
+
+                                    const dataset =
+                                        data.datasets[
+                                            tooltipItem.datasetIndex
+                                        ];
+
+                                    const valor =
+                                        Number(
+                                            dataset.data[
+                                                tooltipItem.index
+                                            ]
+                                        ) || 0;
+
+                                    const total =
+                                        dataset.data.reduce(
+                                            (acumulado, item) =>
+                                                acumulado +
+                                                Number(item || 0),
+                                            0
+                                        );
+
+                                    const porcentaje =
+                                        total > 0
+                                            ? (valor / total) * 100
+                                            : 0;
+
+                                    return `${data.labels[tooltipItem.index]}: ${valor} (${porcentaje.toFixed(1)}%)`;
+                                }
+                            }
+                        }
+                    }
+                });
+        }
+
+        function construirComparativo(estatus) {
+
+            // Omite estatus cuyo total OP + MM + MS sea 0.
+            const estatusValidos =
+                estatus.filter(e => {
+
+                    const operativo =
+                        Number(e.operativo) || 0;
+
+                    const mandoMedio =
+                        Number(e.mandoMedio) || 0;
+
+                    const mandoSuperior =
+                        Number(e.mandoSuperior) || 0;
+
+                    return (
+                        operativo +
+                        mandoMedio +
+                        mandoSuperior
+                    ) > 0;
+                });
+
+            const labels =
+                estatusValidos.map(
+                    e => e.nombre
+                );
+
+            const operativo =
+                estatusValidos.map(
+                    e =>
+                        Number(
+                            e.operativo
+                        ) || 0
+                );
+
+            const mandoMedio =
+                estatusValidos.map(
+                    e =>
+                        Number(
+                            e.mandoMedio
+                        ) || 0
+                );
+
+            const mandoSuperior =
+                estatusValidos.map(
+                    e =>
+                        Number(
+                            e.mandoSuperior
+                        ) || 0
+                );
+
+            const totales =
+                estatusValidos.map(
+                    (_, index) =>
+                        operativo[index] +
+                        mandoMedio[index] +
+                        mandoSuperior[index]
+                );
+
+            function obtenerPorcentajes(datos) {
+
+                return datos.map(
+                    (valor, index) => {
+
+                        if (totales[index] === 0)
+                            return 0;
+
+                        return (
+                            valor /
+                            totales[index]
+                        ) * 100;
+                    }
+                );
+            }
+
+            const datasets = [];
+
+            if (operativo.some(v => v > 0)) {
+
+                datasets.push({
+                    label: 'Operativo',
+                    data: operativo,
+                    porcentajes:
+                        obtenerPorcentajes(
+                            operativo
+                        ),
+                    backgroundColor: '#007bff'
+                });
+            }
+
+            if (mandoMedio.some(v => v > 0)) {
+
+                datasets.push({
+                    label: 'Mando Medio',
+                    data: mandoMedio,
+                    porcentajes:
+                        obtenerPorcentajes(
+                            mandoMedio
+                        ),
+                    backgroundColor: '#6f42c1'
+                });
+            }
+
+            if (mandoSuperior.some(v => v > 0)) {
+
+                datasets.push({
+                    label: 'Mando Superior',
+                    data: mandoSuperior,
+                    porcentajes:
+                        obtenerPorcentajes(
+                            mandoSuperior
+                        ),
+                    backgroundColor: '#17a2b8'
+                });
+            }
+
+            if (chartComparativo)
+                chartComparativo.destroy();
+
+            const ctx =
+                document
+                    .getElementById(
+                        'chartComparativo'
+                    )
+                    .getContext('2d');
+
+            chartComparativo =
+                new Chart(ctx, {
+
+                    type: 'bar',
+
+                    data: {
+                        labels: labels,
+                        datasets: datasets
+                    },
+
+                    options: {
+
+                        responsive: true,
+                        maintainAspectRatio: false,
+
+                        porcentajeLabels: {
+                            enabled: true
+                        },
+
+
+                        layout: {
+                            padding: {
+                                top: 25
+                            }
+                        },
+
+                        legend: {
+                            display:
+                                datasets.length > 0
+                        },
+
+                        tooltips: {
+                            callbacks: {
+
+                                label: function (
+                                    tooltipItem,
+                                    data) {
+
+                                    const dataset =
+                                        data.datasets[
+                                            tooltipItem.datasetIndex
+                                        ];
+
+                                    const valor =
+                                        Number(
+                                            dataset.data[
+                                                tooltipItem.index
+                                            ]
+                                        ) || 0;
+
+                                    const porcentaje =
+                                        dataset.porcentajes[
+                                            tooltipItem.index
+                                        ] || 0;
+
+                                    return `${dataset.label}: ${valor} (${porcentaje.toFixed(1)}%)`;
+                                }
+                            }
+                        },
+
+                        scales: {
+
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true,
+                                    precision: 0
+                                }
+                            }],
+
+                            xAxes: [{
+                                gridLines: {
+                                    display: false
+                                }
+                            }]
+                        }
+                    }
+                });
+        }
+
+        function construirTabla(semanas) {
+
+            const thead =
+                document.getElementById(
+                    'tablaSemanasHead'
+                );
+
+            const tbody =
+                document.getElementById(
+                    'tablaSemanas'
+                );
+
+            const tfoot =
+                document.getElementById(
+                    'tablaSemanasFoot'
+                );
+
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+            tfoot.innerHTML = '';
+
+            const totalOperativo =
+                semanas.reduce(
+                    (total, semana) =>
+                        total +
+                        (Number(
+                            semana.ingresadasOperativo
+                        ) || 0),
+                    0
+                );
+
+            const totalMandoMedio =
+                semanas.reduce(
+                    (total, semana) =>
+                        total +
+                        (Number(
+                            semana.ingresadasMandoMedio
+                        ) || 0),
+                    0
+                );
+
+            const totalMandoSuperior =
+                semanas.reduce(
+                    (total, semana) =>
+                        total +
+                        (Number(
+                            semana.ingresadasMandoSuperior
+                        ) || 0),
+                    0
+                );
+
+            const totalGeneral =
+                totalOperativo +
+                totalMandoMedio +
+                totalMandoSuperior;
+
+            // Las columnas sólo se muestran si tienen algún valor.
+            const mostrarOperativo =
+                totalOperativo > 0;
+
+            const mostrarMandoMedio =
+                totalMandoMedio > 0;
+
+            const mostrarMandoSuperior =
+                totalMandoSuperior > 0;
+
+            let encabezado = `
+                <tr>
+                    <th>Semana</th>
+                    <th>Periodo</th>
+            `;
+
+            if (mostrarOperativo) {
+                encabezado += `
+                    <th class="text-center">
+                        Operativo
+                    </th>`;
+            }
+
+            if (mostrarMandoMedio) {
+                encabezado += `
+                    <th class="text-center">
+                        Mando Medio
+                    </th>`;
+            }
+
+            if (mostrarMandoSuperior) {
+                encabezado += `
+                    <th class="text-center">
+                        Mando Superior
+                    </th>`;
+            }
+
+            encabezado += `
+                    <th class="text-center">
+                        Total
+                    </th>
+                </tr>
+            `;
+
+            thead.innerHTML =
+                encabezado;
+
+            semanas.forEach(
+                semana => {
+
+                    const operativo =
+                        Number(
+                            semana.ingresadasOperativo
+                        ) || 0;
+
+                    const mandoMedio =
+                        Number(
+                            semana.ingresadasMandoMedio
+                        ) || 0;
+
+                    const mandoSuperior =
+                        Number(
+                            semana.ingresadasMandoSuperior
+                        ) || 0;
+
+                    const totalSemana =
+                        operativo +
+                        mandoMedio +
+                        mandoSuperior;
+
+                    const tr =
+                        document.createElement('tr');
+
+                    let html = `
+                        <td>
+                            <strong>
+                                Semana ${semana.numero}
+                            </strong>
+                        </td>
+
+                        <td>
+                            ${semana.descripcion}
+                        </td>
+                    `;
+
+                    if (mostrarOperativo) {
+                        html += `
+                            <td class="text-center">
+                                ${operativo}
+                            </td>`;
+                    }
+
+                    if (mostrarMandoMedio) {
+                        html += `
+                            <td class="text-center">
+                                ${mandoMedio}
+                            </td>`;
+                    }
+
+                    if (mostrarMandoSuperior) {
+                        html += `
+                            <td class="text-center">
+                                ${mandoSuperior}
+                            </td>`;
+                    }
+
+                    html += `
+                        <td class="text-center">
+                            <strong>
+                                ${totalSemana}
+                            </strong>
+                        </td>
+                    `;
+
+                    tr.innerHTML = html;
+                    tbody.appendChild(tr);
+                });
+
+            let footer = `
+                <tr class="bg-light">
+                    <th colspan="2">
+                        TOTAL DEL PERIODO
+                    </th>
+            `;
+
+            if (mostrarOperativo) {
+                footer += `
+                    <th class="text-center">
+                        ${totalOperativo}
+                    </th>`;
+            }
+
+            if (mostrarMandoMedio) {
+                footer += `
+                    <th class="text-center">
+                        ${totalMandoMedio}
+                    </th>`;
+            }
+
+            if (mostrarMandoSuperior) {
+                footer += `
+                    <th class="text-center">
+                        ${totalMandoSuperior}
+                    </th>`;
+            }
+
+            footer += `
+                    <th class="text-center">
+                        ${totalGeneral}
+                    </th>
+                </tr>
+            `;
+
+            tfoot.innerHTML =
+                footer;
+        }
+    </script>
+}
