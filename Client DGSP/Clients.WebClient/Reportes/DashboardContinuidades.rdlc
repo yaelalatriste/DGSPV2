@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2008/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="LocalDataSource">
+      <ConnectionProperties>
+        <DataProvider>System.Data.DataSet</DataProvider>
+        <ConnectString>/* Local Connection */</ConnectString>
+      </ConnectionProperties>
+      <rd:DataSourceID>558bc848-1864-4f0d-9b24-a9469cc1b318</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="ResumenEstatus">
+      <Fields>
+        <Field Name="Nombre"><DataField>Nombre</DataField><rd:TypeName>System.String</rd:TypeName></Field>
+        <Field Name="Total"><DataField>Total</DataField><rd:TypeName>System.Int32</rd:TypeName></Field>
+        <Field Name="Operativo"><DataField>Operativo</DataField><rd:TypeName>System.Int32</rd:TypeName></Field>
+        <Field Name="MandoMedio"><DataField>MandoMedio</DataField><rd:TypeName>System.Int32</rd:TypeName></Field>
+        <Field Name="MandoSuperior"><DataField>MandoSuperior</DataField><rd:TypeName>System.Int32</rd:TypeName></Field>
+        <Field Name="Porcentaje"><DataField>Porcentaje</DataField><rd:TypeName>System.Decimal</rd:TypeName></Field>
+      </Fields>
+      <Query><DataSourceName>LocalDataSource</DataSourceName><CommandText>/* Local Query */</CommandText></Query>
+    </DataSet>
+    <DataSet Name="Semanas">
+      <Fields>
+        <Field Name="Numero"><DataField>Numero</DataField><rd:TypeName>System.Int32</rd:TypeName></Field>
+        <Field Name="Descripcion"><DataField>Descripcion</DataField><rd:TypeName>System.String</rd:TypeName></Field>
+        <Field Name="Operativo"><DataField>Operativo</DataField><rd:TypeName>System.Int32</rd:TypeName></Field>
+        <Field Name="MandoMedio"><DataField>MandoMedio</DataField><rd:TypeName>System.Int32</rd:TypeName></Field>
+        <Field Name="MandoSuperior"><DataField>MandoSuperior</DataField><rd:TypeName>System.Int32</rd:TypeName></Field>
+        <Field Name="Total"><DataField>Total</DataField><rd:TypeName>System.Int32</rd:TypeName></Field>
+      </Fields>
+      <Query><DataSourceName>LocalDataSource</DataSourceName><CommandText>/* Local Query */</CommandText></Query>
+    </DataSet>
+    <DataSet Name="Imagenes">
+      <Fields>
+        <Field Name="GraficaSemanal"><DataField>GraficaSemanal</DataField><rd:TypeName>System.Byte[]</rd:TypeName></Field>
+        <Field Name="GraficaEstatus"><DataField>GraficaEstatus</DataField><rd:TypeName>System.Byte[]</rd:TypeName></Field>
+        <Field Name="GraficaComparativo"><DataField>GraficaComparativo</DataField><rd:TypeName>System.Byte[]</rd:TypeName></Field>
+      </Fields>
+      <Query><DataSourceName>LocalDataSource</DataSourceName><CommandText>/* Local Query */</CommandText></Query>
+    </DataSet>
+  </DataSets>
+  <ReportParameters>
+    <ReportParameter Name="TituloInstitucional"><DataType>String</DataType><Prompt>TituloInstitucional</Prompt></ReportParameter>
+    <ReportParameter Name="AreaInstitucional"><DataType>String</DataType><Prompt>AreaInstitucional</Prompt></ReportParameter>
+    <ReportParameter Name="TituloReporte"><DataType>String</DataType><Prompt>TituloReporte</Prompt></ReportParameter>
+    <ReportParameter Name="Periodo"><DataType>String</DataType><Prompt>Periodo</Prompt></ReportParameter>
+    <ReportParameter Name="TipoPersonal"><DataType>String</DataType><Prompt>TipoPersonal</Prompt></ReportParameter>
+  </ReportParameters>
+  <Body>
+    <ReportItems>
+      <Textbox Name="txtInstitucion">
+        <CanGrow>true</CanGrow><KeepTogether>true</KeepTogether>
+        <Paragraphs><Paragraph><TextRuns><TextRun><Value>=Parameters!TituloInstitucional.Value</Value><Style><FontFamily>Arial</FontFamily><FontSize>15pt</FontSize><FontWeight>Bold</FontWeight></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs>
+        <Top>0in</Top><Left>0in</Left><Height>0.28in</Height><Width>11.1in</Width><Style><Border><Style>None</Style></Border></Style>
+      </Textbox>
+      <Textbox Name="txtArea">
+        <CanGrow>true</CanGrow><KeepTogether>true</KeepTogether>
+        <Paragraphs><Paragraph><TextRuns><TextRun><Value>=Parameters!AreaInstitucional.Value</Value><Style><FontFamily>Arial</FontFamily><FontSize>11pt</FontSize><FontWeight>Bold</FontWeight></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs>
+        <Top>0.30in</Top><Left>0in</Left><Height>0.23in</Height><Width>11.1in</Width><Style><Border><Style>None</Style></Border></Style>
+      </Textbox>
+      <Textbox Name="txtTitulo">
+        <CanGrow>true</CanGrow><KeepTogether>true</KeepTogether>
+        <Paragraphs><Paragraph><TextRuns><TextRun><Value>=Parameters!TituloReporte.Value</Value><Style><FontFamily>Arial</FontFamily><FontSize>12pt</FontSize><FontWeight>Bold</FontWeight></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs>
+        <Top>0.57in</Top><Left>0in</Left><Height>0.27in</Height><Width>11.1in</Width><Style><Border><Style>None</Style></Border></Style>
+      </Textbox>
+      <Textbox Name="txtPeriodo">
+        <CanGrow>true</CanGrow><KeepTogether>true</KeepTogether>
+        <Paragraphs><Paragraph><TextRuns><TextRun><Value>="Periodo: " &amp; Parameters!Periodo.Value &amp; "   |   Tipo de personal: " &amp; Parameters!TipoPersonal.Value</Value><Style><FontFamily>Arial</FontFamily><FontSize>9pt</FontSize></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs>
+        <Top>0.86in</Top><Left>0in</Left><Height>0.20in</Height><Width>11.1in</Width><Style><Border><Style>None</Style></Border><Color>#495057</Color></Style>
+      </Textbox>
+
+      <Textbox Name="txtResumen">
+        <CanGrow>true</CanGrow><KeepTogether>true</KeepTogether>
+        <Paragraphs><Paragraph><TextRuns><TextRun><Value>Comportamiento mensual por estatus</Value><Style><FontFamily>Arial</FontFamily><FontSize>10pt</FontSize><FontWeight>Bold</FontWeight></Style></TextRun></TextRuns></Paragraph></Paragraphs>
+        <Top>1.15in</Top><Left>0in</Left><Height>0.22in</Height><Width>11.1in</Width><Style><Border><Style>None</Style></Border></Style>
+      </Textbox>
+
+      <Tablix Name="tblResumenEstatus">
+        <TablixBody>
+          <TablixColumns>
+            <TablixColumn><Width>3.35in</Width></TablixColumn>
+            <TablixColumn><Width>1.15in</Width></TablixColumn>
+            <TablixColumn><Width>1.55in</Width></TablixColumn>
+            <TablixColumn><Width>1.55in</Width></TablixColumn>
+            <TablixColumn><Width>1.55in</Width></TablixColumn>
+            <TablixColumn><Width>1.65in</Width></TablixColumn>
+          </TablixColumns>
+          <TablixRows>
+            <TablixRow><Height>0.28in</Height><TablixCells>
+              <TablixCell><CellContents><Textbox Name="h1"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Estatus</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><BackgroundColor>#343A40</BackgroundColor><PaddingLeft>4pt</PaddingLeft><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="h2"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Total</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><BackgroundColor>#343A40</BackgroundColor><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="h3"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Operativo</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><BackgroundColor>#343A40</BackgroundColor><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="h4"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Mando Medio</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><BackgroundColor>#343A40</BackgroundColor><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="h5"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Mando Superior</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><BackgroundColor>#343A40</BackgroundColor><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="h6"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Porcentaje</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><BackgroundColor>#343A40</BackgroundColor><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+            </TablixCells></TablixRow>
+            <TablixRow><Height>0.25in</Height><TablixCells>
+              <TablixCell><CellContents><Textbox Name="d1"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!Nombre.Value</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><Border><Color>#DEE2E6</Color><Style>Solid</Style></Border><PaddingLeft>4pt</PaddingLeft><PaddingTop>2pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="d2"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!Total.Value</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><Border><Color>#DEE2E6</Color><Style>Solid</Style></Border><PaddingTop>2pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="d3"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!Operativo.Value</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><Border><Color>#DEE2E6</Color><Style>Solid</Style></Border><PaddingTop>2pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="d4"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!MandoMedio.Value</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><Border><Color>#DEE2E6</Color><Style>Solid</Style></Border><PaddingTop>2pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="d5"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!MandoSuperior.Value</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><Border><Color>#DEE2E6</Color><Style>Solid</Style></Border><PaddingTop>2pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="d6"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Format(Fields!Porcentaje.Value, "0.0") &amp; "%"</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><Border><Color>#DEE2E6</Color><Style>Solid</Style></Border><PaddingTop>2pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+            </TablixCells></TablixRow>
+          </TablixRows>
+        </TablixBody>
+        <TablixColumnHierarchy><TablixMembers><TablixMember/><TablixMember/><TablixMember/><TablixMember/><TablixMember/><TablixMember/></TablixMembers></TablixColumnHierarchy>
+        <TablixRowHierarchy><TablixMembers><TablixMember><KeepWithGroup>After</KeepWithGroup><RepeatOnNewPage>true</RepeatOnNewPage></TablixMember><TablixMember><Group Name="grpEstatus"><GroupExpressions><GroupExpression>=Fields!Nombre.Value</GroupExpression></GroupExpressions></Group></TablixMember></TablixMembers></TablixRowHierarchy>
+        <DataSetName>ResumenEstatus</DataSetName>
+        <Top>1.42in</Top><Left>0in</Left><Height>0.53in</Height><Width>10.8in</Width>
+        <Style><Border><Style>None</Style></Border></Style>
+      </Tablix>
+
+      <Textbox Name="txtSemanal"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Comportamiento semanal del mes</Value><Style><FontFamily>Arial</FontFamily><FontSize>10pt</FontSize><FontWeight>Bold</FontWeight></Style></TextRun></TextRuns></Paragraph></Paragraphs><Top>2.18in</Top><Left>0in</Left><Height>0.22in</Height><Width>6.75in</Width><Style><Border><Style>None</Style></Border></Style></Textbox>
+      <Image Name="imgSemanal"><Source>Database</Source><Value>=First(Fields!GraficaSemanal.Value, "Imagenes")</Value><MIMEType>image/png</MIMEType><Sizing>FitProportional</Sizing><Top>2.43in</Top><Left>0in</Left><Height>2.55in</Height><Width>6.75in</Width><Style><Border><Color>#DEE2E6</Color><Style>Solid</Style></Border></Style></Image>
+      <Textbox Name="txtEstatus"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Distribución por estatus</Value><Style><FontFamily>Arial</FontFamily><FontSize>10pt</FontSize><FontWeight>Bold</FontWeight></Style></TextRun></TextRuns></Paragraph></Paragraphs><Top>2.18in</Top><Left>6.95in</Left><Height>0.22in</Height><Width>4.15in</Width><Style><Border><Style>None</Style></Border></Style></Textbox>
+      <Image Name="imgEstatus"><Source>Database</Source><Value>=First(Fields!GraficaEstatus.Value, "Imagenes")</Value><MIMEType>image/png</MIMEType><Sizing>FitProportional</Sizing><Top>2.43in</Top><Left>6.95in</Left><Height>2.55in</Height><Width>4.15in</Width><Style><Border><Color>#DEE2E6</Color><Style>Solid</Style></Border></Style></Image>
+
+      <Textbox Name="txtComparativo"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Operativo vs Mando Medio vs Mando Superior</Value><Style><FontFamily>Arial</FontFamily><FontSize>10pt</FontSize><FontWeight>Bold</FontWeight></Style></TextRun></TextRuns></Paragraph></Paragraphs><Top>5.18in</Top><Left>0in</Left><Height>0.22in</Height><Width>11.1in</Width><Style><Border><Style>None</Style></Border></Style></Textbox>
+      <Image Name="imgComparativo"><Source>Database</Source><Value>=First(Fields!GraficaComparativo.Value, "Imagenes")</Value><MIMEType>image/png</MIMEType><Sizing>FitProportional</Sizing><Top>5.43in</Top><Left>0in</Left><Height>2.75in</Height><Width>11.1in</Width><Style><Border><Color>#DEE2E6</Color><Style>Solid</Style></Border></Style></Image>
+
+      <Textbox Name="txtDetalle"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Detalle semanal</Value><Style><FontFamily>Arial</FontFamily><FontSize>10pt</FontSize><FontWeight>Bold</FontWeight></Style></TextRun></TextRuns></Paragraph></Paragraphs><Top>8.45in</Top><Left>0in</Left><Height>0.22in</Height><Width>11.1in</Width><Style><Border><Style>None</Style></Border></Style></Textbox>
+      <Tablix Name="tblSemanas">
+        <TablixBody>
+          <TablixColumns>
+            <TablixColumn><Width>1.1in</Width></TablixColumn><TablixColumn><Width>3.4in</Width></TablixColumn><TablixColumn><Width>1.45in</Width></TablixColumn><TablixColumn><Width>1.45in</Width></TablixColumn><TablixColumn><Width>1.45in</Width></TablixColumn><TablixColumn><Width>1.35in</Width></TablixColumn>
+          </TablixColumns>
+          <TablixRows>
+            <TablixRow><Height>0.30in</Height><TablixCells>
+              <TablixCell><CellContents><Textbox Name="sh1"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Semana</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><BackgroundColor>#343A40</BackgroundColor><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="sh2"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Periodo</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><BackgroundColor>#343A40</BackgroundColor><PaddingLeft>4pt</PaddingLeft><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="sh3"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Operativo</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><BackgroundColor>#343A40</BackgroundColor><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="sh4"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Mando Medio</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><BackgroundColor>#343A40</BackgroundColor><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="sh5"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Mando Superior</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><BackgroundColor>#343A40</BackgroundColor><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="sh6"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Total</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><BackgroundColor>#343A40</BackgroundColor><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+            </TablixCells></TablixRow>
+            <TablixRow><Height>0.28in</Height><TablixCells>
+              <TablixCell><CellContents><Textbox Name="sd1"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!Numero.Value</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><Border><Color>#DEE2E6</Color><Style>Solid</Style></Border><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="sd2"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!Descripcion.Value</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><Border><Color>#DEE2E6</Color><Style>Solid</Style></Border><PaddingLeft>4pt</PaddingLeft><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="sd3"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!Operativo.Value</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><Border><Color>#DEE2E6</Color><Style>Solid</Style></Border><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="sd4"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!MandoMedio.Value</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><Border><Color>#DEE2E6</Color><Style>Solid</Style></Border><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="sd5"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!MandoSuperior.Value</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><Border><Color>#DEE2E6</Color><Style>Solid</Style></Border><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+              <TablixCell><CellContents><Textbox Name="sd6"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!Total.Value</Value><Style><FontFamily>Arial</FontFamily><FontSize>8pt</FontSize><FontWeight>Bold</FontWeight></Style></TextRun></TextRuns><Style><TextAlign>Center</TextAlign></Style></Paragraph></Paragraphs><Style><Border><Color>#DEE2E6</Color><Style>Solid</Style></Border><PaddingTop>3pt</PaddingTop></Style></Textbox></CellContents></TablixCell>
+            </TablixCells></TablixRow>
+          </TablixRows>
+        </TablixBody>
+        <TablixColumnHierarchy><TablixMembers><TablixMember/><TablixMember/><TablixMember/><TablixMember/><TablixMember/><TablixMember/></TablixMembers></TablixColumnHierarchy>
+        <TablixRowHierarchy><TablixMembers><TablixMember><KeepWithGroup>After</KeepWithGroup><RepeatOnNewPage>true</RepeatOnNewPage></TablixMember><TablixMember><Group Name="grpSemana"><GroupExpressions><GroupExpression>=Fields!Numero.Value</GroupExpression></GroupExpressions></Group></TablixMember></TablixMembers></TablixRowHierarchy>
+        <DataSetName>Semanas</DataSetName>
+        <Top>8.72in</Top><Left>0in</Left><Height>0.58in</Height><Width>10.2in</Width><Style><Border><Style>None</Style></Border></Style>
+      </Tablix>
+    </ReportItems>
+    <Height>10.0in</Height>
+    <Style />
+  </Body>
+  <Width>11.1in</Width>
+  <Page>
+    <PageHeight>8.27in</PageHeight>
+    <PageWidth>11.69in</PageWidth>
+    <LeftMargin>0.25in</LeftMargin>
+    <RightMargin>0.25in</RightMargin>
+    <TopMargin>0.20in</TopMargin>
+    <BottomMargin>0.20in</BottomMargin>
+    <Style />
+  </Page>
+  <rd:ReportUnitType>Inch</rd:ReportUnitType>
+  <rd:ReportID>204c53cc-35fa-4cc1-bf19-d56d2e6a076e</rd:ReportID>
+</Report>

@@ -8,14 +8,19 @@
 <section class="content">
     <div class="container-fluid">
 
-        <!-- FILTROS -->
-        <div class="card card-outline card-primary">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-filter mr-1"></i> Filtros
-                </h3>
-            </div>
+        <!-- ENCABEZADO EXCLUSIVO DEL PDF -->
+        <div class="pdf-header" id="pdfHeader">
+            <div class="pdf-institucion">ÓRGANO DE ADMINISTRACIÓN JUDICIAL</div>
+            <div class="pdf-direccion">DIRECCIÓN GENERAL DE SERVICIOS AL PERSONAL</div>
+            <h2>Dashboard de Continuidades del Seguro de Gastos Médicos Mayores</h2>
+            <div class="pdf-subtitle" id="pdfPeriodo"></div>
+        </div>
 
+        <!-- FILTROS -->
+        <div class="card card-outline card-primary no-print">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-filter mr-1"></i> Filtros</h3>
+            </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-2">
@@ -42,12 +47,8 @@
                             <label>Mes</label>
                             <select id="filtroMes" class="form-control">
                                 @{
-                                    var meses = System.Globalization.CultureInfo
-                                    .GetCultureInfo("es-MX")
-                                    .DateTimeFormat
-                                    .MonthNames;
+                                    var meses = System.Globalization.CultureInfo.GetCultureInfo("es-MX").DateTimeFormat.MonthNames;
                                 }
-
                                 @for (var mes = 1; mes <= 12; mes++)
                                 {
                                     if (mes == Model.MesActual)
@@ -82,102 +83,79 @@
                             </button>
                         </div>
                     </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <div class="form-group w-100">
+                            <button id="btnExportarPdf" type="button" class="btn btn-danger btn-block" title="Para ocultar URL, fecha y hora del navegador, desactiva “Encabezados y pies de página” al guardar como PDF.">
+                                <i class="fas fa-file-pdf"></i> Exportar PDF
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- CARDS -->
-        <div class="row">
+        <!-- RESUMEN SUPERIOR -->
+        <div class="row mb-2" id="contenedorResumen">
             @foreach (var item in Model.Estatus)
             {
                 var id = "total" + item.Abreviacion;
-
-                <div class="col-lg col-md-4 col-6 dashboard-estatus"
-                     data-total-id="@id">
-                    <div class="small-box @Html.Raw(item.Fondo)">
-                        <div class="inner">
-                            <h3 id="@id">0</h3>
-                            <p>@item.Nombre</p>
-                        </div>
-
-                        <div class="icon">
-                            @Html.Raw(item.Icono)
-                        </div>
+                <div class="col-lg col-md-4 col-6 mb-3 dashboard-estatus" data-total-id="@id">
+                    <div class="dashboard-resumen-card">
+                        <div class="titulo">@item.Nombre</div>
+                        <div class="valor" id="@id">0</div>
+                        <div class="porcentaje" id="porcentaje@(item.Abreviacion)">Mes seleccionado</div>
                     </div>
                 </div>
             }
         </div>
 
-        <!-- GRÁFICAS -->
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="card card-outline card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            Comportamiento semanal
-                        </h3>
-
-                        <div class="card-tools">
-                            <span id="periodoTitulo" class="badge badge-primary"></span>
-                        </div>
+        <!-- COMPORTAMIENTO SEMANAL -->
+        <div class="card card-outline card-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="dashboard-section-title">Comportamiento semanal del mes</h5>
+                        <div class="dashboard-section-subtitle" id="periodoSemanal"></div>
                     </div>
-
-                    <div class="card-body">
-                        <div class="chart">
-                            <canvas id="chartSemanas"
-                                    style="min-height:320px; height:320px; max-height:320px;">
-                            </canvas>
-                        </div>
-                    </div>
+                    <span id="periodoTitulo" class="badge badge-primary"></span>
                 </div>
-            </div>
-
-            <div class="col-lg-4">
-                <div class="card card-outline card-secondary">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            Distribución actual por estatus
-                        </h3>
-                    </div>
-
-                    <div class="card-body">
-                        <canvas id="chartEstatus"
-                                style="min-height:320px; height:320px; max-height:320px;">
-                        </canvas>
-                    </div>
-                </div>
+                <div class="row" id="contenedorSemanas"></div>
             </div>
         </div>
 
-        <!-- COMPARATIVO -->
+        <!-- RESUMEN MENSUAL + GRÁFICA CIRCULAR -->
         <div class="row">
-            <div class="col-12">
-                <div class="card card-outline card-info">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            Operativo vs Mando Medio vs Mando Superior
-                        </h3>
-                    </div>
-
+            <div class="col-lg-7">
+                <div class="card h-100">
                     <div class="card-body">
-                        <canvas id="chartComparativo"
-                                style="min-height:320px; height:320px; max-height:320px;">
-                        </canvas>
+                        <h5 class="dashboard-section-title">Resumen mensual por estatus</h5>
+                        <div class="dashboard-section-subtitle mb-4">Comparativo general del periodo</div>
+                        <div id="resumenMensualEstatus"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="dashboard-section-title">Distribución por estatus</h5>
+                        <div class="dashboard-section-subtitle mb-3">Porcentaje respecto del total</div>
+                        <div class="chart-container-dashboard">
+                            <canvas id="chartEstatus"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- TABLA -->
-        <div class="card">
+        <div class="card mt-3">
             <div class="card-header">
-                <h3 class="card-title">
-                    Detalle semanal
-                </h3>
+                <h3 class="card-title">Detalle semanal</h3>
             </div>
-
             <div class="card-body table-responsive p-0">
-                <table class="table table-hover table-bordered text-nowrap mb-0">
+                <table class="table table-hover table-bordered text-nowrap mb-0 tabla-dashboard">
                     <thead id="tablaSemanasHead"></thead>
                     <tbody id="tablaSemanas"></tbody>
                     <tfoot id="tablaSemanasFoot"></tfoot>
@@ -185,8 +163,411 @@
             </div>
         </div>
 
+        <div class="pdf-header" style="border-bottom:0; border-top:1px solid #adb5bd; margin-top:8px; padding-top:5px; padding-bottom:0;">
+            <div class="pdf-subtitle">Dirección General de Servicios al Personal · Información para fines institucionales</div>
+        </div>
     </div>
 </section>
+
+<style>
+    .dashboard-resumen-card {
+        border-radius: 12px;
+        border: 1px solid #dee2e6;
+        background: #fff;
+        padding: 15px;
+        height: 100%;
+        box-shadow: 0 2px 6px rgba(0,0,0,.05);
+    }
+
+        .dashboard-resumen-card .titulo {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 4px;
+        }
+
+        .dashboard-resumen-card .valor {
+            font-size: 25px;
+            font-weight: 700;
+            color: #212529;
+            line-height: 1;
+        }
+
+        .dashboard-resumen-card .porcentaje {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 7px;
+        }
+
+    .dashboard-section-title {
+        font-weight: 700;
+        font-size: 17px;
+        margin-bottom: 0;
+    }
+
+    .dashboard-section-subtitle {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .semana-card {
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        background: #fff;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        height: calc(100% - 15px);
+    }
+
+    .semana-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+
+    .semana-titulo {
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .semana-periodo {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .semana-total {
+        font-weight: 700;
+        background: #f1f3f5;
+        border-radius: 14px;
+        padding: 3px 9px;
+        font-size: 12px;
+    }
+
+    .personal-row {
+        margin-bottom: 11px;
+    }
+
+        .personal-row:last-child {
+            margin-bottom: 0;
+        }
+
+    .personal-info {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        margin-bottom: 4px;
+    }
+
+    .progress-dashboard {
+        height: 8px;
+        border-radius: 20px;
+        overflow: hidden;
+        background-color: #edf0f2;
+    }
+
+        .progress-dashboard .progress-bar {
+            border-radius: 20px;
+        }
+
+    /* Relleno propio del dashboard. No utiliza .progress-bar de Bootstrap/AdminLTE,
+                   para evitar que el tema institucional sobrescriba el color. */
+    .dashboard-fill {
+        display: block;
+        height: 100%;
+        min-width: 2px;
+        border-radius: 20px;
+        transition: width .25s ease;
+    }
+
+    /* Colores aplicados únicamente al comportamiento semanal y mensual.
+                   Se usa !important para evitar que AdminLTE/Bootstrap sobrescriban el fondo. */
+    #contenedorSemanas .barra-op {
+        background: #007bff !important;
+    }
+
+    #contenedorSemanas .barra-mm {
+        background: #28a745 !important;
+    }
+
+    #contenedorSemanas .barra-ms {
+        background: #17a2b8 !important;
+    }
+
+    #resumenMensualEstatus .barra-ing {
+        background: #007bff !important;
+    }
+
+    #resumenMensualEstatus .barra-pag {
+        background: #28a745 !important;
+    }
+
+    #resumenMensualEstatus .barra-can {
+        background: #dc3545 !important;
+    }
+
+    #resumenMensualEstatus .barra-imp {
+        background: #ffc107 !important;
+    }
+
+    #resumenMensualEstatus .barra-cor {
+        background: #17a2b8 !important;
+    }
+
+    #resumenMensualEstatus .barra-estatus-default {
+        background: #6c757d !important;
+    }
+
+    .estatus-resumen {
+        margin-bottom: 18px;
+    }
+
+    .estatus-resumen-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        font-size: 13px;
+    }
+
+    .estatus-resumen-total {
+        font-weight: 700;
+    }
+
+    .estatus-desglose {
+        margin-top: 5px;
+        font-size: 11px;
+        color: #6c757d;
+    }
+
+    .chart-container-dashboard {
+        position: relative;
+        min-height: 340px;
+        height: 340px;
+    }
+
+    .tabla-dashboard thead th,
+    .tabla-dashboard tfoot th {
+        text-align: center;
+        vertical-align: middle;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .tabla-dashboard tbody td {
+        vertical-align: middle;
+        font-size: 12px;
+    }
+
+        .tabla-dashboard tbody td:not(:first-child) {
+            text-align: center;
+        }
+
+    /* Encabezado exclusivo para la exportación/impresión en PDF. */
+    .pdf-header {
+        display: none;
+    }
+
+    /* Mantiene los colores reales del dashboard al imprimir o guardar como PDF. */
+    .dashboard-fill,
+    .badge,
+    .dashboard-resumen-card,
+    canvas {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    @@media print {
+        @@page {
+            size: A4 portrait;
+            margin: 10mm;
+        }
+
+        html,
+        body {
+            background: #fff !important;
+            width: 100% !important;
+            height: auto !important;
+            overflow: visible !important;
+            font-size: 18px !important;
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        /* Elementos de AdminLTE que no deben formar parte del PDF. */
+        .main-header,
+        .main-sidebar,
+        .main-footer,
+        .control-sidebar,
+        .content-header,
+        .no-print {
+            display: none !important;
+        }
+
+        .content-wrapper,
+        .content,
+        .container-fluid {
+            margin: 0 !important;
+            padding: 0 !important;
+            min-height: 0 !important;
+            width: 100% !important;
+            background: #fff !important;
+        }
+
+        .pdf-header {
+            display: block !important;
+            width: 100% !important;
+            margin-bottom: 16px !important;
+            padding-bottom: 10px !important;
+            border-bottom: 2px solid #343a40 !important;
+            text-align: center !important;
+        }
+
+            .pdf-header .pdf-institucion {
+                margin: 0;
+                font-size: 18px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .25px;
+                text-align: center;
+            }
+
+            .pdf-header .pdf-direccion {
+                margin-top: 2px;
+                font-size: 14px;
+                font-weight: 600;
+                text-transform: uppercase;
+                text-align: center;
+            }
+
+            .pdf-header h2 {
+                margin: 7px 0 0 0;
+                font-size: 25px;
+                font-weight: 700;
+                text-align: center;
+            }
+
+            .pdf-header .pdf-subtitle {
+                margin-top: 4px;
+                font-size: 14px;
+                color: #495057 !important;
+                text-align: center;
+            }
+
+        .card,
+        .dashboard-resumen-card,
+        .semana-card {
+            box-shadow: none !important;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        #contenedorResumen {
+            margin-bottom: 2px !important;
+        }
+
+            #contenedorResumen > div {
+                flex: 0 0 25% !important;
+                max-width: 25% !important;
+                padding-left: 4px !important;
+                padding-right: 4px !important;
+                margin-bottom: 6px !important;
+            }
+
+        .dashboard-resumen-card {
+            padding: 11px !important;
+            border-radius: 6px !important;
+        }
+
+            .dashboard-resumen-card .titulo {
+                font-size: 12px !important;
+            }
+
+            .dashboard-resumen-card .valor {
+                font-size: 24px !important;
+            }
+
+            .dashboard-resumen-card .porcentaje {
+                font-size: 11px !important;
+                margin-top: 4px !important;
+            }
+
+        .dashboard-section-title {
+            font-size: 17px !important;
+        }
+
+        .dashboard-section-subtitle,
+        .semana-periodo,
+        .estatus-desglose {
+            font-size: 11px !important;
+        }
+
+        .semana-card {
+            padding: 12px !important;
+            margin-bottom: 9px !important;
+        }
+
+        .semana-header {
+            margin-bottom: 10px !important;
+        }
+
+        .semana-titulo {
+            font-size: 14px !important;
+        }
+
+        .semana-total {
+            font-size: 13px !important;
+            padding: 4px 9px !important;
+        }
+
+        .personal-row {
+            margin-bottom: 8px !important;
+        }
+
+        .personal-info,
+        .estatus-resumen-header {
+            font-size: 12px !important;
+        }
+
+        .progress-dashboard {
+            height: 7px !important;
+        }
+
+        .chart-container-dashboard {
+            min-height: 250px !important;
+            height: 250px !important;
+        }
+
+        .tabla-dashboard {
+            font-size: 11px !important;
+        }
+
+            .tabla-dashboard thead th,
+            .tabla-dashboard tbody td,
+            .tabla-dashboard tfoot th {
+                font-size: 11px !important;
+                padding: 6px !important;
+            }
+        /* Fuerza la conservación de fondos y colores en Chrome/Edge. */
+        *,
+        *::before,
+        *::after {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+    }
+
+    @@media (max-width: 767px) {
+        .dashboard-resumen-card {
+            margin-bottom: 10px;
+        }
+
+        .chart-container-dashboard {
+            min-height: 280px;
+            height: 280px;
+        }
+    }
+</style>
 
 @section Scripts {
 
@@ -323,8 +704,47 @@
                 .getElementById('btnConsultar')
                 .addEventListener('click', cargarDashboard);
 
+            document
+                .getElementById('btnExportarPdf')
+                .addEventListener('click', exportarPdf);
+
             cargarDashboard();
         });
+
+        function exportarPdf() {
+
+            const boton = document.getElementById('btnExportarPdf');
+            const anioSelect = document.getElementById('filtroAnio');
+            const mesSelect = document.getElementById('filtroMes');
+            const tipoSelect = document.getElementById('filtroTipo');
+
+            const anio = anioSelect.value;
+            const mes = mesSelect.options[mesSelect.selectedIndex]?.text || '';
+            const tipo = tipoSelect.options[tipoSelect.selectedIndex]?.text || 'Todos';
+
+            document.getElementById('pdfPeriodo').textContent =
+                `Periodo: ${mes} ${anio} · Tipo de personal: ${tipo}`;
+
+            // Asegura que Chart.js termine de dibujar antes de abrir el diálogo.
+            if (chartEstatus) {
+                chartEstatus.stop();
+                chartEstatus.resize();
+                chartEstatus.update(0);
+            }
+
+            const textoOriginal = boton.innerHTML;
+            boton.disabled = true;
+            boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparando PDF...';
+
+            // El navegador mostrará el diálogo de impresión. En Chrome/Edge
+            // seleccionar "Guardar como PDF". No requiere librerías externas.
+            window.setTimeout(function () {
+                window.print();
+
+                boton.disabled = false;
+                boton.innerHTML = textoOriginal;
+            }, 250);
+        }
 
         async function cargarDashboard() {
 
@@ -421,30 +841,15 @@
 
         function actualizarDashboard(data) {
 
-            document
-                .getElementById('periodoTitulo')
-                .textContent =
-                    data.periodo || '';
+            document.getElementById('periodoTitulo').textContent = data.periodo || '';
+            document.getElementById('periodoSemanal').textContent = data.periodo || '';
 
-            actualizarEstatus(
-                data.estatus || []
-            );
-
-            construirGraficaSemanas(
-                data.semanas || []
-            );
-
-            construirGraficaEstatus(
-                data.estatus || []
-            );
-
-            construirComparativo(
-                data.estatus || []
-            );
-
-            construirTabla(
-                data.semanas || []
-            );
+            actualizarEstatus(data.estatus || []);
+            actualizarPorcentajesCards(data.estatus || []);
+            construirTarjetasSemanas(data.semanas || []);
+            construirResumenMensual(data.estatus || []);
+            construirGraficaEstatus(data.estatus || []);
+            construirTabla(data.semanas || []);
         }
 
         function actualizarEstatus(estatus) {
@@ -483,6 +888,222 @@
                     card.style.display =
                         total > 0 ? '' : 'none';
                 }
+            });
+        }
+
+        function actualizarPorcentajesCards(estatus) {
+
+            const visibles = estatus.filter(item => (Number(item.total) || 0) > 0);
+
+            // Si la API devuelve una métrica "Ingresadas", se conserva como base.
+            // Cuando no existe (como en En Curso, En Movimientos, Pendiente de Pago,
+            // Pagada, Concluida, Cancelada, Improcedente), la base es la suma de
+            // todos los estatus visibles del periodo.
+            const ingresadas = visibles.find(item => {
+                const nombre = (item.nombre || '').toLowerCase();
+                const abrev = (item.abreviacion || '').toUpperCase();
+                return abrev === 'ING' || nombre.includes('ingres');
+            });
+
+            const sumaEstatus = visibles.reduce(
+                (acumulado, item) => acumulado + (Number(item.total) || 0),
+                0
+            );
+
+            const totalBase = Number(ingresadas?.total) || sumaEstatus;
+
+            estatus.forEach(item => {
+                const total = Number(item.total) || 0;
+                const etiqueta = document.getElementById(`porcentaje${item.abreviacion}`);
+
+                if (!etiqueta)
+                    return;
+
+                // "Ingresadas" representa la base completa cuando viene en la respuesta.
+                if (ingresadas && item.abreviacion === ingresadas.abreviacion) {
+                    etiqueta.textContent = '100.0% del total';
+                    return;
+                }
+
+                const porcentaje = totalBase > 0 ? (total / totalBase) * 100 : 0;
+                etiqueta.textContent = `${porcentaje.toFixed(1)}% del total`;
+            });
+        }
+
+        function construirTarjetasSemanas(semanas) {
+
+            const contenedor = document.getElementById('contenedorSemanas');
+            contenedor.innerHTML = '';
+
+            semanas.forEach(semana => {
+
+                const operativo = Number(semana.ingresadasOperativo) || 0;
+                const mandoMedio = Number(semana.ingresadasMandoMedio) || 0;
+                const mandoSuperior = Number(semana.ingresadasMandoSuperior) || 0;
+                const total = operativo + mandoMedio + mandoSuperior;
+
+                if (total <= 0)
+                    return;
+
+                const porcentajeOP = (operativo / total) * 100;
+                const porcentajeMM = (mandoMedio / total) * 100;
+                const porcentajeMS = (mandoSuperior / total) * 100;
+
+                let detalle = '';
+
+                if (operativo > 0) {
+                    detalle += `
+                        <div class="personal-row">
+                            <div class="personal-info">
+                                <span>Operativo</span>
+                                <strong>${operativo.toLocaleString('es-MX')} <span class="text-muted">(${porcentajeOP.toFixed(1)}%)</span></strong>
+                            </div>
+                            <div class="progress-dashboard">
+                                <div class="dashboard-fill barra-op"
+                                     style="width:${porcentajeOP}%; background:#007bff !important;"
+                                     title="Operativo: ${operativo} (${porcentajeOP.toFixed(1)}%)"></div>
+                            </div>
+                        </div>`;
+                }
+
+                if (mandoMedio > 0) {
+                    detalle += `
+                        <div class="personal-row">
+                            <div class="personal-info">
+                                <span>Mando medio</span>
+                                <strong>${mandoMedio.toLocaleString('es-MX')} <span class="text-muted">(${porcentajeMM.toFixed(1)}%)</span></strong>
+                            </div>
+                            <div class="progress-dashboard">
+                                <div class="dashboard-fill barra-mm"
+                                     style="width:${porcentajeMM}%; background:#28a745 !important;"
+                                     title="Mando medio: ${mandoMedio} (${porcentajeMM.toFixed(1)}%)"></div>
+                            </div>
+                        </div>`;
+                }
+
+                if (mandoSuperior > 0) {
+                    detalle += `
+                        <div class="personal-row">
+                            <div class="personal-info">
+                                <span>Mando superior</span>
+                                <strong>${mandoSuperior.toLocaleString('es-MX')} <span class="text-muted">(${porcentajeMS.toFixed(1)}%)</span></strong>
+                            </div>
+                            <div class="progress-dashboard">
+                                <div class="dashboard-fill barra-ms"
+                                     style="width:${porcentajeMS}%; background:#17a2b8 !important;"
+                                     title="Mando superior: ${mandoSuperior} (${porcentajeMS.toFixed(1)}%)"></div>
+                            </div>
+                        </div>`;
+                }
+
+                contenedor.insertAdjacentHTML('beforeend', `
+                    <div class="col-lg-4 col-md-6">
+                        <div class="semana-card">
+                            <div class="semana-header">
+                                <div>
+                                    <div class="semana-titulo">Semana ${semana.numero}</div>
+                                    <div class="semana-periodo">${semana.descripcion || ''}</div>
+                                </div>
+                                <div class="semana-total">${total.toLocaleString('es-MX')}</div>
+                            </div>
+                            ${detalle}
+                        </div>
+                    </div>`);
+            });
+        }
+
+        function construirResumenMensual(estatus) {
+
+            const contenedor = document.getElementById('resumenMensualEstatus');
+            contenedor.innerHTML = '';
+
+            const validos = estatus.filter(e => (Number(e.total) || 0) > 0);
+            const maximo = validos.length > 0
+                ? Math.max(...validos.map(e => Number(e.total) || 0))
+                : 0;
+
+            // La referencia porcentual del mes es Ingresadas cuando dicha métrica
+            // viene en la respuesta. Si no existe, se usa la suma de los estatus
+            // visibles para que el porcentaje siga siendo representativo.
+            const ingresadas = validos.find(e => {
+                const nombre = (e.nombre || '').toLowerCase();
+                const abrev = (e.abreviacion || '').toUpperCase();
+                return abrev === 'ING' || nombre.includes('ingres');
+            });
+
+            const sumaEstatus = validos.reduce(
+                (acumulado, e) => acumulado + (Number(e.total) || 0),
+                0
+            );
+
+            const totalBase = Number(ingresadas?.total) || sumaEstatus || 0;
+
+            validos.forEach(item => {
+
+                const total = Number(item.total) || 0;
+                const op = Number(item.operativo) || 0;
+                const mm = Number(item.mandoMedio) || 0;
+                const ms = Number(item.mandoSuperior) || 0;
+
+                const ancho = maximo > 0 ? (total / maximo) * 100 : 0;
+                const porcentajeEstatus = totalBase > 0 ? (total / totalBase) * 100 : 0;
+
+                const porcentajeOP = total > 0 ? (op / total) * 100 : 0;
+                const porcentajeMM = total > 0 ? (mm / total) * 100 : 0;
+                const porcentajeMS = total > 0 ? (ms / total) * 100 : 0;
+
+                const desglose = [];
+
+                if (op > 0)
+                    desglose.push(`Operativo ${op.toLocaleString('es-MX')} (${porcentajeOP.toFixed(1)}%)`);
+                if (mm > 0)
+                    desglose.push(`Mando medio ${mm.toLocaleString('es-MX')} (${porcentajeMM.toFixed(1)}%)`);
+                if (ms > 0)
+                    desglose.push(`Mando superior ${ms.toLocaleString('es-MX')} (${porcentajeMS.toFixed(1)}%)`);
+
+                const nombreEstatus = (item.nombre || '').toLowerCase();
+                const abreviacion = (item.abreviacion || '').toUpperCase();
+
+                let claseColor = 'barra-estatus-default';
+                let color = '#6c757d';
+
+                if (abreviacion === 'ING' || nombreEstatus.includes('ingres')) {
+                    claseColor = 'barra-ing';
+                    color = '#007bff';
+                }
+                else if (abreviacion === 'PAG' || nombreEstatus.includes('pagad')) {
+                    claseColor = 'barra-pag';
+                    color = '#28a745';
+                }
+                else if (abreviacion === 'CAN' || nombreEstatus.includes('cancel')) {
+                    claseColor = 'barra-can';
+                    color = '#dc3545';
+                }
+                else if (abreviacion === 'IMP' || nombreEstatus.includes('improced')) {
+                    claseColor = 'barra-imp';
+                    color = '#ffc107';
+                }
+                else if (abreviacion === 'COR' || nombreEstatus.includes('correcci')) {
+                    claseColor = 'barra-cor';
+                    color = '#17a2b8';
+                }
+
+                contenedor.insertAdjacentHTML('beforeend', `
+                    <div class="estatus-resumen">
+                        <div class="estatus-resumen-header">
+                            <strong>${item.nombre}</strong>
+                            <span class="estatus-resumen-total">
+                                ${total.toLocaleString('es-MX')}
+                                <span class="text-muted ml-1">(${porcentajeEstatus.toFixed(1)}%)</span>
+                            </span>
+                        </div>
+                        <div class="progress-dashboard">
+                            <div class="dashboard-fill ${claseColor}"
+                                 style="width:${ancho}%; background:${color} !important;"
+                                 title="${item.nombre}: ${total} (${porcentajeEstatus.toFixed(1)}%)"></div>
+                        </div>
+                        <div class="estatus-desglose">${desglose.join(' · ')}</div>
+                    </div>`);
             });
         }
 
