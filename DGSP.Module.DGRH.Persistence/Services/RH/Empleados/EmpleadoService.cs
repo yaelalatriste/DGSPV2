@@ -82,6 +82,7 @@ namespace DGSP.Module.DGRH.Persistence.Services.RH.Empleados
                 CscNomb = k.CscNomb,
                 FechaInicioNombr = k.FechaInicioNombr,
                 FechaFinNombr = k.FechaFinNombr,
+                FechaNacimiento = k.FechaNacimiento,
                 CscPuesto = k.CscPuesto,
                 CvePuesto = k.CvePuesto,
                 Puesto = k.Puesto != null ? k.Puesto : "",

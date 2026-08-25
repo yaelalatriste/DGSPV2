@@ -11,7 +11,6 @@ namespace DGSP.API.Controllers.DGRH.Queries
     {
         private readonly IEmpleadoService _empleadoService;
 
-
         public EmpleadoController(IEmpleadoService empleadoService)
         {
             _empleadoService = empleadoService;

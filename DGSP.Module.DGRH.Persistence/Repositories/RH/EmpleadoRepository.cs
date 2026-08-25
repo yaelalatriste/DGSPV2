@@ -89,7 +89,7 @@ namespace DGSP.Module.DGRH.Persistence.Repositories.RH
 
         public async Task<List<EmpleadoPuesto>> GetEmpleadosTEAsync()
         {
-            var nivelesValidos = new[] { "02", "03", "04", "05", "06", "07", "08", "09", "10", "11" };
+            var nivelesValidos = new[] { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11" };
 
             var query =
                 from e in _context.Empleados
@@ -111,6 +111,7 @@ namespace DGSP.Module.DGRH.Persistence.Repositories.RH
                     CscNomb = k.csc_nomb,
                     FechaInicioNombr = k.fech_ini_nomb,
                     FechaFinNombr = k.fech_fin_nomb,
+                    FechaNacimiento = e.fech_nacimiento,
                     CscPuesto = k.csc_puesto,
                     CvePuesto = k.cve_puesto,
                     Puesto = p.nom_puesto != null ? p.nom_puesto : "",

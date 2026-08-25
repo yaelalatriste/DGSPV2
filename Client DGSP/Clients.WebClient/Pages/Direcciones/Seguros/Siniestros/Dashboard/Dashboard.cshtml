@@ -4,7 +4,6 @@
     ViewData["Title"] = "Dashboard Continuidades SGMM";
     ViewData["Titulo"] = "Dashboard Continuidades SGMM";
 }
-
 <section class="content">
     <div class="container-fluid">
 
@@ -86,7 +85,7 @@
 
                     <div class="col-md-2 d-flex align-items-end">
                         <div class="form-group w-100">
-                            <button id="btnExportarPdf" type="button" class="btn btn-danger btn-block" title="Para ocultar URL, fecha y hora del navegador, desactiva “Encabezados y pies de página” al guardar como PDF.">
+                            <button id="btnExportarPdf" type="button" class="btn btn-danger btn-block" title="Generar PDF institucional mediante RDLC">
                                 <i class="fas fa-file-pdf"></i> Exportar PDF
                             </button>
                         </div>
@@ -95,19 +94,62 @@
             </div>
         </div>
 
-        <!-- RESUMEN SUPERIOR -->
-        <div class="row mb-2" id="contenedorResumen">
+        <!-- FORMULARIO OCULTO PARA EXPORTACIÓN RDLC -->
+        <form id="formExportarRdlc" method="post" asp-page-handler="ExportarPdf" target="_blank" class="d-none">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="rdlcDashboardJson" name="dashboardJson" />
+            <input type="hidden" id="rdlcPeriodo" name="periodo" />
+            <input type="hidden" id="rdlcTipoPersonal" name="tipoPersonal" />
+            <input type="hidden" id="rdlcGraficaEstatus" name="graficaEstatusBase64" />
+        </form>
+
+        <div class="row">
+            <div class="col-lg col-md-4 col-6"
+                 data-total-id="total">
+                <div class="small-box">
+                    <div class="inner">
+                        <h4 id="totalContinuidades"></h4>
+                        <p>Total</p>
+                    </div>
+
+                    <div class="icon">
+                        <i class="fa-solid fa-sigma"></i>
+                    </div>
+                </div>
+            </div>
             @foreach (var item in Model.Estatus)
             {
                 var id = "total" + item.Abreviacion;
-                <div class="col-lg col-md-4 col-6 mb-3 dashboard-estatus" data-total-id="@id">
-                    <div class="dashboard-resumen-card">
-                        <div class="titulo">@item.Nombre</div>
-                        <div class="valor" id="@id">0</div>
-                        <div class="porcentaje" id="porcentaje@(item.Abreviacion)">Mes seleccionado</div>
+
+                <div class="col-lg col-md-4 col-6 dashboard-estatus"
+                     data-total-id="@id">
+                    <div class="small-box @Html.Raw(item.Fondo)">
+                        <div class="inner">
+                            <h4 id="@id"></h4>
+                            <p>@Html.Raw(item.Icono) @item.Nombre</p>
+                        </div>
+
+                        <div class="icon">
+                            @Html.Raw(item.Icono)
+                        </div>
                     </div>
                 </div>
             }
+        </div>
+
+
+        <!-- TABLA -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h3 class="card-title">Detalle semanal</h3>
+            </div>
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover table-bordered text-nowrap mb-0 tabla-dashboard">
+                    <thead id="tablaSemanasHead"></thead>
+                    <tbody id="tablaSemanas"></tbody>
+                    <tfoot id="tablaSemanasFoot"></tfoot>
+                </table>
+            </div>
         </div>
 
         <!-- COMPORTAMIENTO SEMANAL -->
@@ -149,20 +191,6 @@
             </div>
         </div>
 
-        <!-- TABLA -->
-        <div class="card mt-3">
-            <div class="card-header">
-                <h3 class="card-title">Detalle semanal</h3>
-            </div>
-            <div class="card-body table-responsive p-0">
-                <table class="table table-hover table-bordered text-nowrap mb-0 tabla-dashboard">
-                    <thead id="tablaSemanasHead"></thead>
-                    <tbody id="tablaSemanas"></tbody>
-                    <tfoot id="tablaSemanasFoot"></tfoot>
-                </table>
-            </div>
-        </div>
-
         <div class="pdf-header" style="border-bottom:0; border-top:1px solid #adb5bd; margin-top:8px; padding-top:5px; padding-bottom:0;">
             <div class="pdf-subtitle">Dirección General de Servicios al Personal · Información para fines institucionales</div>
         </div>
@@ -173,7 +201,6 @@
     .dashboard-resumen-card {
         border-radius: 12px;
         border: 1px solid #dee2e6;
-        background: #fff;
         padding: 15px;
         height: 100%;
         box-shadow: 0 2px 6px rgba(0,0,0,.05);
@@ -182,20 +209,18 @@
         .dashboard-resumen-card .titulo {
             font-size: 13px;
             font-weight: 600;
-            color: #6c757d;
             margin-bottom: 4px;
         }
 
         .dashboard-resumen-card .valor {
             font-size: 25px;
             font-weight: 700;
-            color: #212529;
             line-height: 1;
         }
 
         .dashboard-resumen-card .porcentaje {
             font-size: 12px;
-            color: #6c757d;
+            color: #fff;
             margin-top: 7px;
         }
 
@@ -272,7 +297,7 @@
         }
 
     /* Relleno propio del dashboard. No utiliza .progress-bar de Bootstrap/AdminLTE,
-                   para evitar que el tema institucional sobrescriba el color. */
+                           para evitar que el tema institucional sobrescriba el color. */
     .dashboard-fill {
         display: block;
         height: 100%;
@@ -282,7 +307,7 @@
     }
 
     /* Colores aplicados únicamente al comportamiento semanal y mensual.
-                   Se usa !important para evitar que AdminLTE/Bootstrap sobrescriban el fondo. */
+                           Se usa !important para evitar que AdminLTE/Bootstrap sobrescriban el fondo. */
     #contenedorSemanas .barra-op {
         background: #007bff !important;
     }
@@ -578,6 +603,7 @@
         let chartSemanas = null;
         let chartEstatus = null;
         let chartComparativo = null;
+        let ultimoDashboardData = null;
 
         /*
          * Plugin compatible con Chart.js 2.x.
@@ -585,9 +611,8 @@
          */
         Chart.plugins.register({
             afterDatasetsDraw: function (chart) {
-
                 const config = chart.options.porcentajeLabels;
-
+                
                 if (!config || !config.enabled)
                     return;
 
@@ -628,8 +653,11 @@
 
                             ctx.fillStyle = '#343a40';
 
+                            const etiquetaBarra =
+                                `${valor.toLocaleString('es-MX')} ${valor === 1 ? 'continuidad' : 'continuidades'} (${porcentaje.toFixed(1)}%)`;
+
                             ctx.fillText(
-                                `${porcentaje.toFixed(1)}%`,
+                                etiquetaBarra,
                                 posicion.x,
                                 posicion.y - 10
                             );
@@ -667,6 +695,13 @@
                             return;
 
                         const porcentaje = (valor / total) * 100;
+
+                        // Evita que los porcentajes de segmentos pequeños se amontonen.
+                        // Todos los valores siguen disponibles en la leyenda y en el tooltip.
+                        const minimoVisible = valores.length > 5 ? 7 : 4;
+                        if (porcentaje < minimoVisible)
+                            return;
+
                         const modelo = segmento._model;
 
                         if (!modelo)
@@ -685,6 +720,7 @@
                             modelo.y + Math.sin(angulo) * radio;
 
                         ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 9px Arial';
 
                         ctx.fillText(
                             `${porcentaje.toFixed(1)}%`,
@@ -698,148 +734,144 @@
             }
         });
 
+        
         document.addEventListener('DOMContentLoaded', function () {
-
-            document
-                .getElementById('btnConsultar')
-                .addEventListener('click', cargarDashboard);
-
-            document
-                .getElementById('btnExportarPdf')
-                .addEventListener('click', exportarPdf);
-
+            document.getElementById('btnConsultar').addEventListener('click', cargarDashboard);
+            document.getElementById('btnExportarPdf').addEventListener('click', exportarPdf);
             cargarDashboard();
         });
-
+        
+        
         function exportarPdf() {
-
-            const boton = document.getElementById('btnExportarPdf');
-            const anioSelect = document.getElementById('filtroAnio');
-            const mesSelect = document.getElementById('filtroMes');
-            const tipoSelect = document.getElementById('filtroTipo');
-
-            const anio = anioSelect.value;
-            const mes = mesSelect.options[mesSelect.selectedIndex]?.text || '';
-            const tipo = tipoSelect.options[tipoSelect.selectedIndex]?.text || 'Todos';
-
-            document.getElementById('pdfPeriodo').textContent =
-                `Periodo: ${mes} ${anio} · Tipo de personal: ${tipo}`;
-
-            // Asegura que Chart.js termine de dibujar antes de abrir el diálogo.
-            if (chartEstatus) {
-                chartEstatus.stop();
-                chartEstatus.resize();
-                chartEstatus.update(0);
+            if (!ultimoDashboardData) {
+                if (window.toastr) {
+                    toastr.warning('Primero consulta la información del dashboard.','Dashboard SGMM');
+                } else {
+                    alert('Primero consulta la información del dashboard.');
+                }
+                return;
             }
-
+            
+            const boton = document.getElementById('btnExportarPdf');
+            const mesSelect = document.getElementById('filtroMes');
+            const anio = document.getElementById('filtroAnio').value;
+            const mes = mesSelect.options[mesSelect.selectedIndex]?.text || '';
+            const tipoSelect = document.getElementById('filtroTipo');
+            const tipo = tipoSelect.options[tipoSelect.selectedIndex]?.text || 'Todos';
+            const formulario = document.getElementById('formExportarRdlc');
             const textoOriginal = boton.innerHTML;
-            boton.disabled = true;
-            boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparando PDF...';
+            try {
+                boton.disabled = true;
+                boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando PDF...';
 
-            // El navegador mostrará el diálogo de impresión. En Chrome/Edge
-            // seleccionar "Guardar como PDF". No requiere librerías externas.
-            window.setTimeout(function () {
-                window.print();
+                if (chartEstatus) {
+                    chartEstatus.stop();
+                    chartEstatus.update(0);
+                }
+                
+                document.getElementById('rdlcDashboardJson').value = JSON.stringify(ultimoDashboardData);
+                document.getElementById('rdlcPeriodo').value = ultimoDashboardData.periodo || `${mes} ${anio}`;
+                document.getElementById('rdlcTipoPersonal').value = tipo;
+                document.getElementById('rdlcGraficaEstatus').value = chartEstatus ? chartEstatus.toBase64Image() : '';
 
-                boton.disabled = false;
-                boton.innerHTML = textoOriginal;
-            }, 250);
+                /*
+                 * Garantizamos que el resultado del POST
+                 * se abra en otra pestaña.
+                 */
+                formulario.target = '_blank';
+                formulario.submit();
+            } catch (error) {
+                console.error('Error al generar PDF:',error);
+                if (window.toastr) {
+
+                    toastr.error('No fue posible generar el reporte.','Dashboard SGMM');
+                }
+                else {
+                    alert('No fue posible generar el reporte.');
+                }
+            }
+            finally {
+
+                window.setTimeout(
+                    function () {
+                        boton.disabled = false;
+                        boton.innerHTML = textoOriginal;
+                    }, 700
+                );
+            }
         }
-
+        
         async function cargarDashboard() {
-
-            const anio =
-                document.getElementById('filtroAnio').value;
-
-            const mes =
-                document.getElementById('filtroMes').value;
-
-            const tipo =
-                document.getElementById('filtroTipo').value;
-
-            const boton =
-                document.getElementById('btnConsultar');
+            const anio = document.getElementById('filtroAnio').value;
+            const mes = document.getElementById('filtroMes').value;
+            const tipo = document.getElementById('filtroTipo').value;
+            const boton = document.getElementById('btnConsultar');
 
             try {
 
                 boton.disabled = true;
-                boton.innerHTML =
-                    '<i class="fas fa-spinner fa-spin"></i> Consultando...';
+                boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Consultando...';
 
-                const parametros =
-                    new URLSearchParams({
-                        handler: 'Datos',
-                        anio: anio,
-                        mes: mes
-                    });
-
+                const parametros = new URLSearchParams({
+                    handler: 'Datos',
+                    anio: anio,
+                    mes: mes
+                });
+                
                 if (tipo)
                     parametros.append('tipoPersonal', tipo);
 
-                const response =
-                    await fetch(
-                        `${window.location.pathname}?${parametros.toString()}`,
-                        {
-                            method: 'GET',
-                            headers: {
-                                'Accept': 'application/json'
-                            }
+                const response = await fetch(
+                    `${window.location.pathname}?${parametros.toString()}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
                         }
-                    );
-
+                    }
+                );
+                
                 if (!response.ok) {
 
-                    let mensaje =
-                        'No fue posible obtener la información.';
-
+                    let mensaje = 'No fue posible obtener la información.';
                     try {
                         const error = await response.json();
 
-                        mensaje =
-                            error.detalle ||
-                            error.mensaje ||
-                            mensaje;
+                        mensaje = error.detalle || error.mensaje || mensaje;
 
-                        console.error(
-                            'Error Dashboard:',
-                            error
-                        );
+                        console.error('Error Dashboard:',error);
                     }
                     catch {
                         // Se conserva el mensaje genérico.
                     }
-
                     throw new Error(mensaje);
                 }
 
-                const data =
-                    await response.json();
-
+                const data = await response.json();
                 actualizarDashboard(data);
             }
             catch (error) {
 
                 console.error(error);
 
-                if (window.toastr) {
-                    toastr.error(
-                        error.message,
-                        'Dashboard SGMM'
-                    );
+                if (window.toastr) 
+                {
+                    toastr.error(error.message,'Dashboard SGMM');
                 }
-                else {
+                else 
+                {
                     alert(error.message);
                 }
             }
             finally {
-
                 boton.disabled = false;
-                boton.innerHTML =
-                    '<i class="fas fa-search"></i> Consultar';
+                boton.innerHTML = '<i class="fas fa-search"></i> Consultar';
             }
         }
 
         function actualizarDashboard(data) {
+
+            ultimoDashboardData = data;
 
             document.getElementById('periodoTitulo').textContent = data.periodo || '';
             document.getElementById('periodoSemanal').textContent = data.periodo || '';
@@ -851,47 +883,39 @@
             construirGraficaEstatus(data.estatus || []);
             construirTabla(data.semanas || []);
         }
-
+        
         function actualizarEstatus(estatus) {
-
             // Primero ocultamos todas las cards para evitar que
             // queden visibles datos de una consulta anterior.
-            document
-                .querySelectorAll('.dashboard-estatus')
-                .forEach(card => {
-                    card.style.display = 'none';
-                });
-
+            document.querySelectorAll('.dashboard-estatus').forEach(card => {
+                card.style.display = 'none';
+            });
+            
+            var totalEstatus = 0;
+            
             estatus.forEach(item => {
-
-                const id =
-                    `total${item.abreviacion}`;
-
-                const elemento =
-                    document.getElementById(id);
+                const id = `total${item.abreviacion}`;
+                const elemento = document.getElementById(id);
 
                 if (!elemento)
                     return;
 
-                const total =
-                    Number(item.total) || 0;
+                const total = Number(item.total) || 0;
+                
+                totalEstatus += total;
+                
+                elemento.textContent = total;
 
-                elemento.textContent =
-                    total;
-
-                const card =
-                    elemento.closest(
-                        '.dashboard-estatus'
-                    );
+                const card = elemento.closest('.dashboard-estatus');
 
                 if (card) {
-                    card.style.display =
-                        total > 0 ? '' : 'none';
+                    card.style.display = total > 0 ? '' : 'none';
                 }
             });
+            document.getElementById('totalContinuidades').textContent = totalEstatus;
         }
-
-        function actualizarPorcentajesCards(estatus) {
+       
+       function actualizarPorcentajesCards(estatus) {
 
             const visibles = estatus.filter(item => (Number(item.total) || 0) > 0);
 
@@ -956,7 +980,7 @@
                         <div class="personal-row">
                             <div class="personal-info">
                                 <span>Operativo</span>
-                                <strong>${operativo.toLocaleString('es-MX')} <span class="text-muted">(${porcentajeOP.toFixed(1)}%)</span></strong>
+                                <strong>${operativo.toLocaleString('es-MX')} ${operativo === 1 ? 'continuidad' : 'continuidades'} <span class="text-muted">(${porcentajeOP.toFixed(1)}%)</span></strong>
                             </div>
                             <div class="progress-dashboard">
                                 <div class="dashboard-fill barra-op"
@@ -971,7 +995,7 @@
                         <div class="personal-row">
                             <div class="personal-info">
                                 <span>Mando medio</span>
-                                <strong>${mandoMedio.toLocaleString('es-MX')} <span class="text-muted">(${porcentajeMM.toFixed(1)}%)</span></strong>
+                                <strong>${mandoMedio.toLocaleString('es-MX')} ${mandoMedio === 1 ? 'continuidad' : 'continuidades'} <span class="text-muted">(${porcentajeMM.toFixed(1)}%)</span></strong>
                             </div>
                             <div class="progress-dashboard">
                                 <div class="dashboard-fill barra-mm"
@@ -986,7 +1010,7 @@
                         <div class="personal-row">
                             <div class="personal-info">
                                 <span>Mando superior</span>
-                                <strong>${mandoSuperior.toLocaleString('es-MX')} <span class="text-muted">(${porcentajeMS.toFixed(1)}%)</span></strong>
+                                <strong>${mandoSuperior.toLocaleString('es-MX')} ${mandoSuperior === 1 ? 'continuidad' : 'continuidades'} <span class="text-muted">(${porcentajeMS.toFixed(1)}%)</span></strong>
                             </div>
                             <div class="progress-dashboard">
                                 <div class="dashboard-fill barra-ms"
@@ -1055,11 +1079,11 @@
                 const desglose = [];
 
                 if (op > 0)
-                    desglose.push(`Operativo ${op.toLocaleString('es-MX')} (${porcentajeOP.toFixed(1)}%)`);
+                    desglose.push(`Operativo ${op.toLocaleString('es-MX')} ${op === 1 ? 'continuidad' : 'continuidades'} (${porcentajeOP.toFixed(1)}%)`);
                 if (mm > 0)
-                    desglose.push(`Mando medio ${mm.toLocaleString('es-MX')} (${porcentajeMM.toFixed(1)}%)`);
+                    desglose.push(`Mando medio ${mm.toLocaleString('es-MX')} ${mm === 1 ? 'continuidad' : 'continuidades'} (${porcentajeMM.toFixed(1)}%)`);
                 if (ms > 0)
-                    desglose.push(`Mando superior ${ms.toLocaleString('es-MX')} (${porcentajeMS.toFixed(1)}%)`);
+                    desglose.push(`Mando superior ${ms.toLocaleString('es-MX')} ${ms === 1 ? 'continuidad' : 'continuidades'} (${porcentajeMS.toFixed(1)}%)`);
 
                 const nombreEstatus = (item.nombre || '').toLowerCase();
                 const abreviacion = (item.abreviacion || '').toUpperCase();
@@ -1093,7 +1117,7 @@
                         <div class="estatus-resumen-header">
                             <strong>${item.nombre}</strong>
                             <span class="estatus-resumen-total">
-                                ${total.toLocaleString('es-MX')}
+                                ${total.toLocaleString('es-MX')} ${total === 1 ? 'continuidad' : 'continuidades'}
                                 <span class="text-muted ml-1">(${porcentajeEstatus.toFixed(1)}%)</span>
                             </span>
                         </div>
@@ -1354,9 +1378,33 @@
                         },
 
                         legend: {
-                            position: 'bottom',
-                            display:
-                                datosValidos.length > 0
+                            position: 'right',
+                            display: datosValidos.length > 0,
+                            labels: {
+                                boxWidth: 11,
+                                padding: 10,
+                                fontSize: 10,
+                                generateLabels: function (chart) {
+                                    const ds = chart.data.datasets[0];
+                                    const total = ds.data.reduce(
+                                        (acumulado, valor) => acumulado + (Number(valor) || 0),
+                                        0
+                                    );
+
+                                    return chart.data.labels.map(function (label, index) {
+                                        const valor = Number(ds.data[index]) || 0;
+                                        const porcentaje = total > 0 ? (valor / total) * 100 : 0;
+                                        return {
+                                            text: `${label}: ${valor.toLocaleString('es-MX')} (${porcentaje.toFixed(1)}%)`,
+                                            fillStyle: ds.backgroundColor[index],
+                                            strokeStyle: '#ffffff',
+                                            lineWidth: 1,
+                                            hidden: false,
+                                            index: index
+                                        };
+                                    });
+                                }
+                            }
                         },
 
                         tooltips: {
